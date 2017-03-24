@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Heatmap</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="Access-Control-Allow-Origin" content="*">
+        <meta http-equiv="Access-Control-Allow-Method" content="*">
+        <link rel="stylesheet" href="./css/main.css" />
+        <script type="text/javascript" src="./vender/jquery.min.js"></script>
+        <script type="text/javascript" src="./js/main.js"></script>
+    </head>
+    <body>
+        <nav>
+            <div class="left-buttons">
+                <a href="#" onclick="callHeatmap()" z-lang="langMainNavLinkHeatmap">Heat map</a>              
+            </div>
+            <div class="right-buttons">
+                <a href="#" onclick="callConfig()" z-lang="langMainNavLinkConfigration">Configuration</a>
+                <!--a href="#" onclick="callLocales('en')" z-lang="langMainNavLinkLocales">Locales</a-->
+                <ul id="index-language" onclick="showLanguageChose()">
+                    <label z-lang="langMainNavLinkLocales">Locales</label>
+                    <li><a onclick="changeLocales('en', event)">English</a></li>
+                    <li><a onclick="changeLocales('zh', event)">简体中文</a></li>
+                </ul>
+            </div>
+        </nav>
+        <div class="common-message" id="common-message"></div>
+        <div id="main-content"></div>
+        <footer>
+            &copy;Copy right
+        </footer>
+    </body>
+</html>
