@@ -1,8 +1,8 @@
 # Reference
  - nwjs
  - node-serialport
- - heatmap.js
- - bootstrap
+ - heatmap
+ - bootstrap
  - fontawsome
 
 # Needs
