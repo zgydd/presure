@@ -1,5 +1,7 @@
 # Reference
-nwjs-v0.21.2-win-x64
+nwjs
+node-serialport
+heatmap.js
 
 # Needs
-Rebuild serialport 
+Rebuild serialport in different environment
