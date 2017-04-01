@@ -5,5 +5,9 @@ node-serialport
 
 heatmap.js
 
+bootstrap
+
+fontawsome
+
 # Needs
-Rebuild serialport in different environment
+Rebuild node-serialport in different environment
