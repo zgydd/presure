@@ -1,45 +1,43 @@
-<div id="config-content" class="inside-page">
+<div id="config-content" class="container">
     <script type="text/javascript" src="./js/config.js"></script>
     <div class="item-group">
-        <label z-lang="langConfigLabPort">Port: </label>
-        <!--input type="text" id="config_inputPort"/-->
-        <select id="config_selectPort"></select>
-    </div>
-
-    <div class="item-group">
-        <label z-lang="langConfigLabProduction">Production: </label>
-        <select id="config-selectProduction">
+        <label z-lang="langConfigLabProduction" for="config-selectProduction">Production: </label>
+        <select id="config-selectProduction" class="form-control">
         	<option value="1" z-lang="langConfigSelCushion">Cushion</option>
         	<option value="2" z-lang="langConfigSelSheet">Sheet</option>
         </select>
-       	<label id="config-labProductionDesc"></label>
+       	<span id="config-labProductionDesc"></span>
+    </div> 
+    <div class="item-group">
+        <label z-lang="langConfigLabPort" for="config-selectPort">Port: </label>
+        <select class="form-control" id="config-selectPort"></select>
     </div>
 
-    <div class="button-group">
+    <div class="control-group">
 	    <a href="#" id="config-aAdvanceCfg" z-lang="langConfigAAdvanceCfg">Advance config</a>
     </div>
 
     <div id="config-advanceConfigFrame">
 	    <div class="item-group">
-	        <label z-lang="langConfigLabBaudRate">Baud rate: </label>
-	        <input type="text" id="config-inputBaudRate" maxlength="8" />
+	        <label z-lang="langConfigLabBaudRate" for="config-inputBaudRate">Baud rate: </label>
+	        <input type="text" id="config-inputBaudRate" maxlength="8" class="form-control" />
 	    </div>
 	    <br/>
 	    <div class="item-group">
-	        <label z-lang="langConfigLabRadius">Radius: </label>
-	        <input class="number-input" type="text" id="config-inputRadius" maxlength="3" />
+	        <label z-lang="langConfigLabRadius" for="config-inputRadius">Radius: </label>
+	        <input class="form-control number-input" type="text" id="config-inputRadius" maxlength="3" />
 	    </div>
 	    <br/>
 	    <div class="item-group">
-	        <label z-lang="langConfigLabFlushRange">Flush range: </label>
-	        <input class="number-input" type="text" id="config-inputFlushRange" maxlength="3" />
+	        <label z-lang="langConfigLabFlushRange" for="config-inputFlushRange">Flush range: </label>
+	        <input class="form-control number-input" type="text" id="config-inputFlushRange" maxlength="3" />
 	    </div> 
 	    <br/>
 	    <div class="item-group">
 	        <label z-lang="langConfigLabNoiseLimit">Noise limit: </label>
-	        <input class="number-input" type="text" id="config-inputMinNoise" maxlength="3" />
+	        <input class="form-control number-input" type="text" id="config-inputMinNoise" maxlength="3" />
 	        <label class="page-mark">~</label>
-	        <input class="number-input" type="text" id="config-inputMaxNoise" maxlength="5" />
+	        <input class="form-control number-input" type="text" id="config-inputMaxNoise" maxlength="5" />
 	    </div>
     </div>
 </div>

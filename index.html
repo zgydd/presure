@@ -1,34 +1,109 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Heatmap</title>
+        <title>Presure Monitor</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="Access-Control-Allow-Origin" content="*">
         <meta http-equiv="Access-Control-Allow-Method" content="*">
+        <link rel="stylesheet" href="./vender/bootstrap-3.3.7/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="./vender/font-awesome-3.2.1/css/font-awesome.min.css" />
+        <link rel="stylesheet" href="./vender/countdown/jquery.countdown.css" />
+        <link rel="stylesheet" href="./vender/css3-shine-switch-button.css" />
+        <link rel="stylesheet" href="./vender/multi-flip/css/style.css" />
         <link rel="stylesheet" href="./css/main.css" />
-        <script type="text/javascript" src="./vender/jquery.min.js"></script>
-        <script type="text/javascript" src="./js/main.js"></script>
+        <script type="text/javascript" src="./vender/modernizr.custom.29473.js"></script>
     </head>
     <body>
-        <nav>
-            <div class="left-buttons">
-                <a href="#" onclick="callHeatmap()" z-lang="langMainNavLinkHeatmap">Heat map</a>              
+        <header>
+            <nav role="navigation" class="navbar navbar-inverse">
+              <div class="container-fluid">
+                <div class="navbar-header">
+                  <!--button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                  </button>
+                  <img src="./asset/Meddo.png" style="width: 100px;height: 55px;" /-->
+                  <a class="navbar-brand" href="#" onclick="callHome()">
+                    <i class="icon-flag" style="color: red;"></i>
+                    <strong z-lang="langMainNavLogo">Meddo</strong>
+                  </a>
+                </div>
+                <div class="collapse navbar-collapse">
+                    <ul class="nav navbar-nav">
+                        <li>
+                            <a href="#" onclick="callHeatmap()">
+                                <i class="icon-h-sign"></i>
+                                <span z-lang="langMainNavLinkHeatmap">Heat map</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" onclick="callScale()">
+                                <i class="icon-stethoscope"></i>
+                                <span z-lang="langMainNavLinkScale">Scale</span>
+                            </a>
+                        </li>
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li class="switch">
+                            <input type="checkbox" id="main-alert-toggle" name="alerttoggle">
+                            <label for="alerttoggle"><i></i></label>
+                            <span></span>
+                        </li>
+                        <li>
+                            <a href="#" onclick="callConfig()">
+                                <i class="icon-cog"></i><span z-lang="langMainNavLinkConfigration">Configuration</span>
+                            </a>
+                        </li>
+                        <li class="dropdown">
+                          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                            <i class="icon-globe"></i><span z-lang="langMainNavLinkLocales">Locales</span>&nbsp;
+                          </a>
+                          <ul class="dropdown-menu">
+                            <li><a onclick="changeLocales('en')">English</a></li>
+                            <li><a onclick="changeLocales('zh')">简体中文</a></li>
+                          </ul>
+                        </li>
+                    </ul>
+                </div><!-- /.navbar-collapse -->
+              </div><!-- /.container-fluid -->
+            </nav>            
+        </header>
+        <div class="common-message alert" id="common-message"></div>
+        <main id="main-content"></main>
+
+        <article class="modal fade" id="main-modal-scale" tabindex="-1" role="dialog" aria-labelledby="modal-scale-title">
+          <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>                
+                <h4 class="modal-title" id="modal-scale-title" z-lang="langMainModalScaleTitle">Modal title</h4>
+              </div>
+              <div class="modal-body"></div>
+              <div class="modal-footer">
+                <label z-lang="langMainModalScaleLabScale">Scale:</label>
+                <span id="modal-scale-count">--</span>
+                <label z-lang="langMainModalScaleLabTime">Times:</label>
+                <span id="modal-scale-time">---</span>
+                <label z-lang="langMainModalScaleLabTimeUnit">m</label>
+                <button type="button" class="btn btn-default" data-dismiss="modal" z-lang="langMainModalScaleClose">Close</button>
+                <button type="button" class="btn btn-primary" z-lang="langMainModalScaleSubmit" id="main-modal-submit">Save changes</button>
+              </div>
             </div>
-            <div class="right-buttons">
-                <a href="#" onclick="callConfig()" z-lang="langMainNavLinkConfigration">Configuration</a>
-                <!--a href="#" onclick="callLocales('en')" z-lang="langMainNavLinkLocales">Locales</a-->
-                <ul id="index-language" onclick="showLanguageChose()">
-                    <label z-lang="langMainNavLinkLocales">Locales</label>
-                    <li><a onclick="changeLocales('en', event)">English</a></li>
-                    <li><a onclick="changeLocales('zh', event)">简体中文</a></li>
-                </ul>
-            </div>
-        </nav>
-        <div class="common-message" id="common-message"></div>
-        <div id="main-content"></div>
+          </div>
+        </article>
+
+        <article id="countdown"></article>
+
         <footer>
-            &copy;Copy right
+            <small>&copy;Copy right 2017</small>
         </footer>
+
+        <script type="text/javascript" src="./vender/jquery.min.js"></script>
+        <script type="text/javascript" src="./vender/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+        <script src="./vender/countdown/jquery.countdown.js"></script>
+        <script type="text/javascript" src="./js/main.js"></script>
     </body>
 </html>

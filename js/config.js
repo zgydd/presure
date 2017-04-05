@@ -1,7 +1,6 @@
 'use strict';
 $(document).ready(function() {
 	callLocales(_statData.defaultLanguage);
-	hideLanguageChose();
 	if (commConfig) {
 		if (commConfig.hasOwnProperty('port')) $('#config_inputPort').val(commConfig.port);
 		if (commConfig.hasOwnProperty('baudRange')) $('#config-inputBaudRate').val(commConfig.baudRange);
@@ -26,7 +25,7 @@ $(document).ready(function() {
 			$('#config-labProductionDesc').html(commConfig.productionSize.width + '*' + commConfig.productionSize.height);
 		}
 
-		$('#config_selectPort').empty();
+		$('#config-selectPort').empty();
 		//Prot list
 		if (commConfig.hasOwnProperty('portList') && commConfig.portList.length > 0) {
 			for (var i = 0; i < commConfig.portList.length; i++) {
@@ -35,18 +34,18 @@ $(document).ready(function() {
 					strOption += ' selected';
 				}
 				strOption += ' >' + commConfig.portList[i].comName + '</option>';
-				$('#config_selectPort').append(strOption);
+				$('#config-selectPort').append(strOption);
 			}
 		} else {
-			$('#config_selectPort').prepend("<option value='0' z-lang='langConfigOptNoPort'>" +
+			$('#config-selectPort').prepend("<option value='0' z-lang='langConfigOptNoPort'>" +
 				_getLocalesValue('langConfigOptNoPort', 'No port') + "</option>");
 		}
 	}
 	$('#config-advanceConfigFrame').hide();
 });
 
-$('#config_selectPort').on('change', function() {
-	commConfig.port = $('#config_selectPort').val().trim();
+$('#config-selectPort').on('change', function() {
+	commConfig.port = $('#config-selectPort').val().trim();
 	resetSerialPort();
 	_showMessage('ok', _getLocalesValue('langConfigMsgPortSetted', 'Serial port setted'));
 });
@@ -84,11 +83,12 @@ $('#config-inputBaudRate').on('blur', function() {
 	if (_chkEqual(commConfig.baudRange, $('#config-inputBaudRate').val())) return;
 	if (!/^\d{1,8}$/.test($('#config-inputBaudRate').val().trim())) {
 		_showMessage('warn', _getLocalesValue('langConfigWrnBaudRate', 'Illegal baud rate'));
-		$('#config-inputBaudRate').parent().addClass('common-base-warn');
+		$('#config-inputBaudRate').parent().addClass('alert-danger');
 		$('#config-inputBaudRate').val(commConfig.baudRange);
+		$('#config-inputBaudRate').focus();
 		setTimeout(function() {
-			$('#config-inputBaudRate').parent().removeClass('common-base-warn');
-		}, 800);
+			$('#config-inputBaudRate').parent().removeClass('alert-danger');
+		}, 666);
 		return;
 	}
 	commConfig.baudRange = _toInt($('#config-inputBaudRate').val());
@@ -99,11 +99,12 @@ $('#config-inputRadius').on('blur', function() {
 	if (_chkEqual(commConfig.radius, $('#config-inputRadius').val())) return;
 	if (!/^\d{1,3}$/.test($('#config-inputRadius').val().trim())) {
 		_showMessage('warn', _getLocalesValue('langConfigWrnRadius', 'Illegal radius'));
-		$('#config-inputRadius').parent().addClass('common-base-warn');
+		$('#config-inputRadius').parent().addClass('alert-danger');
 		$('#config-inputRadius').val(commConfig.radius);
+		$('#config-inputRadius').focus();
 		setTimeout(function() {
-			$('#config-inputRadius').parent().removeClass('common-base-warn');
-		}, 800);
+			$('#config-inputRadius').parent().removeClass('alert-danger');
+		}, 666);
 		return;
 	}
 	commConfig.radius = _toInt($('#config-inputRadius').val());
@@ -113,11 +114,12 @@ $('#config-inputFlushRange').on('blur', function() {
 	if (_chkEqual(commConfig.flushRange, $('#config-inputFlushRange').val())) return;
 	if (!/^\d{1,3}$/.test($('#config-inputFlushRange').val().trim())) {
 		_showMessage('warn', _getLocalesValue('langConfigWrnFlushRange', 'Illegal flush range'));
-		$('#config-inputFlushRange').parent().addClass('common-base-warn');
+		$('#config-inputFlushRange').parent().addClass('alert-danger');
 		$('#config-inputFlushRange').val(commConfig.flushRange);
+		$('#config-inputFlushRange').focus();
 		setTimeout(function() {
-			$('#config-inputFlushRange').parent().removeClass('common-base-warn');
-		}, 800);
+			$('#config-inputFlushRange').parent().removeClass('alert-danger');
+		}, 666);
 		return;
 	}
 	commConfig.flushRange = _toInt($('#config-inputFlushRange').val());
@@ -127,21 +129,23 @@ $('#config-inputMinNoise').on('blur', function() {
 	if (_chkEqual(commConfig.noiseLimit.min, $('#config-inputMinNoise').val())) return;
 	if (!/^\d{1,3}$/.test($('#config-inputMinNoise').val().trim())) {
 		_showMessage('warn', _getLocalesValue('langConfigWrnMinNoise', 'Illegal min noise'));
-		$('#config-inputMinNoise').parent().addClass('common-base-warn');
+		$('#config-inputMinNoise').parent().addClass('alert-danger');
 		$('#config-inputMinNoise').val(commConfig.noiseLimit.min);
+		$('#config-inputMinNoise').focus();
 		setTimeout(function() {
-			$('#config-inputMinNoise').parent().removeClass('common-base-warn');
-		}, 800);
+			$('#config-inputMinNoise').parent().removeClass('alert-danger');
+		}, 666);
 		return;
 	}
 	var minData = _toInt($('#config-inputMinNoise').val());
 	if (minData >= _toInt($('#config-inputMaxNoise').val())) {
 		_showMessage('warn', _getLocalesValue('langConfigWrnMinNoiseLogical', 'Min noise is grater than max'));
-		$('#config-inputMinNoise').parent().addClass('common-base-warn');
+		$('#config-inputMinNoise').parent().addClass('alert-danger');
 		$('#config-inputMinNoise').val(commConfig.noiseLimit.min);
+		$('#config-inputMinNoise').focus();
 		setTimeout(function() {
-			$('#config-inputMinNoise').parent().removeClass('common-base-warn');
-		}, 800);
+			$('#config-inputMinNoise').parent().removeClass('alert-danger');
+		}, 666);
 		return;
 	}
 	commConfig.noiseLimit.min = minData;
@@ -151,21 +155,23 @@ $('#config-inputMaxNoise').on('blur', function() {
 	if (_chkEqual(commConfig.noiseLimit.max, $('#config-inputMaxNoise').val())) return;
 	if (!/^\d{1,5}$/.test($('#config-inputMaxNoise').val().trim())) {
 		_showMessage('warn', _getLocalesValue('langConfigWrnMaxNoise', 'Illegal max noise'));
-		$('#config-inputMaxNoise').parent().addClass('common-base-warn');
+		$('#config-inputMaxNoise').parent().addClass('alert-danger');
 		$('#config-inputMaxNoise').val(commConfig.noiseLimit.max);
+		$('#config-inputMaxNoise').focus();
 		setTimeout(function() {
-			$('#config-inputMaxNoise').parent().removeClass('common-base-warn');
-		}, 800);
+			$('#config-inputMaxNoise').parent().removeClass('alert-danger');
+		}, 666);
 		return;
 	}
 	var maxData = _toInt($('#config-inputMaxNoise').val());
 	if (maxData <= _toInt($('#config-inputMinNoise').val())) {
 		_showMessage('warn', _getLocalesValue('langConfigWrnMaxNoiseLogical', 'Max noise is less than min'));
-		$('#config-inputMaxNoise').parent().addClass('common-base-warn');
+		$('#config-inputMaxNoise').parent().addClass('alert-danger');
 		$('#config-inputMaxNoise').val(commConfig.noiseLimit.max);
+		$('#config-inputMaxNoise').focus();
 		setTimeout(function() {
-			$('#config-inputMaxNoise').parent().removeClass('common-base-warn');
-		}, 800);
+			$('#config-inputMaxNoise').parent().removeClass('alert-danger');
+		}, 666);
 		return;
 	}
 	commConfig.noiseLimit.max = maxData;

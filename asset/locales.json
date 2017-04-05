@@ -1,6 +1,15 @@
 {
 	"en": {
+		"langMainNavLogo": "Logo",
 		"langMainNavLinkHeatmap": "Heat map",
+		"langMainNavLinkScale": "Scale",
+		"langMainModalScaleTitle": "Scale table",
+		"langMainModalScaleLabScale": "Scale:",
+		"langMainModalScaleLabTime": "Times:",
+		"langMainModalScaleLabTimeUnit": "m",
+		"langMainModalScaleClose": "Cancel",
+		"langMainModalScaleSubmit": "OK",
+		"langMainMsgCountDownFinished": "Move move move",
 		"langMainNavLinkConfigration": "Configuration",
 		"langMainNavLinkLocales": "Locales",
 		"langConfigLabPort": "Port: ",
@@ -31,12 +40,24 @@
 		"langConfigMsgMaxNoise": "Max moise setted",
 		"langHeatmapLabPresureValue": "Max presure value: ",
 		"langHeatmapLabPresurePoint": "Max presure point: ",
-		"langHeatmapAOpenPort":"Open serial port",
-		"langHeatmapAClosePort":"Close serial port",
-		"langHeatmapACalibration":"Calibration"
+		"langHeatmapBtnOpenPort": "Connection",
+		"langHeatmapBtnClosePort": "Deconnection",
+		"langHeatmapBtnCalibration": "Calibration",
+		"langHeatmapHinfoTitle": "Heatmap info",
+		"langHeatmapLabRelativeMap":"Relative heat map",
+		"langHeatmapLabAbsolutelyMap":"Absolutely heat map"
 	},
 	"zh": {
+		"langMainNavLogo": "Logo",
 		"langMainNavLinkHeatmap": "压力图",
+		"langMainNavLinkScale": "评估",
+		"langMainModalScaleTitle": "评估表",
+		"langMainModalScaleLabScale": "评分：",
+		"langMainModalScaleLabTime": "预警时间：",
+		"langMainModalScaleLabTimeUnit": "分",
+		"langMainModalScaleClose": "取消",
+		"langMainModalScaleSubmit": "确定",
+		"langMainMsgCountDownFinished": "翻身啦去翻身",
 		"langMainNavLinkConfigration": "设定",
 		"langMainNavLinkLocales": "语言",
 		"langConfigLabPort": "选择串口：",
@@ -67,8 +88,11 @@
 		"langConfigMsgMaxNoise": "噪点最大值已设置",
 		"langHeatmapLabPresureValue": "最大压力值：",
 		"langHeatmapLabPresurePoint": "最大压力坐标：",
-		"langHeatmapAOpenPort":"打开串口",
-		"langHeatmapAClosePort":"关闭串口",
-		"langHeatmapACalibration":"校准"
+		"langHeatmapBtnOpenPort": "连接",
+		"langHeatmapBtnClosePort": "断开",
+		"langHeatmapBtnCalibration": "校准",
+		"langHeatmapHinfoTitle": "压力图信息",
+		"langHeatmapLabRelativeMap":"相对压力图",
+		"langHeatmapLabAbsolutelyMap":"绝对压力图"
 	}
 }

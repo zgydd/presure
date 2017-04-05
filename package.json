@@ -1,4 +1,13 @@
 {
-  "name": "Presure_Beta",
-  "main": "index.html"
+	"name": "Presure Monitor",
+	"main": "index.html",
+	"version": 0.01,
+	"window": {
+		"icon": "./asset/Meddo.png",
+		"position": "center",
+		"width": 1000,
+		"height": 900,
+		"min_width": 800,
+		"min_height": 850
+	}
 }

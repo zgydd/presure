@@ -1,173 +1,175 @@
 body {
-    font-family: sans-serif;
-    min-width: 300px;
+    font-family: Arial;
+    min-width: 666px;
+    overflow-y: hidden;
 }
-
-nav {
-    position: fixed;
-    z-index:999;
-    line-height: 43px;
-    width:100%; 
-    top: 2px;
-    right: 0;
-    left:0;
-    background-color: #5b5b5b;    
-    opacity: 0.8;
-    padding: 0 5px;
-    overflow: hidden;
+nav i {
+    margin-right: 0.3125em;
 }
-nav a {
-    color: #ddd;
-    display: inline-block;
-    width: 120px;
-    text-align: center;
-    top:0;
-    bottom: 0;
-}
-nav a:hover {
-    background-color: #2e2e2e;
-}
-nav .left-buttons {    
+.form-control {
     display: inline-block;
 }
-nav .right-buttons {
-    display: block;
-    margin-right: 125px;
-    float: right;
-}
-
-nav .right-buttons>ul {
+.dropdown-menu a {
     cursor: pointer;
-    display: inline-block;
-    position: fixed;
-    right: 20px;
-    top: 2px;
-    background-color: #5b5b5b; 
-    margin: 0;
-    padding-left: 25px;
-    width: 80px;
 }
-nav .right-buttons>ul>label{
-    color: #ddd;
-    display: inline-block;
-    width: 120px;
-    top:0;
-    bottom: 0;
-    text-decoration: underline;
-}
-nav .right-buttons>ul>li {
-    list-style-type: none;
-    width: 80px;
-}
-nav .right-buttons>ul>li>a {
-    text-align: center;
-    width: 105px;
-    margin-left: -25px;
-}
-
 footer {
     position: absolute;
     bottom: 0;
     right: 0;
     bottom: 0;
     left: 0;
-    height: 45px;
+    height: 2.8125em;
     background-color: #7d7d7d;
     text-align: right;
-    line-height: 45px;
-    padding: 0 10px;
-}
-
-.common-base-warn {
-    background-color: #f48bb5;
-}
-.common-base-ok {
-    background-color: #6d0;
+    line-height: 2.8125em;
+    padding: 0 0.625em;
 }
 
 .common-message {
     position: fixed;
-    z-index:1000;
-    line-height: 43px;
+    z-index:100;
     width:100%; 
-    top: 2px;
+    top: 0;
     right: 0;
     left:0;
-    opacity: 0.6;
+    opacity: 0.8;
     overflow: hidden;  
     text-align: center;
     font-weight: bold;
+    border-radius: 0.25em;
 }
 
-#main-content {
+.common-info-panel {
+    position: fixed;
+    z-index: 50;
+    top: 3.65em;
+    right: -0.0625em;
+}
+
+.common-panel-sm-badge {
+    position: absolute;
+    background-color: #d9edf7;
+    width: 1.5625em;
+    text-align: center;
+    margin-left: -1.5625em;
+    margin-top: 2.375em;
+    border-top-left-radius: 0.25em;
+    border-bottom-left-radius: 0.25em;
+    height: 3em;
+    padding-top: 0.625em;
+    cursor: pointer;
+    color: #31708f;
+}
+#countdown {
+    position: absolute;
+    z-index: 30;
+    margin-left: 30%;
+    border-bottom-left-radius: 0.25em;
+    border-bottom-right-radius: 0.25em;
+    padding-top: 0.5em;
+    opacity: 0.9;
+    margin-top: -1.8em;
+    transition: background-color 1s ease-in, margin-top 1s ease-in;
+}
+
+#countdown.hidded {
+    margin-top: -4em;
+}
+
+main {
     overflow: auto;
     position: absolute;
-    top:45px;
-    right: 10px;
-    bottom: 45px;
-    left:5px;
-    /*    border: solid black 1px; */
-}
-
-.inside-page {
-    display: block;
-    margin: 8px 48px;
-    border: 1px solid #7d7d7d;
-    border-radius: 8px;  
+    top:3.65em;
+    right: 0.625em;
+    bottom: 2.8125em;
+    left:0.3125em;
+    padding-top: 0.625em;
+    /*    border: solid black 0.0625em; */
 }
 .item-group {
     display: inline-block;
-    border: 1px solid #ddd;
-    border-radius: 3px;
-    margin: 5px;
-    padding: 8px;
+    border: 0.0625em solid #ddd;
+    border-radius: 0.1875em;
+    margin: 0.3125em;
+    padding: 0.5em;
+    transition: background-color 1s ease-in, color 1s ease-in;
 }
 .item-group>input {
-    margin-right: 8px;
-    width: 200px;
+    width: 12.5em;
 }
 .item-group>input.number-input {
-    margin-right: 8px;
-    width: 80px;
+    margin-right: 0.5em;
+    width: 5em;
     text-align: right;
 }
+.item-group>span,
 .item-group>label {
-    display: inline-block;
-    width: 150px;
-    line-height: 28px;
+    margin-top: 0.5em;
+    width: 9em;
+    white-space: nowrap;
+
 }
 .item-group >label.page-mark {
-    margin: 0 5px 0 -2px;
+    margin: 0 0.3125em 0 -0.125em;
     width: auto;
 }
 .item-group>select {
-    margin-right: 8px;
-    margin-left: 20px;
-    width: 120px;
+    margin-right: 0.5em;
+    width: 9.375em;
 }
+
+.modal-body .item-group span.number-range {
+    text-align: right;
+    margin-right: 0.625em;
+    display: inline-block;
+    width: 2.5em;
+}
+.modal-footer>span,
+.modal-footer>label {
+    margin-top: 0.375em;
+    margin-right: 0.625em;
+    white-space: nowrap;
+}
+.modal-footer>span {
+    color: #f00;
+}
+
 .button-group {
-    margin: 8px 48px;
-    padding: 8px;
+    margin: 0.1875em 0.375em;
     display: block;
     text-align: right;
 }
-.button-group>a {
+.control-group {
+    margin: 0.5em 3em;
+    padding: 0.5em;
+    display: block;
+    text-align: right;
+}
+.control-group>a {
     cursor: pointer;
-    margin: 0 10px;
+    margin: 0 0.625em;
     text-decoration: none;
     color: #06c;
 }
-.button-group>a:hover {
+.control-group>a:hover {
     text-decoration: underline;
 }
 .heatmap-container {
-    /*border: 1px solid #8a0;
-    border-radius: 10px;
-    padding: 10px;*/
     display: inline-block;
-    margin: 28px;
-    -webkit-box-shadow: 6px 6px 10px rgba(255,50,0,0.5),
-                        10px 10px 20px #270;
-    box-shadow: 6px 6px 10px rgba(255,0,0,0.75),
-                10px 10px 20px #270;
+    margin: 1.75em;
+    -webkit-box-shadow: 0.375em 0.375em 0.625em rgba(255,50,0,0.5),
+                        0.625em 0.625em 1.25em #270;
+    box-shadow: 0.375em 0.375em 0.625em rgba(255,0,0,0.75),
+                0.625em 0.625em 1.25em #270;
+}
+#heatmap-canvasAbs {
+    background-color: rgba(0,255,255,0.8);
+    border-left: 0.07em solid #ddd;
+    border-top: 0.07em solid #ddd;
+    display: inline-block;
+    margin: 1.75em;
+    -webkit-box-shadow: 0.375em 0.375em 0.625em rgba(255,50,0,0.5),
+                        0.625em 0.625em 1.25em #270;
+    box-shadow: 0.375em 0.375em 0.625em rgba(255,0,0,0.75),
+                0.625em 0.625em 1.25em #270;
 }

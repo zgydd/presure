@@ -1,21 +1,48 @@
-<div id="heatmap-content" class="inside-page">
+<div id="heatmap-content" class="container">
     <script type="text/javascript" src="./vender/heatmap.min.js"></script>
     <script type="text/javascript" src="./js/heatmap.js"></script>
-    <div class="item-group">
-        <label z-lang="langHeatmapLabPresureValue">Max presure value: </label>    	
-    	<label id="heatmap-labMaxRecord"></label>
-    	<br />
-        <label z-lang="langHeatmapLabPresurePoint">Max presure point: </label>    	
-    	<label id="heatmap-labMaxRecordPoint"></label>
-    </div>
-    <div class="button-group">
-	    <a href="#" id="heatmap-aCalibration" z-lang="langHeatmapACalibration">Calibration</a>
-	    <a href="#" id="heatmap-aOpenPort" z-lang="langHeatmapAOpenPort">Open serial port</a>
-	    <a href="#" id="heatmap-aClosePort" z-lang="langHeatmapAClosePort">Close serial port</a>
-    </div>
-    <div class="heatmap-container">
+    <article class="panel panel-info common-info-panel">
+        <div class="common-panel-sm-badge" id="heatmap-infoPanelBadge">
+            <i class="icon-double-angle-right icon-2x"></i>
+        </div>
+        <div class="panel-heading">
+            <h3 class="panel-title" z-lang="langHeatmapHinfoTitle">Heatmap info</h3>
+        </div>
+        <article class="panel-body">
+            <section class="item-group">
+                <label z-lang="langHeatmapLabPresureValue">Max presure value: </label>      
+                <label id="heatmap-labMaxRecord"></label>
+                <br />
+                <label z-lang="langHeatmapLabPresurePoint">Max presure point: </label>      
+                <label id="heatmap-labMaxRecordPoint"></label>
+            </section>
+            <div class="btn-group button-group">
+                <button class="btn btn-info" id="heatmap-btnCalibration" z-lang="langHeatmapBtnCalibration">Calibration</button>
+                <button class="btn btn-info" id="heatmap-btnOpenPort" z-lang="langHeatmapBtnOpenPort">Open serial port</button>
+                <button class="btn btn-info" id="heatmap-btnClosePort" z-lang="langHeatmapBtnClosePort">Close serial port</button>
+            </div> 
+        </article>
+    </article>
+    <!--div class="heatmap-container">
     	<div class="heatmap"></div>
-    </div>
-
-    <!--div id="testData" style="overflow: auto;display: inline-block;max-height: 320px;max-width: 600px;"></div-->
+    </div-->            
+    <section class="ac-container">
+        <div>
+            <input id="heatmap-ac-1" name="accordion-1" type="radio" checked />
+            <label for="heatmap-ac-1" z-lang="langHeatmapLabRelativeMap">Relative heat map</label>
+            <article class="ac-auto">
+                <div class="heatmap-container">
+                    <div class="heatmap"></div>
+                </div>
+            </article>
+        </div>
+        <div>
+            <input id="heatmap-ac-2" name="accordion-1" type="radio" />
+            <label for="heatmap-ac-2" z-lang="langHeatmapLabAbsolutelyMap">Absolutely heat map</label>
+            <article class="ac-auto">
+                <p>#######Beta#######</p>
+                <canvas id="heatmap-canvasAbs">Browser didn't support canvas!</canvas>
+            </article>
+        </div>
+    </section>
 </div>
