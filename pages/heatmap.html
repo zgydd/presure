@@ -11,38 +11,20 @@
         <article class="panel-body">
             <section class="item-group">
                 <label z-lang="langHeatmapLabPresureValue">Max presure value: </label>      
-                <label id="heatmap-labMaxRecord"></label>
+                <span id="heatmap-labMaxRecord"></span>
                 <br />
                 <label z-lang="langHeatmapLabPresurePoint">Max presure point: </label>      
-                <label id="heatmap-labMaxRecordPoint"></label>
+                <span id="heatmap-labMaxRecordPoint"></span>
             </section>
             <div class="btn-group button-group">
                 <button class="btn btn-info" id="heatmap-btnCalibration" z-lang="langHeatmapBtnCalibration">Calibration</button>
-                <button class="btn btn-info" id="heatmap-btnOpenPort" z-lang="langHeatmapBtnOpenPort">Open serial port</button>
-                <button class="btn btn-info" id="heatmap-btnClosePort" z-lang="langHeatmapBtnClosePort">Close serial port</button>
+                <button class="btn btn-info" id="heatmap-btnReset" z-lang="langHeatmapBtnReset">Reset</button>
+                <button class="btn btn-info" id="heatmap-btnDoPort">Open serial port</button>
             </div> 
         </article>
     </article>
-    <!--div class="heatmap-container">
-    	<div class="heatmap"></div>
-    </div-->            
-    <section class="ac-container">
-        <div>
-            <input id="heatmap-ac-1" name="accordion-1" type="radio" checked />
-            <label for="heatmap-ac-1" z-lang="langHeatmapLabRelativeMap">Relative heat map</label>
-            <article class="ac-auto">
-                <div class="heatmap-container">
-                    <div class="heatmap"></div>
-                </div>
-            </article>
-        </div>
-        <div>
-            <input id="heatmap-ac-2" name="accordion-1" type="radio" />
-            <label for="heatmap-ac-2" z-lang="langHeatmapLabAbsolutelyMap">Absolutely heat map</label>
-            <article class="ac-auto">
-                <p>#######Beta#######</p>
-                <canvas id="heatmap-canvasAbs">Browser didn't support canvas!</canvas>
-            </article>
-        </div>
-    </section>
+    <div class="heatmap-container">
+        <div class="heatmap"></div>
+    </div>
+    <!--div id='test-matrix' style="margin: 0 2em;padding: 0.5em;"></div-->
 </div>

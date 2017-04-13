@@ -51,27 +51,31 @@ $('#config-selectPort').on('change', function() {
 });
 
 $('#config-selectProduction').on('change', function() {
+	var w = $(window).get(0).innerWidth;
+	var h = $(window).get(0).innerHeight;
+	commConfig.radius = Math.floor((w > h ? h : w) * 4 / 100);
 	switch ($('#config-selectProduction').prop('selectedIndex')) {
 		case 1:
 			commConfig.productionSize.width = 32;
 			commConfig.productionSize.height = 80;
-			if (commConfig.radius === 40) {
-				commConfig.radius = 10;
-				$('#config-inputRadius').val(10);
-			}
+			//if (commConfig.radius === 40) {
+			//	commConfig.radius = 10;
+			//	$('#config-inputRadius').val(10);
+			//}
 			$('#config-labProductionDesc').html(commConfig.productionSize.width + '*' + commConfig.productionSize.height);
 			break;
 		default:
 			commConfig.productionSize.width = 16;
 			commConfig.productionSize.height = 16;
-			if (commConfig.radius === 10) {
-				commConfig.radius = 40;
-				$('#config-inputRadius').val(40);
-			}
+			//if (commConfig.radius === 10) {
+			//	commConfig.radius = 40;
+			//	$('#config-inputRadius').val(40);
+			//}
 			$('#config-labProductionDesc').html(commConfig.productionSize.width + '*' + commConfig.productionSize.height);
 			break;
 	}
-	innerData = initInnerData(false);
+	$('#config-inputRadius').val(commConfig.radius);
+	innerData = initInnerData();
 	_showMessage('ok', _getLocalesValue('langConfigMsgProductionSetted', 'Production changed'));
 });
 
@@ -88,7 +92,7 @@ $('#config-inputBaudRate').on('blur', function() {
 		$('#config-inputBaudRate').focus();
 		setTimeout(function() {
 			$('#config-inputBaudRate').parent().removeClass('alert-danger');
-		}, 666);
+		}, 888);
 		return;
 	}
 	commConfig.baudRange = _toInt($('#config-inputBaudRate').val());
@@ -104,7 +108,7 @@ $('#config-inputRadius').on('blur', function() {
 		$('#config-inputRadius').focus();
 		setTimeout(function() {
 			$('#config-inputRadius').parent().removeClass('alert-danger');
-		}, 666);
+		}, 888);
 		return;
 	}
 	commConfig.radius = _toInt($('#config-inputRadius').val());
@@ -119,7 +123,7 @@ $('#config-inputFlushRange').on('blur', function() {
 		$('#config-inputFlushRange').focus();
 		setTimeout(function() {
 			$('#config-inputFlushRange').parent().removeClass('alert-danger');
-		}, 666);
+		}, 888);
 		return;
 	}
 	commConfig.flushRange = _toInt($('#config-inputFlushRange').val());
@@ -134,7 +138,7 @@ $('#config-inputMinNoise').on('blur', function() {
 		$('#config-inputMinNoise').focus();
 		setTimeout(function() {
 			$('#config-inputMinNoise').parent().removeClass('alert-danger');
-		}, 666);
+		}, 888);
 		return;
 	}
 	var minData = _toInt($('#config-inputMinNoise').val());
@@ -145,7 +149,7 @@ $('#config-inputMinNoise').on('blur', function() {
 		$('#config-inputMinNoise').focus();
 		setTimeout(function() {
 			$('#config-inputMinNoise').parent().removeClass('alert-danger');
-		}, 666);
+		}, 888);
 		return;
 	}
 	commConfig.noiseLimit.min = minData;
@@ -160,7 +164,7 @@ $('#config-inputMaxNoise').on('blur', function() {
 		$('#config-inputMaxNoise').focus();
 		setTimeout(function() {
 			$('#config-inputMaxNoise').parent().removeClass('alert-danger');
-		}, 666);
+		}, 888);
 		return;
 	}
 	var maxData = _toInt($('#config-inputMaxNoise').val());
@@ -171,9 +175,23 @@ $('#config-inputMaxNoise').on('blur', function() {
 		$('#config-inputMaxNoise').focus();
 		setTimeout(function() {
 			$('#config-inputMaxNoise').parent().removeClass('alert-danger');
-		}, 666);
+		}, 888);
 		return;
 	}
 	commConfig.noiseLimit.max = maxData;
 	_showMessage('ok', _getLocalesValue('langConfigMsgMaxNoise', 'Max moise setted'));
+});
+$('#config-aSaveCfg').on('click', function() {
+	var saveData = {};
+	saveData.port = commConfig.port;
+	saveData.baudRange = commConfig.baudRange;
+	saveData.radius = commConfig.radius;
+	saveData.flushRange = commConfig.flushRange;
+	saveData.productionWidth = commConfig.productionSize.width;
+	saveData.productionHeight = commConfig.productionSize.height;
+	saveData.minNoise = commConfig.noiseLimit.min;
+	saveData.maxNoise = commConfig.noiseLimit.max;
+	saveData.defaultLanguage = _statData.defaultLanguage;
+
+	_saveFile(_commonConstant.path + _commonConstant.config, new Buffer(JSON.stringify(saveData)), true);
 });

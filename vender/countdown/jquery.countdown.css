@@ -1,14 +1,14 @@
 .countdownHolder{
-	width:450px;
+	/*width:450px;*/
 	margin:0 auto;
-	font: 40px/1.5 Helvetica, 'Hiragino Sans GB', 'Microsoft Yahei', '微软雅黑', Arial, sans-serif;
+	font: 35px/1.5 Helvetica, 'Hiragino Sans GB', 'Microsoft Yahei', '微软雅黑', Arial, sans-serif;
 	text-align:center;
 	letter-spacing:-3px;
 }
 
 .position{
 	display: inline-block;
-	height: 1.6em;
+	height: 1.5em;
 	overflow: hidden;
 	position: relative;
 	width: 1.05em;
@@ -28,11 +28,11 @@
 .digit.static{
 	box-shadow:1px 1px 1px rgba(4, 4, 4, 0.35);
 	
-	background-image: linear-gradient(bottom, #008000 50%, #008800 50%);
-	background-image: -o-linear-gradient(bottom, #008000 50%, #008800 50%);
-	background-image: -moz-linear-gradient(bottom, #008000 50%, #008800 50%);
-	background-image: -webkit-linear-gradient(bottom, #008000 50%, #008800 50%);
-	background-image: -ms-linear-gradient(bottom, #008000 50%, #008800 50%);
+	background-image: linear-gradient(bottom, #008080 50%, #008888 50%);
+	background-image: -o-linear-gradient(bottom, #008080 50%, #008888 50%);
+	background-image: -moz-linear-gradient(bottom, #008080 50%, #008888 50%);
+	background-image: -webkit-linear-gradient(bottom, #008080 50%, #008888 50%);
+	background-image: -ms-linear-gradient(bottom, #008080 50%, #008888 50%);
 	
 	background-image: -webkit-gradient(
 		linear,
@@ -69,15 +69,15 @@
 	position:absolute;
 	width:5px;
 	height:5px;
-	background-color:#08b;
+	background-color:#088;
 	border-radius:50%;
 	left:50%;
 	margin-left:-3px;
-	top:0.5em;
+	top:0.7em;
 	box-shadow:1px 1px 1px rgba(4, 4, 4, 0.5);
 	content:'';
 }
 
 .countDiv:after{
-	top:0.9em;
+	top:1em;
 }

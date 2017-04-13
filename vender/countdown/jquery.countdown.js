@@ -34,15 +34,18 @@
 	};
 
 	$.fn.reset = function(prop) {
-		options = $.extend({
-			callback: function() {},
-			timestamp: 0
-		}, prop);
-		positions = this.find('.position');
-		tick();
-	};
-	$.fn.clear = function() {
 		if (lockTick) clearTimeout(lockTick);
+		options.timestamp = prop;
+		if (options.timestamp > 0) lockTick = setTimeout(tick, 1000);
+	};
+	$.fn.stop = function() {
+		if (lockTick) clearTimeout(lockTick);
+	};
+	$.fn.setFinished = function() {
+		options.timestamp = 0;
+		updateDuo(0, 1, 0);
+		updateDuo(2, 3, 0);
+		updateDuo(4, 5, 0);
 	};
 	$.fn.destory = function() {
 		if (lockTick) clearTimeout(lockTick);
@@ -124,25 +127,24 @@
 
 	function tick() {
 		if (lockTick) clearTimeout(lockTick);
-
-		var left, d, h, m, s;
+		var left, h, m, s;
 		// Time left
-		left = Math.floor((options.timestamp - (new Date())) / 1000);
-
+		left = --options.timestamp;
 		if (left < 0) {
 			left = 0;
 		}
-
+		//console.log('#############');
+		//console.log(left);
 		// Number of hours left
 		h = Math.floor(left / hours);
 		updateDuo(0, 1, h);
 		left -= h * hours;
-
+		//console.log('h='+left);
 		// Number of minutes left
 		m = Math.floor(left / minutes);
 		updateDuo(2, 3, m);
 		left -= m * minutes;
-
+		//console.log('m='+left);		
 		// Number of seconds left
 		s = left;
 		updateDuo(4, 5, s);
@@ -152,7 +154,7 @@
 		options.callback(h, m, s, cd);
 
 		// Scheduling another call of this function in 1s
-		if (cd) lockTick = setTimeout(tick, 1000);
+		if (cd > 0) lockTick = setTimeout(tick, 1000);
 	}
 	// This function updates two digit positions at once
 	function updateDuo(minor, major, value) {

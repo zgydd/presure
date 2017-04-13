@@ -1,10 +1,13 @@
 body {
     font-family: Arial;
-    min-width: 666px;
-    overflow-y: hidden;
+    /*min-width: 666px;
+    overflow-y: hidden;*/
 }
 nav i {
     margin-right: 0.3125em;
+}
+nav img {
+    width: 1.8em;
 }
 .form-control {
     display: inline-block;
@@ -13,7 +16,7 @@ nav i {
     cursor: pointer;
 }
 footer {
-    position: absolute;
+    position: fixed;
     bottom: 0;
     right: 0;
     bottom: 0;
@@ -28,24 +31,33 @@ footer {
 .common-message {
     position: fixed;
     z-index:100;
-    width:100%; 
-    top: 0;
+    width:40%; 
+    margin: 0 auto;
+    /*top: 0;*/
     right: 0;
+    bottom: 0;
     left:0;
     opacity: 0.8;
     overflow: hidden;  
     text-align: center;
     font-weight: bold;
     border-radius: 0.25em;
+    margin-bottom: 0;
+    line-height: 0.5em;
 }
 
 .common-info-panel {
     position: fixed;
     z-index: 50;
-    top: 3.65em;
+    top: 3.8em;
     right: -0.0625em;
 }
-
+.common-info-panel .panel-heading {
+    padding: 0.3em 0.4em;
+}
+.common-info-panel .panel-body {
+    padding: 0.5em;
+}
 .common-panel-sm-badge {
     position: absolute;
     background-color: #d9edf7;
@@ -60,31 +72,24 @@ footer {
     cursor: pointer;
     color: #31708f;
 }
+
 #countdown {
-    position: absolute;
     z-index: 30;
-    margin-left: 30%;
+    overflow: hidden;
+    white-space: nowrap;
     border-bottom-left-radius: 0.25em;
     border-bottom-right-radius: 0.25em;
-    padding-top: 0.5em;
     opacity: 0.9;
-    margin-top: -1.8em;
+    /*margin-top: -2.43em;*/
     transition: background-color 1s ease-in, margin-top 1s ease-in;
-}
-
-#countdown.hidded {
-    margin-top: -4em;
 }
 
 main {
     overflow: auto;
-    position: absolute;
-    top:3.65em;
-    right: 0.625em;
-    bottom: 2.8125em;
-    left:0.3125em;
-    padding-top: 0.625em;
-    /*    border: solid black 0.0625em; */
+    position: relative;
+    top:0.5em;
+    padding-bottom: 2.5em;
+    /*border: solid black 0.0625em; */
 }
 .item-group {
     display: inline-block;
@@ -107,6 +112,7 @@ main {
     margin-top: 0.5em;
     width: 9em;
     white-space: nowrap;
+    padding-right: 0.8em;
 
 }
 .item-group >label.page-mark {
@@ -123,15 +129,6 @@ main {
     margin-right: 0.625em;
     display: inline-block;
     width: 2.5em;
-}
-.modal-footer>span,
-.modal-footer>label {
-    margin-top: 0.375em;
-    margin-right: 0.625em;
-    white-space: nowrap;
-}
-.modal-footer>span {
-    color: #f00;
 }
 
 .button-group {
@@ -162,8 +159,9 @@ main {
     box-shadow: 0.375em 0.375em 0.625em rgba(255,0,0,0.75),
                 0.625em 0.625em 1.25em #270;
 }
+/*
 #heatmap-canvasAbs {
-    background-color: rgba(0,255,255,0.8);
+    background-color: rgba(0,0,255,0.8);
     border-left: 0.07em solid #ddd;
     border-top: 0.07em solid #ddd;
     display: inline-block;
@@ -172,4 +170,35 @@ main {
                         0.625em 0.625em 1.25em #270;
     box-shadow: 0.375em 0.375em 0.625em rgba(255,0,0,0.75),
                 0.625em 0.625em 1.25em #270;
+}
+*/
+.scale-controller {
+    box-sizing: border-box;
+    clear: none;
+    display: block;
+    padding: 0.8em;
+    text-align: right;
+}
+.scale-controller>span,
+.scale-controller>label {
+    margin-top: 0.375em;
+    margin-right: 0.625em;
+    white-space: nowrap;
+}
+.scale-controller>div {
+    display: inline-block;
+    margin-right: 1.5em;
+}
+.scale-controller>div>span {
+    color: #f00;
+}
+#scale-content hr {
+    margin-top: 0;
+}
+.alert-record {
+    display: block;
+    padding: 0.5em;
+}
+#alert-log-container {
+    margin-top: 1em;
 }
