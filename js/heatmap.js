@@ -6,6 +6,7 @@ $(document).ready(function() {
     if (serialport && serialport.isOpen()) $('#heatmap-btnDoPort').html(_getLocalesValue('langHeatmapBtnClosePort', 'Deconnection'));
     else $('#heatmap-btnDoPort').html(_getLocalesValue('langHeatmapBtnOpenPort', 'Connection'));
     _fixRadius();
+    _resetMainHeight();
 });
 
 $('#heatmap-btnCalibration').on('click', function() {

@@ -64,7 +64,7 @@ var _parseScaleStream = function(stream) {
 				*/
 				record.ranges = [];
 				var tmpLength = isNaN(parseInt(tmpData[1].trim())) ? 4 : parseInt(tmpData[1].trim());
-				for (var j = 0; j < tmpLength; j++) {
+				for (var j = tmpLength - 1; j >= 0; j--) {
 					record.ranges.push({
 						scale: j + 1,
 						critical: Math.floor((j + 1) / (tmpLength + 1) * 1023)
@@ -144,7 +144,7 @@ var _calcScale = function() {
 };
 var _getActivedScale = function(scaleName) {
 	try {
-		var scale = _readFile(_commonConstant.path + scaleName.trim().toLowerCase() + '_' + _commonConstant.scale, 'utf8', 'txt');
+		var scale = _readFile(_commonConstant.path + scaleName.trim().toLowerCase() + _commonConstant.scale, 'utf8', 'txt');
 		if (!scale) {
 			_statData.scaleData = _parseScaleStream('#Braden Scale Table\n' +
 				'*Sensory:Completely Limited-1,Very Limited-2,Slight Limited-3,No Impairment-4\n' +
@@ -220,6 +220,7 @@ $(document).ready(function() {
 			$('#scale-table-list').append('<li role="presentation"><a href="#">' + commConfig.scaleTables[i] + '</a></li>');
 		}
 	}
+    _resetMainHeight();
 });
 $('#scale-submit').on('click', function() {
 	if ($(this).hasClass('disabled')) return;
@@ -231,7 +232,7 @@ $('#scale-submit').on('click', function() {
 	}
 	_statData.restDistance = 1;
 	if ($('#countdown') && $('#countdown').length) {
-		//$('#countdown').addClass('alert-success');
+		$('#countdown').addClass('alert-success');
 		if (!$('#countdown').children() || !$('#countdown').children().length) {
 			$('#countdown').countdown({
 				timestamp: _statData.countDownTime,

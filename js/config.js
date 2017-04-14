@@ -42,6 +42,7 @@ $(document).ready(function() {
 		}
 	}
 	$('#config-advanceConfigFrame').hide();
+    _resetMainHeight();
 });
 
 $('#config-selectPort').on('change', function() {
@@ -82,6 +83,9 @@ $('#config-selectProduction').on('change', function() {
 $('#config-aAdvanceCfg').on('click', function() {
 	if ($('#config-advanceConfigFrame').is(':hidden')) $('#config-advanceConfigFrame').fadeIn(888);
 	else $('#config-advanceConfigFrame').fadeOut(888);
+	setTimeout(function() {
+		_resetMainHeight();
+	}, 1000);
 });
 $('#config-inputBaudRate').on('blur', function() {
 	if (_chkEqual(commConfig.baudRange, $('#config-inputBaudRate').val())) return;

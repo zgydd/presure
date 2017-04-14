@@ -3,7 +3,7 @@
 var _commonConstant = {
     path: 'C://cfgPresureMonitor/',
     config: 'config.json',
-    scale: 'scale.txt'
+    scale: '.scale'
 };
 //serialPort
 var SerialPort = null;
@@ -51,7 +51,7 @@ var commConfig = {
         min: 0
     },
     portList: [],
-    scaleTables: ['Braden']
+    scaleTables: ['Braden', 'Norton', '布兰登']
 };
 
 var _statData = {
@@ -135,6 +135,105 @@ var initInnerData = function(isDebug) {
     return innerData;
 };
 */
+//Page behavor
+$(document).ready(function() {
+    $('#common-message').hide();
+    setConfig(_readFile(_commonConstant.path + _commonConstant.config, 'utf8', 'json'));
+    innerData = initInnerData();
+    callLocales(_statData.defaultLanguage);
+    _statData.autoCalibrationHandle = setInterval(_autoCalibration, 5000);
+    try {
+        SerialPort = require('serialport');
+        commConfig.portList.length = 0;
+        SerialPort.list(function(err, ports) {
+            ports.forEach(function(port) {
+                commConfig.portList.push({
+                    comName: port.comName,
+                    pnpId: port.pnpId,
+                    manufacturer: port.manufacturer
+                });
+            });
+        });
+        if (commConfig.portList.length === 3) {
+            commConfig.port = commConfig.portList[1].comName;
+        }
+        _resetMainHeight();
+    } catch (e) {
+        //alert(e);
+    }
+});
+$(window).resize(function() {
+    _fixRadius();
+    _resetMainHeight();
+});
+var _resetMainHeight = function() {
+    var height = $(window).height() - ($('footer').outerHeight() * 2.7) - $('nav').outerHeight();
+    if ($('#countdown') && $('#countdown').length &&
+        $('#countdown').children() && $('#countdown').children().length &&
+        !$('#countdown').is(':hidden')) height -= $('#countdown').outerHeight();
+    if (!height) height = 0;
+    $('main').height(height);
+};
+var callHome = function() {
+    if (_statData.activedPage === 'home') return;
+    _statData.activedPage = 'home';
+    $("#main-content").hide();
+    $("#main-content").empty();
+    $("#main-content").fadeIn(666);
+};
+var callHeatmap = function() {
+    if (_statData.activedPage === 'heatmap') return;
+    _statData.activedPage = 'heatmap';
+    $("#main-content").hide();
+    $("#main-content").load('pages/heatmap.html');
+    $("#main-content").fadeIn(666);
+};
+var callConfig = function() {
+    if (_statData.activedPage === 'config') return;
+    _statData.activedPage = 'config';
+    $("#main-content").hide();
+    $("#main-content").load('pages/config.html');
+    $("#main-content").fadeIn(666);
+};
+
+var callScale = function() {
+    if (_statData.activedPage === 'scales') return;
+    _statData.activedPage = 'scales';
+    $("#main-content").hide();
+    $("#main-content").load('pages/scales.html');
+    $("#main-content").fadeIn(666);
+};
+var callSet = function() {
+    if (_statData.activedPage === 'set') return;
+    _statData.activedPage = 'set';
+    $("#main-content").hide();
+    $("#main-content").load('pages/set.html');
+    $("#main-content").fadeIn(666);
+};
+
+var callLocales = function(lang) {
+    _statData.defaultLanguage = lang;
+    $.getJSON('asset/locales.json', function(result) {
+        if (result.hasOwnProperty(_statData.defaultLanguage)) {
+            _statData.langData = result[_statData.defaultLanguage];
+            _traverseLocales($('body').children());
+            if (serialport && serialport.isOpen()) $('#heatmap-btnDoPort').html(_getLocalesValue('langHeatmapBtnClosePort', 'Deconnection'));
+            else $('#heatmap-btnDoPort').html(_getLocalesValue('langHeatmapBtnOpenPort', 'Connection'));
+        }
+    });
+};
+var changeLocales = function(lang) {
+    if (_statData.defaultLanguage === lang) return;
+    callLocales(lang);
+};
+var setFullScreen = function() {
+    if (!WINDOW) return;
+    try {
+        WINDOW.toggleFullscreen();
+    } catch (e) {}
+};
+
+
 var _autoCalibration = function() {
     if (!_statData.portOpened) return;
     if (!innerData || !innerData.length || !innerData[0].length) return;
@@ -197,47 +296,15 @@ var _autoCalibration = function() {
     //alert(commConfig.noiseLimit.min);
     */
 };
-//Page behavor
-$(document).ready(function() {
-    $('#common-message').hide();
-    setConfig(_readFile(_commonConstant.path + _commonConstant.config, 'utf8', 'json'));
-    innerData = initInnerData();
-    callLocales(_statData.defaultLanguage);
-    _statData.autoCalibrationHandle = setInterval(_autoCalibration, 5000);
-    try {
-        SerialPort = require('serialport');
-        commConfig.portList.length = 0;
-        SerialPort.list(function(err, ports) {
-            ports.forEach(function(port) {
-                commConfig.portList.push({
-                    comName: port.comName,
-                    pnpId: port.pnpId,
-                    manufacturer: port.manufacturer
-                });
-            });
-        });
-        if (commConfig.portList.length === 3) {
-            commConfig.port = commConfig.portList[1].comName;
-        }
-    } catch (e) {
-        //alert(e);
-    }
-});
-$(window).resize(function() {
-    _fixRadius();
-});
-
 var _countDownCallBack = function(hours, minutes, seconds, cd) {
     //console.log(hours + ':' + minutes + ':' + seconds);
-    /*
-        if (cd <= 60) {
-            $('#countdown').removeClass('alert-success');
-            $('#countdown').addClass('alert-danger');
-        } else {
-            $('#countdown').removeClass('alert-danger');
-            $('#countdown').addClass('alert-success');
-        }
-    */
+    if (cd <= 60) {
+        $('#countdown').removeClass('alert-success');
+        $('#countdown').addClass('alert-danger');
+    } else {
+        $('#countdown').removeClass('alert-danger');
+        $('#countdown').addClass('alert-success');
+    }
     if (cd === 0) {
         _setCountDownZero();
         /*
@@ -396,13 +463,8 @@ var _callAlert = function() {
         _statData.activedPage = 'alert';
         //heatmapInstance = null;
         $("#main-content").load('pages/alert.html');
-        var audio = document.getElementById('main-audio-alert');
-        audio.play();
-        setTimeout(function() {
-            audio.pause();
-        }, 2000);
-        _statData.alertHandle = setTimeout(_doAlert, 5000);
     }
+    _doAlert();
 };
 var _doAlert = function() {
     var audio = document.getElementById('main-audio-alert');
@@ -444,56 +506,6 @@ var _getLocalesValue = function(node, defaultValue) {
         return _statData.langData[node];
     return defaultValue;
 };
-var callHome = function() {
-    if (_statData.activedPage === 'home') return;
-    _statData.activedPage = 'home';
-    $("#main-content").hide();
-    $("#main-content").empty();
-    $("#main-content").fadeIn(666);
-};
-var callHeatmap = function() {
-    if (_statData.activedPage === 'heatmap') return;
-    _statData.activedPage = 'heatmap';
-    //heatmapInstance = null;
-    //innerData = initInnerData(true);
-    $("#main-content").hide();
-    $("#main-content").load('pages/heatmap.html');
-    $("#main-content").fadeIn(666);
-};
-var callConfig = function() {
-    if (_statData.activedPage === 'config') return;
-    _statData.activedPage = 'config';
-    //heatmapInstance = null;
-    $("#main-content").hide();
-    $("#main-content").load('pages/config.html');
-    $("#main-content").fadeIn(666);
-};
-
-var callScale = function() {
-    if (_statData.activedPage === 'scales') return;
-    _statData.activedPage = 'scales';
-    //heatmapInstance = null;
-    $("#main-content").hide();
-    $("#main-content").load('pages/scales.html');
-    $("#main-content").fadeIn(666);
-};
-
-var callLocales = function(lang) {
-    _statData.defaultLanguage = lang;
-    $.getJSON('asset/locales.json', function(result) {
-        if (result.hasOwnProperty(_statData.defaultLanguage)) {
-            _statData.langData = result[_statData.defaultLanguage];
-            _traverseLocales($('body').children());
-            if (serialport && serialport.isOpen()) $('#heatmap-btnDoPort').html(_getLocalesValue('langHeatmapBtnClosePort', 'Deconnection'));
-            else $('#heatmap-btnDoPort').html(_getLocalesValue('langHeatmapBtnOpenPort', 'Connection'));
-        }
-    });
-};
-var changeLocales = function(lang) {
-    if (_statData.defaultLanguage === lang) return;
-    callLocales(lang);
-};
-
 var setConfig = function(data) {
     if (!data) return;
     if (data.hasOwnProperty('port')) commConfig.port = data.port;
