@@ -3,8 +3,23 @@
 	<ul>
 		<li><i class="icon-plus-sign"></i></li>
 	</ul>
-	<div>
-		<div id="set-main-container">
+	<article>
+		<section class="item-group" style="margin-left: 1.3em;">
+			<label z-lang="langSetScaleTitle">Title</label>
+			<input type="text" id="set-inputTitle" maxlength="40" class="form-control" />
+		</section>
+		<div id="set-main-container"></div>
+	</article>
+
+	<div class="modal fade" id="set-modalEdit" tabindex="-1" role="dialog" aria-labelledby="set-scaleTitle">
+		<div class="modal-dialog modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title" id="set-scaleTitle" z-lang="langSetScaleModalTitle">Edit</h4>
+			</div>
+			<div class="modal-body"></div>
+			<div class="modal-footer">
+				<button type="button" id="set-modalSubmit" class="btn btn-primary" z-lang="langSetScaleModalSave">Save</button>
+			</div>
 		</div>
 	</div>
 </div>

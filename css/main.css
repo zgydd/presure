@@ -27,7 +27,9 @@ footer {
     line-height: 2.8125em;
     padding: 0 0.625em;
 }
-
+.block {
+    display: block !important;
+}
 .common-message {
     position: fixed;
     z-index:100;
@@ -116,6 +118,7 @@ main {
 .item-group>span,
 .item-group>label {
     margin-top: 0.5em;
+    margin-left: 0.2em;
     width: 9em;
     white-space: nowrap;
     padding-right: 0.8em;
@@ -197,7 +200,6 @@ main {
 }
 #set-content ul {
     position: fixed;
-    top: 2.9em;
     display: inline-block;
     vertical-align: top;
     padding: 0 0;
@@ -248,10 +250,42 @@ main {
     -moz-box-shadow: 0.2em 0.3em 0.12em #2e8ec4 inset;
     box-shadow: 0.2em 0.3em 0.12em #2e8ec4 inset;
 }
-#set-main-container {
-    margin-top: -1.6em;
-    border: 1px solid #000;
-    border-top: 0.2em solid #eee;
+#set-content article {
     vertical-align: top;
-    padding: 1em 1.5em 1em 0.5em;
+    /*border: 1px solid #000;*/
+    display: none;
 }
+#set-main-container {
+    margin-top: 0.2em;
+    border-top: 0.15em solid #eee;
+    padding: 0.5em 2em 1em 1em;
+}
+#set-main-container > .item-group > hr {
+    margin-top: 0.3em;
+    margin-bottom: 0.3em; 
+}
+.set-item-group {
+    display: block;
+    /*border: 0.0625em solid #ddd;
+    border-radius: 0.1875em;*/
+    margin: 0.3125em;
+    padding: 0.5em;
+}
+.set-item-group > span,
+.set-item-group > label {
+    margin-top: 0.5em;
+    width: 11em;
+    white-space: nowrap;
+    padding-right: 0.8em;
+}
+.set-item-group > input.number-input {
+    margin-right: 0.5em;
+    width: 3.8em;
+    text-align: right;
+}
+.set-item-group > a {
+    width: 2.5em;
+}
+
+
+

@@ -185,17 +185,3 @@ $('#config-inputMaxNoise').on('blur', function() {
 	commConfig.noiseLimit.max = maxData;
 	_showMessage('ok', _getLocalesValue('langConfigMsgMaxNoise', 'Max moise setted'));
 });
-$('#config-aSaveCfg').on('click', function() {
-	var saveData = {};
-	saveData.port = commConfig.port;
-	saveData.baudRange = commConfig.baudRange;
-	saveData.radius = commConfig.radius;
-	saveData.flushRange = commConfig.flushRange;
-	saveData.productionWidth = commConfig.productionSize.width;
-	saveData.productionHeight = commConfig.productionSize.height;
-	saveData.minNoise = commConfig.noiseLimit.min;
-	saveData.maxNoise = commConfig.noiseLimit.max;
-	saveData.defaultLanguage = _statData.defaultLanguage;
-
-	_saveFile(_commonConstant.path + _commonConstant.config, new Buffer(JSON.stringify(saveData)), true);
-});

@@ -17,7 +17,6 @@
 		"langConfigSelCushion": "Cushion",
 		"langConfigSelSheet": "Sheet",
 		"langConfigAAdvanceCfg": "Advance config",
-		"langConfigASaveCfg": "Save Config",
 		"langConfigLabBaudRate": "Baud rate: ",
 		"langConfigLabRadius": "Radius: ",
 		"langConfigLabFlushRange": "Flush range: ",
@@ -48,7 +47,14 @@
 		"langHeatmapHinfoTitle": "Heatmap info",
 		"langHeatmapLabRelativeMap": "Relative heat map",
 		"langHeatmapLabAbsolutelyMap": "Absolutely heat map",
-		"langAlertControlSubmit": "Done"
+		"langAlertControlSubmit": "Done",
+		"langSetScaleTitle": "Title",
+		"langSetScaleFeature": "Feature",
+		"langSetScaleThreshold": "Threshold",
+		"langSetScalePresureRange": "Presure Range",
+		"langSetScaleModalTitle": "Edit",
+		"langSetScaleModalEditFeature": "Feature name",
+		"langSetScaleModalSave": "Save"
 	},
 	"zh": {
 		"langMainNavLogo": "迈动",
@@ -68,7 +74,6 @@
 		"langConfigSelCushion": "坐垫",
 		"langConfigSelSheet": "床单",
 		"langConfigAAdvanceCfg": "高级配置",
-		"langConfigASaveCfg": "保存配置",
 		"langConfigLabBaudRate": "波特率：",
 		"langConfigLabRadius": "绘图半径：",
 		"langConfigLabFlushRange": "刷新率：",
@@ -99,6 +104,13 @@
 		"langHeatmapHinfoTitle": "压力图信息",
 		"langHeatmapLabRelativeMap": "相对压力图",
 		"langHeatmapLabAbsolutelyMap": "绝对压力图",
-		"langAlertControlSubmit": "完成"
+		"langAlertControlSubmit": "完成",
+		"langSetScaleTitle": "名称",
+		"langSetScaleFeature": "特征",
+		"langSetScaleThreshold": "阈值",
+		"langSetScalePresureRange": "压力分段数",
+		"langSetScaleModalTitle": "编辑",
+		"langSetScaleModalEditFeature": "特征名称",
+		"langSetScaleModalSave": "保存"
 	}
 }
