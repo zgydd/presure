@@ -9,6 +9,12 @@ var _commonConstant = {
 var SerialPort = null;
 var serialport = null;
 
+var bufferDataWorker = null;
+if (typeof(Worker) !== undefined) {
+    bufferDataWorker = new Worker('./js/bufferData.worker.js');
+    bufferDataWorker.onmessage = _bufferDataWorkerCallback_;
+}
+
 var WINDOW = null;
 try {
     WINDOW = nw.Window.get();
@@ -83,6 +89,7 @@ var initInnerData = function() {
         var inLine = [];
         for (var j = 0; j < commConfig.productionSize.width; j++) {
             inLine.push(0);
+            //inLine.push(Math.random() * 100);
         }
         innerData.push(inLine);
     }
@@ -208,7 +215,7 @@ var setConfig = function(data) {
 
     var w = $(window).get(0).innerWidth;
     var h = $(window).get(0).innerHeight;
-    commConfig.radius = Math.floor((w > h ? h : w) * 4 / 100);
+    commConfig.radius = Math.floor((w > h ? h : w) * (commConfig.productionSize.width === 16 ? 4 : 2.5) / 100);
 };
 var _destoryMe = function() {
     if (serialport && serialport.isOpen()) {
@@ -217,13 +224,16 @@ var _destoryMe = function() {
     }
     serialport = null;
     SerialPort = null;
+    if (bufferDataWorker) bufferDataWorker.terminate();
+    bufferDataWorker = null;
     commConfig = null;
     _statData = null;
     heatmapInstance = null;
     innerData = null;
     _commonConstant = null;
+    $('body').empty();
 };
-
+/*
 var _formatABufferData = function(startIdx, endIdx, bufferData) {
     if (endIdx - startIdx != 5) return;
     var x = parseInt(bufferData[startIdx]);
@@ -238,14 +248,8 @@ var _formatABufferData = function(startIdx, endIdx, bufferData) {
     if (innerData[y][x] != numData) {
         innerData[y][x] = numData;
     }
-    /*
-    if (_statData.maxPresureList.length < commConfig.productionSize.width * commConfig.productionSize.height) {
-        _statData.maxPresureList.push(numData);
-    }
-    */
-    //$('#testData').html($('#testData').html() + '<br/>x=' + x + ':y=' + y + '#' + recordData.toString() + '#data=' + numData);
 };
-
+*/
 var resetSerialPort = function() {
     try {
         if (serialport && serialport.isOpen()) {
@@ -384,6 +388,7 @@ var setHeatMap = function(innerData) {
         $('#test-matrix').append(strInn);
     */
 };
+/*
 var getDataFromBuffer = function(data) {
     var startPos = 0;
     var buffer = new Buffer(data, 'hex');
@@ -399,4 +404,13 @@ var getDataFromBuffer = function(data) {
         }
     }
     setHeatMap(innerData);
+};
+*/
+
+var getDataFromBuffer = function(data) {
+    var buffer = new Buffer(data, 'hex');
+    var postStr = {};
+    postStr.innerData = innerData;
+    postStr.data = buffer;
+    bufferDataWorker.postMessage(JSON.stringify(postStr));
 };

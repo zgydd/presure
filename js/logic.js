@@ -1,4 +1,11 @@
 'use strict';
+//worker call back
+var _bufferDataWorkerCallback_ = function(event) {
+	//alert(event.data);
+	//return;
+	innerData = JSON.parse(event.data);
+	setHeatMap(innerData);
+};
 var _resetMainHeight = function() {
 	var height = $(window).height() - ($('footer').outerHeight() * 2.7) - $('nav').outerHeight();
 	if ($('#countdown') && $('#countdown').length &&
@@ -415,10 +422,10 @@ var _fixRadius = function() {
 	if (_statData.activedPage !== 'heatmap') return;
 	var w = $(window).get(0).innerWidth - 120;
 	var h = $(window).get(0).innerHeight - 120;
-	commConfig.radius = Math.floor((w > h ? h : w) * (commConfig.productionSize.width === 16 ? 4 : 2.2) / 100);
+	commConfig.radius = Math.floor((w > h ? h : w) * (commConfig.productionSize.width === 16 ? 4 : 2.5) / 100);
 
 	if (commConfig.productionSize.width === 16) $('#heatmap-content').css('margin-left', 'auto').css('margin-right', 'auto');
-	else $('#heatmap-content').css('margin-left', '0.2em');
+	else $('#heatmap-content').css('margin-left', '0.1em');
 
 	var radius = (commConfig && commConfig.radius) ? commConfig.radius : 40;
 	var width = innerData.length * radius + radius;

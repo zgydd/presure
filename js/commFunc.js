@@ -96,7 +96,6 @@ var _hex2char = function(data) {
 	}
 	return unescape(a);
 };
-
 var _clearSubDomEvent = function(baseNode, eveType, func) {
 	baseNode.each(function(i, n) {
 		var ele = $(n);
