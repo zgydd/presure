@@ -10,12 +10,12 @@ var _dataAnaylysisWorkerCallback_ = function(event) {
 	//alert(event.data);
 	//return;
 	var dataResult = JSON.parse(event.data);
-
+//alert(JSON.stringify(dataResult));
 	if (dataResult.data === 0) {
 		_setCountDownZero();
 		return;
 	}
-	if ((dataResult.data * 60) === _statData.preCountDownRange) return;
+	if (!dataResult.forceback && ((dataResult.data * 60) === _statData.preCountDownRange)) return;
 	$('#countdown').stop();
 	var tmpDist = (_statData.restDistance - ((_statData.preCountDown - dataResult.cd) / (_statData.preCountDownRange * 60)));
 	var newTime = parseInt(tmpDist * dataResult.data * 60);
@@ -28,7 +28,7 @@ var _dataAnaylysisWorkerCallback_ = function(event) {
 	_statData.preCountDown = newTime;
 	_statData.preCountDownRange = dataResult.data * 60;
 };
-//
+//commomn logic
 var _resetMainHeight = function() {
 	var height = $(window).height() - ($('footer').outerHeight() * 2.7) - $('nav').outerHeight();
 	if ($('#countdown') && $('#countdown').length &&
@@ -129,7 +129,6 @@ var _recalcScale = function(cd) {
 		} catch (e) {}
 	}
 
-	//##########Algorithms about times and presure################
 	if (!_statData || !_statData.constantScale || !_statData.scaleData ||
 		!_statData.scaleData.presureRange || !_statData.scaleData.presureRange.ranges ||
 		!_statData.scaleData.presureRange.ranges.length || !_statData.scaleData.threshold ||

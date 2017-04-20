@@ -49,7 +49,7 @@ try {
 var commConfig = {
     port: 'COM15',
     baudRange: 500000,
-    radius: 40,
+    radius: 0,
     flushRange: 1,
     productionSize: {
         width: 16,
