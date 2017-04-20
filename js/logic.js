@@ -6,6 +6,29 @@ var _bufferDataWorkerCallback_ = function(event) {
 	innerData = JSON.parse(event.data);
 	setHeatMap(innerData);
 };
+var _dataAnaylysisWorkerCallback_ = function(event) {
+	//alert(event.data);
+	//return;
+	var dataResult = JSON.parse(event.data);
+
+	if (dataResult.data === 0) {
+		_setCountDownZero();
+		return;
+	}
+	if ((dataResult.data * 60) === _statData.preCountDownRange) return;
+	$('#countdown').stop();
+	var tmpDist = (_statData.restDistance - ((_statData.preCountDown - dataResult.cd) / (_statData.preCountDownRange * 60)));
+	var newTime = parseInt(tmpDist * dataResult.data * 60);
+	if (newTime <= 0) {
+		_setCountDownZero();
+		return;
+	}
+	$('#countdown').reset(newTime);
+	_statData.restDistance = tmpDist;
+	_statData.preCountDown = newTime;
+	_statData.preCountDownRange = dataResult.data * 60;
+};
+//
 var _resetMainHeight = function() {
 	var height = $(window).height() - ($('footer').outerHeight() * 2.7) - $('nav').outerHeight();
 	if ($('#countdown') && $('#countdown').length &&
@@ -43,7 +66,7 @@ var _autoCalibration = function() {
 		return;
 	}
 	variance = variance / cntData;
-	if (variance < 350) _getCalibrationData();
+	if (variance < (commConfig.productionSize.width === 16 ? 500 : 1200)) _getCalibrationData();
 	//alert('variance=' + variance + ' : avgCalibration=' + avgCalibration + ' : avgInner=' + avgInner);
 	/*
 	if (_statData.maxPresureList.length < commConfig.productionSize.width * commConfig.productionSize.height) return;
@@ -105,8 +128,7 @@ var _recalcScale = function(cd) {
 			$('#heatmap-btnDoPort').html(_getLocalesValue('langHeatmapBtnClosePort', 'Deconnection'));
 		} catch (e) {}
 	}
-	//_statData.realMax = 600;
-	//if (cd % 10 !== 0) return;
+
 	//##########Algorithms about times and presure################
 	if (!_statData || !_statData.constantScale || !_statData.scaleData ||
 		!_statData.scaleData.presureRange || !_statData.scaleData.presureRange.ranges ||
@@ -116,27 +138,33 @@ var _recalcScale = function(cd) {
 		!_statData.calibrationData || !_statData.calibrationData.length ||
 		!_statData.calibrationData[0].length || innerData.length !== _statData.calibrationData.length ||
 		innerData[0].length !== _statData.calibrationData[0].length) return;
+
+	var postData = {};
+	postData.calibrationData = _statData.calibrationData;
+	postData.innerData = innerData;
+	postData.baseScale = _statData.constantScale;
+	postData.presureRanges = _statData.scaleData.presureRange.ranges;
+	postData.threshold = _statData.scaleData.threshold;
+	postData.cd = cd;
+	dataAnalysisWorker.postMessage(JSON.stringify(postData));
+	/*
 	var newScale = _statData.constantScale;
 
-	var cntHasValue = 0;
-	var sumDeviation = 0;
+	var maxPrecent = 0;
 	for (var i = 0; i < innerData.length; i++) {
 		for (var j = 0; j < innerData[i].length; j++) {
-			if (innerData[i][j] === 0 || innerData[i][j] < _statData.calibrationData[i][j]) continue;
-			sumDeviation += Math.abs(innerData[i][j] - _statData.calibrationData[i][j]);
-			cntHasValue++;
+			if (innerData[i][j] === 0 || innerData[i][j] <= _statData.calibrationData[i][j]) continue;
+			maxPrecent = Math.max(maxPrecent, (innerData[i][j] - _statData.calibrationData[i][j]) / (1024 - _statData.calibrationData[i][j]));
 		}
 	}
-
 	var idxPresureRange = 0;
-	for (idxPresureRange = 0; idxPresureRange < _statData.scaleData.presureRange.ranges.length; idxPresureRange++) {
-		if (Math.ceil(sumDeviation / cntHasValue) > _statData.scaleData.presureRange.ranges[idxPresureRange].critical) {
-			newScale += _statData.scaleData.presureRange.ranges[idxPresureRange].scale;
+	for (idxPresureRange = _statData.scaleData.presureRange.ranges.length; idxPresureRange > 0; idxPresureRange--) {
+		if (maxPrecent > ((1024 / _statData.scaleData.presureRange.ranges.length * idxPresureRange) / 1024)) {
+			newScale += idxPresureRange;
 			break;
 		}
 	}
-	if (idxPresureRange >= _statData.scaleData.presureRange.ranges.length)
-		newScale += _statData.scaleData.presureRange.ranges[_statData.scaleData.presureRange.ranges.length - 1].scale;
+	if (idxPresureRange <= 0) newScale += _statData.scaleData.presureRange.ranges.length;
 	var newCountDownRange = 0;
 	for (var i = 0; i < _statData.scaleData.threshold.length; i++) {
 		if (_statData.scaleData.threshold[i].min <= newScale && _statData.scaleData.threshold[i].max >= newScale) {
@@ -145,7 +173,7 @@ var _recalcScale = function(cd) {
 		}
 	}
 
-	//-----------delay recalc
+	///*-----------delay recalc
 	if (_statData.delayScaleList.length < 31) {
 		_statData.delayScaleList.push(newCountDownRange);
 		return;
@@ -204,6 +232,7 @@ var _recalcScale = function(cd) {
 	_statData.restDistance = tmpDist;
 	_statData.preCountDown = newTime;
 	_statData.preCountDownRange = newCountDownRange * 60;
+	*/
 };
 
 var _setCountDownZero = function() {
@@ -308,7 +337,7 @@ var _parseScaleStream = function(stream) {
 				for (var j = tmpLength - 1; j >= 0; j--) {
 					record.ranges.push({
 						scale: j + 1,
-						critical: Math.floor((j + 1) / (tmpLength + 1) * 1023)
+						critical: Math.floor((j + 1) / (tmpLength + 1) * 1024)
 					});
 				}
 				formatedData.presureRange = record;

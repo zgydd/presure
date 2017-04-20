@@ -10,9 +10,12 @@ var SerialPort = null;
 var serialport = null;
 
 var bufferDataWorker = null;
+var dataAnalysisWorker = null;
 if (typeof(Worker) !== undefined) {
     bufferDataWorker = new Worker('./js/bufferData.worker.js');
     bufferDataWorker.onmessage = _bufferDataWorkerCallback_;
+    dataAnalysisWorker = new Worker('./js/dataAnalysis.worker.js');
+    dataAnalysisWorker.onmessage = _dataAnaylysisWorkerCallback_;
 }
 
 var WINDOW = null;
@@ -53,7 +56,7 @@ var commConfig = {
         height: 16
     },
     noiseLimit: {
-        max: 1023,
+        max: 1024,
         min: 0
     },
     portList: [],
@@ -74,9 +77,7 @@ var _statData = {
     portOpened: false,
     alertHandle: 0,
     autoCalibrationHandle: 0,
-    //maxPresureList: [],
-    //preAvgPresure: 0,
-    delayScaleList: [],
+    //delayScaleList: [],
     calibrationData: []
 };
 
@@ -226,6 +227,8 @@ var _destoryMe = function() {
     SerialPort = null;
     if (bufferDataWorker) bufferDataWorker.terminate();
     bufferDataWorker = null;
+    if (dataAnalysisWorker) dataAnalysisWorker.terminate();
+    dataAnalysisWorker = null;
     commConfig = null;
     _statData = null;
     heatmapInstance = null;
@@ -328,7 +331,7 @@ var setHeatMap = function(innerData) {
         y: 0
     };
     var max = 0;
-    var min = 1023;
+    var min = 1024;
     var realMax = 0;
     for (var i = 0; i < innerData.length; i++) {
         for (var j = 0; j < innerData[i].length; j++) {
@@ -366,8 +369,8 @@ var setHeatMap = function(innerData) {
     }
     // heatmap data format
     var data = {
-        max: (max === 0) ? 1023 : max,
-        min: (min >= 1023) ? commConfig.noiseLimit.min : min,
+        max: (max === 0) ? 1024 : max,
+        min: (min >= 1024) ? commConfig.noiseLimit.min : min,
         data: points
     };
     _statData.realMax = realMax;

@@ -18,7 +18,7 @@ $('#scale-submit').on('click', function() {
 		return;
 	}
 	_statData.restDistance = 1;
-	_statData.delayScaleList.length = 0;	
+	//_statData.delayScaleList.length = 0;	
 	if ($('#countdown') && $('#countdown').length) {
 		$('#countdown').addClass('alert-success');
 		if (!$('#countdown').children() || !$('#countdown').children().length) {
