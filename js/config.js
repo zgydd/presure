@@ -3,9 +3,13 @@ $(document).ready(function() {
 	callLocales(_statData.defaultLanguage);
 	if (commConfig) {
 		if (commConfig.hasOwnProperty('port')) $('#config_inputPort').val(commConfig.port);
+		if (commConfig.hasOwnProperty('alertFreque')) $('#config-inputAlertFreque').val(commConfig.alertFreque);
+		if (commConfig.hasOwnProperty('alertTime')) $('#config-inputAlertTime').val(commConfig.alertTime);
 		if (commConfig.hasOwnProperty('baudRange')) $('#config-inputBaudRate').val(commConfig.baudRange);
 		if (commConfig.hasOwnProperty('radius')) $('#config-inputRadius').val(commConfig.radius);
-		if (commConfig.hasOwnProperty('flushRange')) $('#config-inputFlushRange').val(commConfig.flushRange);
+		//if (commConfig.hasOwnProperty('flushRange')) $('#config-inputFlushRange').val(commConfig.flushRange);
+		if (commConfig.hasOwnProperty('autoCalibration')) $('#config-inputAutoCalibration').val(commConfig.autoCalibration);
+		if (commConfig.hasOwnProperty('delayedSampling')) $('#config-inputDelayedSampling').val(commConfig.delayedSampling);
 
 		if (commConfig.hasOwnProperty('noiseLimit') && commConfig.noiseLimit.hasOwnProperty('min'))
 			$('#config-inputMinNoise').val(commConfig.noiseLimit.min);
@@ -42,7 +46,7 @@ $(document).ready(function() {
 		}
 	}
 	$('#config-advanceConfigFrame').hide();
-    _resetMainHeight();
+	_resetMainHeight();
 });
 
 $('#config-selectPort').on('change', function() {
@@ -79,6 +83,38 @@ $('#config-selectProduction').on('change', function() {
 	innerData = initInnerData();
 	_showMessage('ok', _getLocalesValue('langConfigMsgProductionSetted', 'Production changed'));
 });
+$('#config-inputAlertFreque').on('blur', function() {
+	if (_chkEqual(commConfig.alertFreque, $('#config-inputAlertFreque').val())) return;
+	if (!/^\d{1,3}$/.test($('#config-inputAlertFreque').val().trim()) ||
+		parseInt($('#config-inputAlertFreque').val().trim()) < 10) {
+		_showMessage('warn', _getLocalesValue('langConfigWrnAlertFreque', 'Illegal alert frequency'));
+		$('#config-inputAlertFreque').parent().addClass('alert-danger');
+		$('#config-inputAlertFreque').val(commConfig.alertFreque);
+		$('#config-inputAlertFreque').focus();
+		setTimeout(function() {
+			$('#config-inputAlertFreque').parent().removeClass('alert-danger');
+		}, 888);
+		return;
+	}
+	commConfig.alertFreque = _toInt($('#config-inputAlertFreque').val());
+	_showMessage('ok', _getLocalesValue('langConfigMsgAlertFreque', 'Alert Frequency setted'));
+});
+$('#config-inputAlertTime').on('blur', function() {
+	if (_chkEqual(commConfig.alertTime, $('#config-inputAlertTime').val())) return;
+	if (!/^\d{1}$/.test($('#config-inputAlertTime').val().trim()) ||
+		parseInt($('#config-inputAlertTime').val().trim()) < 3) {
+		_showMessage('warn', _getLocalesValue('langConfigWrnAlertTime', 'Illegal alert time'));
+		$('#config-inputAlertTime').parent().addClass('alert-danger');
+		$('#config-inputAlertTime').val(commConfig.alertTime);
+		$('#config-inputAlertTime').focus();
+		setTimeout(function() {
+			$('#config-inputAlertTime').parent().removeClass('alert-danger');
+		}, 888);
+		return;
+	}
+	commConfig.alertTime = _toInt($('#config-inputAlertTime').val());
+	_showMessage('ok', _getLocalesValue('langConfigMsgAlertTime', 'Alert Time setted'));
+});
 
 $('#config-aAdvanceCfg').on('click', function() {
 	if ($('#config-advanceConfigFrame').is(':hidden')) $('#config-advanceConfigFrame').fadeIn(888);
@@ -89,7 +125,8 @@ $('#config-aAdvanceCfg').on('click', function() {
 });
 $('#config-inputBaudRate').on('blur', function() {
 	if (_chkEqual(commConfig.baudRange, $('#config-inputBaudRate').val())) return;
-	if (!/^\d{1,8}$/.test($('#config-inputBaudRate').val().trim())) {
+	if (!/^\d{1,8}$/.test($('#config-inputBaudRate').val().trim()) ||
+		parseInt($('#config-inputBaudRate').val().trim()) <= 0) {
 		_showMessage('warn', _getLocalesValue('langConfigWrnBaudRate', 'Illegal baud rate'));
 		$('#config-inputBaudRate').parent().addClass('alert-danger');
 		$('#config-inputBaudRate').val(commConfig.baudRange);
@@ -105,7 +142,8 @@ $('#config-inputBaudRate').on('blur', function() {
 });
 $('#config-inputRadius').on('blur', function() {
 	if (_chkEqual(commConfig.radius, $('#config-inputRadius').val())) return;
-	if (!/^\d{1,3}$/.test($('#config-inputRadius').val().trim())) {
+	if (!/^\d{1,3}$/.test($('#config-inputRadius').val().trim()) ||
+		parseInt($('#config-inputRadius').val().trim()) <= 0) {
 		_showMessage('warn', _getLocalesValue('langConfigWrnRadius', 'Illegal radius'));
 		$('#config-inputRadius').parent().addClass('alert-danger');
 		$('#config-inputRadius').val(commConfig.radius);
@@ -118,6 +156,7 @@ $('#config-inputRadius').on('blur', function() {
 	commConfig.radius = _toInt($('#config-inputRadius').val());
 	_showMessage('ok', _getLocalesValue('langConfigMsgRadius', 'Radius setted'));
 });
+/*
 $('#config-inputFlushRange').on('blur', function() {
 	if (_chkEqual(commConfig.flushRange, $('#config-inputFlushRange').val())) return;
 	if (!/^\d{1,3}$/.test($('#config-inputFlushRange').val().trim())) {
@@ -133,9 +172,11 @@ $('#config-inputFlushRange').on('blur', function() {
 	commConfig.flushRange = _toInt($('#config-inputFlushRange').val());
 	_showMessage('ok', _getLocalesValue('langConfigMsgFlushRange', 'Flush range setted'));
 });
+*/
 $('#config-inputMinNoise').on('blur', function() {
 	if (_chkEqual(commConfig.noiseLimit.min, $('#config-inputMinNoise').val())) return;
-	if (!/^\d{1,3}$/.test($('#config-inputMinNoise').val().trim())) {
+	if (!/^\d{1,3}$/.test($('#config-inputMinNoise').val().trim()) ||
+		parseInt($('#config-inputMinNoise').val().trim()) <= 0) {
 		_showMessage('warn', _getLocalesValue('langConfigWrnMinNoise', 'Illegal min noise'));
 		$('#config-inputMinNoise').parent().addClass('alert-danger');
 		$('#config-inputMinNoise').val(commConfig.noiseLimit.min);
@@ -161,7 +202,8 @@ $('#config-inputMinNoise').on('blur', function() {
 });
 $('#config-inputMaxNoise').on('blur', function() {
 	if (_chkEqual(commConfig.noiseLimit.max, $('#config-inputMaxNoise').val())) return;
-	if (!/^\d{1,5}$/.test($('#config-inputMaxNoise').val().trim())) {
+	if (!/^\d{1,5}$/.test($('#config-inputMaxNoise').val().trim()) ||
+		parseInt($('#config-inputMaxNoise').val().trim()) <= 0) {
 		_showMessage('warn', _getLocalesValue('langConfigWrnMaxNoise', 'Illegal max noise'));
 		$('#config-inputMaxNoise').parent().addClass('alert-danger');
 		$('#config-inputMaxNoise').val(commConfig.noiseLimit.max);
@@ -184,4 +226,40 @@ $('#config-inputMaxNoise').on('blur', function() {
 	}
 	commConfig.noiseLimit.max = maxData;
 	_showMessage('ok', _getLocalesValue('langConfigMsgMaxNoise', 'Max moise setted'));
+});
+$('#config-inputAutoCalibration').on('blur', function() {
+	if (_chkEqual(commConfig.autoCalibration, $('#config-inputAutoCalibration').val())) return;
+	if (!/^\d{1,3}$/.test($('#config-inputAutoCalibration').val().trim()) ||
+		parseInt($('#config-inputAutoCalibration').val().trim()) < 5) {
+		_showMessage('warn', _getLocalesValue('langConfigWrnCalibration', 'Illegal calibration frequency'));
+		$('#config-inputAutoCalibration').parent().addClass('alert-danger');
+		$('#config-inputAutoCalibration').val(commConfig.autoCalibration);
+		$('#config-inputAutoCalibration').focus();
+		setTimeout(function() {
+			$('#config-inputAutoCalibration').parent().removeClass('alert-danger');
+		}, 888);
+		return;
+	}
+	commConfig.autoCalibration = _toInt($('#config-inputAutoCalibration').val());
+	if (_statData.autoCalibrationHandle) {
+		clearInterval(_statData.autoCalibrationHandle);
+		_statData.autoCalibrationHandle = setInterval(_autoCalibration, (commConfig.autoCalibration * 1000));
+	}
+	_showMessage('ok', _getLocalesValue('langConfigMsgAutoCalibration', 'Calibration Frequency setted'));
+});
+$('#config-inputDelayedSampling').on('blur', function() {
+	if (_chkEqual(commConfig.delayedSampling, $('#config-inputDelayedSampling').val())) return;
+	if (!/^\d{1,3}$/.test($('#config-inputDelayedSampling').val().trim()) ||
+		parseInt($('#config-inputAutoCalibration').val().trim()) < 7) {
+		_showMessage('warn', _getLocalesValue('langConfigWrnDelayedSampling', 'Illegal delayed sampling'));
+		$('#config-inputDelayedSampling').parent().addClass('alert-danger');
+		$('#config-inputDelayedSampling').val(commConfig.delayedSampling);
+		$('#config-inputDelayedSampling').focus();
+		setTimeout(function() {
+			$('#config-inputDelayedSampling').parent().removeClass('alert-danger');
+		}, 888);
+		return;
+	}
+	commConfig.delayedSampling = _toInt($('#config-inputDelayedSampling').val());
+	_showMessage('ok', _getLocalesValue('langConfigMsgDelayedSampling', 'Delayed Sampling setted'));
 });

@@ -10,7 +10,7 @@ var _dataAnaylysisWorkerCallback_ = function(event) {
 	//alert(event.data);
 	//return;
 	var dataResult = JSON.parse(event.data);
-//alert(JSON.stringify(dataResult));
+	//alert(JSON.stringify(dataResult));
 	if (dataResult.data === 0) {
 		_setCountDownZero();
 		return;
@@ -145,6 +145,7 @@ var _recalcScale = function(cd) {
 	postData.presureRanges = _statData.scaleData.presureRange.ranges;
 	postData.threshold = _statData.scaleData.threshold;
 	postData.cd = cd;
+	postData.delayedSampling = commConfig.delayedSampling;	
 	dataAnalysisWorker.postMessage(JSON.stringify(postData));
 	/*
 	var newScale = _statData.constantScale;
@@ -265,9 +266,9 @@ var _doAlert = function() {
 	audio.play();
 	setTimeout(function() {
 		audio.pause();
-	}, 3000);
+	}, (commConfig.alertTime * 1000));
 	$('#alert-log-container').prepend('<div class="item-group alert-record"><label>' + (new Date()).Format("yyyy-MM-dd hh:mm:ss") + '</label><br /><span z-lang="langMainMsgCountDownFinished">' + _getLocalesValue('langMainMsgCountDownFinished', 'Move') + '</span></div>');
-	_statData.alertHandle = setTimeout(_doAlert, 120000);
+	_statData.alertHandle = setTimeout(_doAlert, (commConfig.alertFreque * 1000));
 };
 var _parseScaleStream = function(stream) {
 	var tmpFile = stream.toString().replace('\r', '').split('\n');

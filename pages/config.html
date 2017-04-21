@@ -7,10 +7,18 @@
         	<option value="2" z-lang="langConfigSelSheet">Sheet</option>
         </select>
        	<span id="config-labProductionDesc"></span>
-    </div> 
+    </div>
     <div class="item-group">
         <label z-lang="langConfigLabPort" for="config-selectPort">Port: </label>
         <select class="form-control" id="config-selectPort"></select>
+    </div>
+    <div class="item-group">
+        <label z-lang="langConfigLabAlertFreque" for="config-inputAlertFreque">Alert Freque: </label>
+        <input type="text" id="config-inputAlertFreque" maxlength="3" class="form-control number-input" />
+    </div>
+    <div class="item-group">
+        <label z-lang="langConfigLabAlertTime" for="config-inputAlertTime">Alert Time: </label>
+        <input type="text" id="config-inputAlertTime" maxlength="1" class="form-control number-input" />
     </div>
 
     <div class="control-group">
@@ -25,7 +33,7 @@
 	    <br/>
 	    <div class="item-group">
 	        <label z-lang="langConfigLabRadius" for="config-inputRadius">Radius: </label>
-	        <input class="form-control number-input" type="text" id="config-inputRadius" maxlength="3" />
+	        <input class="form-control number-input" type="text" id="config-inputRadius" maxlength="3" readonly="readonly" />
 	    </div>
 	    <br/>
 	    <!--div class="item-group">
@@ -39,5 +47,14 @@
 	        <label class="page-mark">~</label>
 	        <input class="form-control number-input" type="text" id="config-inputMaxNoise" maxlength="5" />
 	    </div-->
+	    <div class="item-group">
+	        <label z-lang="langConfigLabAutoCalibration" for="config-inputAutoCalibration">Calibra Freque: </label>
+	        <input class="form-control number-input" type="text" id="config-inputAutoCalibration" maxlength="3" />
+	    </div>
+	    <br/>
+	    <div class="item-group">
+	        <label z-lang="langConfigLabDelayedSampling" for="config-inputDelayedSampling">Delayed Sampling: </label>
+	        <input class="form-control number-input" type="text" id="config-inputDelayedSampling" maxlength="2" />
+	    </div>
     </div>
 </div>

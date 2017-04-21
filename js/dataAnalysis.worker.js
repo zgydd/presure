@@ -11,6 +11,7 @@ onmessage = function(event) {
 	var newScale = sourceData.baseScale + presureRanges.length;
 	var threshold = sourceData.threshold;
 	var cd = sourceData.cd ? sourceData.cd : 0;
+	var delayedSampling = sourceData.delayedSampling ? sourceData.delayedSampling : 31;
 
 	//var middData = {};
 
@@ -37,7 +38,7 @@ onmessage = function(event) {
 	//middData.cntChangedPointPrec = cntChangedPoint / (innerData.length * innerData[0].length);
 
 	var forceback = false;
-	if (cntChangedPoint / (innerData.length * innerData[0].length) <= 0.6) {
+	if (cntChangedPoint / (innerData.length * innerData[0].length) <= 0.5) {
 		var idxPresureRange = 0;
 		for (idxPresureRange = 0; idxPresureRange <= presureRanges.length; idxPresureRange++) {
 			if (maxPrecent <= ((1024 / presureRanges.length * idxPresureRange) / 1024)) {
@@ -61,11 +62,11 @@ onmessage = function(event) {
 			cd: cd,
 			data: newCountDownRange,
 			forceback: true
-			//middData: middData
+				//middData: middData
 		}));
 	}
 	///*-----------delay recalc
-	if (delayScaleList.length < 6) {
+	if (delayScaleList.length < delayedSampling) {
 		delayScaleList.push(newCountDownRange);
 		preInnerData = innerData;
 		return;
@@ -113,6 +114,6 @@ onmessage = function(event) {
 	postMessage(JSON.stringify({
 		cd: cd,
 		data: newCountDownRange
-		//middData: middData
+			//middData: middData
 	}));
 };

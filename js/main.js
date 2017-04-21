@@ -25,9 +25,13 @@ try {
         try {
             var saveData = {};
             saveData.port = commConfig.port;
+            saveData.alertFreque = commConfig.alertFreque;
+            saveData.alertTime = commConfig.alertTime;
             saveData.baudRange = commConfig.baudRange;
             saveData.radius = commConfig.radius;
-            saveData.flushRange = commConfig.flushRange;
+            //saveData.flushRange = commConfig.flushRange;
+            saveData.autoCalibration = commConfig.autoCalibration;
+            saveData.delayedSampling = commConfig.delayedSampling;
             saveData.productionWidth = commConfig.productionSize.width;
             saveData.productionHeight = commConfig.productionSize.height;
             saveData.minNoise = commConfig.noiseLimit.min;
@@ -50,7 +54,11 @@ var commConfig = {
     port: 'COM15',
     baudRange: 500000,
     radius: 0,
-    flushRange: 1,
+    //flushRange: 1,
+    autoCalibration: 20,
+    alertFreque: 120,
+    alertTime: 3,
+    delayedSampling: 31,
     productionSize: {
         width: 16,
         height: 16
@@ -102,7 +110,7 @@ $(document).ready(function() {
     setConfig(_readFile(_commonConstant.path + _commonConstant.config, 'utf8', 'json'));
     innerData = initInnerData();
     callLocales(_statData.defaultLanguage);
-    _statData.autoCalibrationHandle = setInterval(_autoCalibration, 20000);
+    _statData.autoCalibrationHandle = setInterval(_autoCalibration, (commConfig.autoCalibration * 1000));
     try {
         SerialPort = require('serialport');
         commConfig.portList.length = 0;
@@ -199,9 +207,15 @@ var setFullScreen = function() {
 var setConfig = function(data) {
     if (!data) return;
     if (data.hasOwnProperty('port')) commConfig.port = data.port;
+
+    if (data.hasOwnProperty('alertFreque')) commConfig.alertFreque = _toInt(data.alertFreque);
+    if (data.hasOwnProperty('alertTime')) commConfig.alertTime = _toInt(data.alertTime);
+
     if (data.hasOwnProperty('baudRange')) commConfig.baudRange = _toInt(data.baudRange);
     if (data.hasOwnProperty('radius')) commConfig.radius = _toInt(data.radius);
-    if (data.hasOwnProperty('flushRange')) commConfig.flushRange = _toInt(data.flushRange);
+    //if (data.hasOwnProperty('flushRange')) commConfig.flushRange = _toInt(data.flushRange);
+    if (data.hasOwnProperty('autoCalibration')) commConfig.autoCalibration = _toInt(data.autoCalibration);
+    if (data.hasOwnProperty('delayedSampling')) commConfig.delayedSampling = _toInt(data.delayedSampling);
 
     if (data.hasOwnProperty('productionWidth')) commConfig.productionSize.width = _toInt(data.productionWidth);
     if (data.hasOwnProperty('productionHeight')) commConfig.productionSize.height = _toInt(data.productionHeight);
