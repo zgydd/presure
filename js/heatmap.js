@@ -5,6 +5,10 @@ $(document).ready(function() {
     if (!serialport || !serialport.isOpen()) resetSerialPort();
     if (serialport && serialport.isOpen()) $('#heatmap-btnDoPort').html(_getLocalesValue('langHeatmapBtnClosePort', 'Deconnection'));
     else $('#heatmap-btnDoPort').html(_getLocalesValue('langHeatmapBtnOpenPort', 'Connection'));
+    $('#heatmap-labBack').html(_statData.me.backCounter);
+    $('#heatmap-labLeave').html(_statData.me.leaveCounter);
+    $('#heatmap-labSelfTurn').html(_statData.me.selfTurnCounter);
+    $('#heatmap-labNewScale').html(_statData.me.preScale);
     _fixRadius();
     _resetMainHeight();
 });
@@ -27,6 +31,8 @@ $('#heatmap-btnDoPort').on('click', function() {
         setTimeout(function() {
             serialport.close();
             _statData.portOpened = false;
+            if (_statData.portListener) clearInterval(_statData.portListener);
+            _statData.portListener = 0;
         }, 0);
         $('#heatmap-btnDoPort').html(_getLocalesValue('langHeatmapBtnOpenPort', 'Connection'));
     } else {
@@ -36,7 +42,7 @@ $('#heatmap-btnDoPort').on('click', function() {
                     alert(error);
                 } else {
                     _statData.portOpened = true;
-                    //if()
+                    _statData.portListener = setInterval(_chkPortListener, 500);
                     serialport.on('data', function(data) {
                         getDataFromBuffer(data);
                     });

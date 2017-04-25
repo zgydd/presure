@@ -26,4 +26,6 @@ $('#alert-submit').on('click', function() {
 			});
 		} else $('#countdown').reset(_statData.countDownTime);
 	}
+	$(".overlay").hide();
+	$(".overlay > section").empty();
 });

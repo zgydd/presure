@@ -11,11 +11,25 @@ var _dataAnaylysisWorkerCallback_ = function(event) {
 	//return;
 	var dataResult = JSON.parse(event.data);
 	//alert(JSON.stringify(dataResult));
+	$('.heatmap-datainfo').empty();
+	for (var e in dataResult.middData) {
+		$('.heatmap-datainfo').append('<span>' + e + ':' + JSON.stringify(dataResult.middData[e]) + '</span><br />');
+	}
+	if ($('#heatmap-labNewScale').length)
+		$('#heatmap-labNewScale').get(0).innerText = dataResult.middData.newScale;
+	if (dataResult.forceback) {
+		if ((_statData.me.selfTurnDelay && (new Date()).getTime() - _statData.me.selfTurnDelay <= 3000))
+			_statData.me.selfTurnCounter++;
+		_statData.me.selfTurnDelay = (new Date()).getTime();
+		$('#heatmap-labSelfTurn').html(_statData.me.selfTurnCounter);
+	}
 	if (dataResult.data === 0) {
 		_setCountDownZero();
 		return;
 	}
 	if (!dataResult.forceback && ((dataResult.data * 60) === _statData.preCountDownRange)) return;
+	if ($('#heatmap-labNewScale').length)
+		$('#heatmap-labNewScale').get(0).innerText = _statData.me.preScale = dataResult.middData.newScale;
 	$('#countdown').stop();
 	var tmpDist = (_statData.restDistance - ((_statData.preCountDown - dataResult.cd) / (_statData.preCountDownRange * 60)));
 	var newTime = parseInt(tmpDist * dataResult.data * 60);
@@ -29,6 +43,34 @@ var _dataAnaylysisWorkerCallback_ = function(event) {
 	_statData.preCountDownRange = dataResult.data * 60;
 };
 //commomn logic
+var _chkPortListener = function() {
+	if (!_statData.portOpened || !serialport) return;
+	if (serialport.isOpen()) {
+		_statData.reOpenDelayCnt = 0;
+		return;
+	}
+	if (_statData.reOpenDelayCnt > 3) {
+		_statData.portOpened = false;
+		if (_statData.portListener) clearInterval(_statData.portListener);
+		_statData.portListener = 0;
+		_statData.reOpenDelayCnt = 0;
+		if ($('#heatmap-btnDoPort').length) $('#heatmap-btnDoPort').html(_getLocalesValue('langHeatmapBtnOpenPort', 'Connection'));
+	}
+	try {
+		serialport.open(function(error) {
+			if (error) {
+				_statData.reOpenDelayCnt++;
+			} else {
+				_statData.reOpenDelayCnt = 0;
+				serialport.on('data', function(data) {
+					getDataFromBuffer(data);
+				});
+			}
+		});
+	} catch (e) {
+		_statData.reOpenDelayCnt++;
+	}
+};
 var _resetMainHeight = function() {
 	var height = $(window).height() - ($('footer').outerHeight() * 2.7) - $('nav').outerHeight();
 	if ($('#countdown') && $('#countdown').length &&
@@ -66,7 +108,15 @@ var _autoCalibration = function() {
 		return;
 	}
 	variance = variance / cntData;
-	if (variance < (commConfig.productionSize.width === 16 ? 500 : 1200)) _getCalibrationData();
+	if (variance < (commConfig.productionSize.width === 16 ? 500 : 1500)) {
+		_getCalibrationData();
+		return;
+	}
+	if ($('#countdown').length && $('#countdown').stoped()) {
+		$('#countdown').reset(_statData.countDownTime);
+		_statData.me.backCounter++;
+		if ($('#heatmap-labBack').length) $('#heatmap-labBack').html(_statData.me.backCounter);
+	}
 	//alert('variance=' + variance + ' : avgCalibration=' + avgCalibration + ' : avgInner=' + avgInner);
 	/*
 	if (_statData.maxPresureList.length < commConfig.productionSize.width * commConfig.productionSize.height) return;
@@ -120,6 +170,7 @@ var _recalcScale = function(cd) {
 			serialport.open(function(error) {
 				if (!error) {
 					_statData.portOpened = true;
+					_statData.portListener = setInterval(_chkPortListener, 500);
 					serialport.on('data', function(data) {
 						getDataFromBuffer(data);
 					});
@@ -145,7 +196,7 @@ var _recalcScale = function(cd) {
 	postData.presureRanges = _statData.scaleData.presureRange.ranges;
 	postData.threshold = _statData.scaleData.threshold;
 	postData.cd = cd;
-	postData.delayedSampling = commConfig.delayedSampling;	
+	postData.delayedSampling = commConfig.delayedSampling;
 	dataAnalysisWorker.postMessage(JSON.stringify(postData));
 	/*
 	var newScale = _statData.constantScale;
@@ -413,7 +464,7 @@ var _getActivedScale = function(scaleName) {
 				'!06~12:High risk-30\n' +
 				'!13~14:Moderate risk-60\n' +
 				'!15~18:Low risk-120\n' +
-				'!19~24:No risk-180\n' +
+				'!19~24:No risk-1\n' +
 				'@Presure Subparagraph:4\n' +
 				'$Sensory:4\n' +
 				'$Moisture:4\n' +
@@ -476,6 +527,12 @@ var _getCalibrationData = function() {
 			record.push(innerData[i][j]);
 		}
 		_statData.calibrationData.push(record);
+	}
+	if ($('#countdown').length) {
+		$('#countdown').stop();
+		//How to check leave
+		if (_statData.me.backCounter) _statData.me.leaveCounter = _statData.me.backCounter;
+		$('#heatmap-labLeave').html(_statData.me.leaveCounter);
 	}
 };
 //event

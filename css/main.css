@@ -30,6 +30,27 @@ footer {
 .block {
     display: block !important;
 }
+.overlay {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: rgba(102,102,102,0.6);
+    display: none;
+
+}
+.overlay > section {
+    margin: 2em auto;
+    width: 60%;
+    background-color: #fff;
+    border: 0.125em solid #ccc;
+    border-radius: 0.25em;
+    padding: 0.5em;
+    max-height: 70%;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
 .common-message {
     position: fixed;
     z-index:100;
@@ -287,5 +308,15 @@ main {
     width: 2.5em;
 }
 
-
+#heatmap-content .heatmap-datainfo {
+    display: inline-block;
+    position: absolute;
+    right: 0.125em;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.2);
+    opacity: 0.6;
+    max-width: 30%;
+    max-height: 60%;
+    overflow: auto;
+}
 

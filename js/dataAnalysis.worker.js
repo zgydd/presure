@@ -13,16 +13,15 @@ onmessage = function(event) {
 	var cd = sourceData.cd ? sourceData.cd : 0;
 	var delayedSampling = sourceData.delayedSampling ? sourceData.delayedSampling : 31;
 
-	//var middData = {};
+	var middData = {};
 
-	if (!preInnerData) preInnerData = innerData;
+	if (preInnerData === null) preInnerData = innerData;
 	//##########Algorithms about times and presure################
 	var maxPrecent = 0;
 	var cntChangedPoint = 0;
 	for (var i = 0; i < innerData.length; i++) {
 		for (var j = 0; j < innerData[i].length; j++) {
-			if (Math.abs(preInnerData[i][j] - innerData[i][j]) > 50) cntChangedPoint++;
-
+			if (Math.abs(preInnerData[i][j] - innerData[i][j]) > 30) cntChangedPoint++;
 			if (innerData[i][j] === 0 || innerData[i][j] <= calibrationData[i][j]) continue;
 			maxPrecent = Math.max(maxPrecent, ((innerData[i][j] - calibrationData[i][j]) / (1024 - calibrationData[i][j])));
 		}
@@ -32,22 +31,24 @@ onmessage = function(event) {
 		return;
 	}
 
-	//middData.maxPrecent = maxPrecent;
-	//middData.maxPrecentBase = ((1024 / presureRanges.length * 1) / 1024);
-	//middData.cntChangedPoint = cntChangedPoint;
-	//middData.cntChangedPointPrec = cntChangedPoint / (innerData.length * innerData[0].length);
+	middData.maxPrecent = maxPrecent;
+	middData.maxPrecentBase = ((1024 / (presureRanges.length + 1) * 1) / 1024);
+	middData.cntChangedPoint = cntChangedPoint;
+	middData.cntChangedPointPrec = cntChangedPoint / (innerData.length * innerData[0].length);
 
 	var forceback = false;
-	if (cntChangedPoint / (innerData.length * innerData[0].length) <= 0.5) {
+	if (cntChangedPoint / (innerData.length * innerData[0].length) <= 0.3) {
 		var idxPresureRange = 0;
-		for (idxPresureRange = 0; idxPresureRange <= presureRanges.length; idxPresureRange++) {
-			if (maxPrecent <= ((1024 / presureRanges.length * idxPresureRange) / 1024)) {
+		for (idxPresureRange = 1; idxPresureRange <= presureRanges.length; idxPresureRange++) {
+			if (maxPrecent <= ((1024 / (presureRanges.length + 1) * idxPresureRange) / 1024)) {
 				newScale -= idxPresureRange;
 				break;
 			}
 		}
+		if (idxPresureRange > presureRanges.length) newScale -= presureRanges.length;
+		newScale++;
 	} else forceback = true;
-	//middData.newScale = newScale;
+	middData.newScale = newScale;
 	var newCountDownRange = 0;
 	for (var i = 0; i < threshold.length; i++) {
 		if (threshold[i].min <= newScale && threshold[i].max >= newScale) {
@@ -55,14 +56,14 @@ onmessage = function(event) {
 			break;
 		}
 	}
-	//middData.newCountDownRange = newCountDownRange;
+	middData.newCountDownRange = newCountDownRange;
 	if (forceback) {
 		delayScaleList.length = 0;
 		postMessage(JSON.stringify({
 			cd: cd,
 			data: newCountDownRange,
+			middData: middData,
 			forceback: true
-				//middData: middData
 		}));
 	}
 	///*-----------delay recalc
@@ -94,7 +95,7 @@ onmessage = function(event) {
 		cnt: delayScaleList.length - tmpIdx[tmpIdx.length - 1].cnt,
 		value: delayScaleList[delayScaleList.length - 1]
 	});
-	//middData.tmpIdx = tmpIdx;
+	middData.tmpIdx = tmpIdx;
 	if (tmpIdx.length <= 1) newCountDownRange = delayScaleList[0];
 	else {
 		var max = 0;
@@ -107,13 +108,13 @@ onmessage = function(event) {
 		}
 		if (maxRange !== 0) newCountDownRange = maxRange;
 	}
-	//middData.newCountDownRange2 = newCountDownRange;
+	middData.dualCountDownRange = newCountDownRange;
 	delayScaleList.length = 0;
 	//---------------------------------------*/
 	preInnerData = innerData;
 	postMessage(JSON.stringify({
 		cd: cd,
-		data: newCountDownRange
-			//middData: middData
+		data: newCountDownRange,
+		middData: middData
 	}));
 };

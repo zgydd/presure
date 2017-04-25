@@ -34,12 +34,21 @@
 	};
 
 	$.fn.reset = function(prop) {
-		if (lockTick) clearTimeout(lockTick);
+		if (lockTick) {
+			clearTimeout(lockTick);
+			lockTick = 0;
+		}
 		options.timestamp = prop;
 		if (options.timestamp > 0) lockTick = setTimeout(tick, 1000);
 	};
 	$.fn.stop = function() {
-		if (lockTick) clearTimeout(lockTick);
+		if (lockTick) {
+			clearTimeout(lockTick);
+			lockTick = 0;
+		}
+	};
+	$.fn.stoped = function() {
+		return (options.timestamp > 0 && lockTick === 0);
 	};
 	$.fn.setFinished = function() {
 		options.timestamp = 0;
@@ -48,7 +57,10 @@
 		updateDuo(4, 5, 0);
 	};
 	$.fn.destory = function() {
-		if (lockTick) clearTimeout(lockTick);
+		if (lockTick) {
+			clearTimeout(lockTick);
+			lockTick = 0;
+		}
 		hours = null;
 		minutes = null;
 		options = null;
@@ -126,7 +138,10 @@
 	}
 
 	function tick() {
-		if (lockTick) clearTimeout(lockTick);
+		if (lockTick) {
+			clearTimeout(lockTick);
+			lockTick = 0;
+		}
 		var left, h, m, s;
 		// Time left
 		left = --options.timestamp;

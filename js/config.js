@@ -250,7 +250,7 @@ $('#config-inputAutoCalibration').on('blur', function() {
 $('#config-inputDelayedSampling').on('blur', function() {
 	if (_chkEqual(commConfig.delayedSampling, $('#config-inputDelayedSampling').val())) return;
 	if (!/^\d{1,3}$/.test($('#config-inputDelayedSampling').val().trim()) ||
-		parseInt($('#config-inputAutoCalibration').val().trim()) < 7) {
+		parseInt($('#config-inputDelayedSampling').val().trim()) < 7) {
 		_showMessage('warn', _getLocalesValue('langConfigWrnDelayedSampling', 'Illegal delayed sampling'));
 		$('#config-inputDelayedSampling').parent().addClass('alert-danger');
 		$('#config-inputDelayedSampling').val(commConfig.delayedSampling);

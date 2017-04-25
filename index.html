@@ -45,7 +45,7 @@
                                 <span z-lang="langMainNavLinkScale">Scale</span>
                             </a>
                         </li>
-                        <li>
+                        <li style="display: none;">
                             <a href="#" onclick="callSet()">
                                 <i class="icon-edit"></i>
                                 <span z-lang="langMainNavLinkSet">Set</span>
@@ -87,7 +87,10 @@
         <article id="countdown"></article>
         <main id="main-content"></main>
 
-        <audio id="main-audio-alert" src="./asset/alert.ogg" loop="loop"></audio>
+        <div class="overlay">
+            <audio id="main-audio-alert" src="./asset/alert.ogg" loop="loop"></audio>
+            <section></section>
+        </div>
         <footer>
             <small>&copy;Copyright 2017</small>
         </footer>

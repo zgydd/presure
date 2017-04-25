@@ -83,6 +83,15 @@ var _statData = {
     preCountDownRange: 0,
     preCountDown: 0,
     portOpened: false,
+    portListener: 0,
+    reOpenDelayCnt: 0,
+    me: {
+        leaveCounter: 0,
+        backCounter: 0,
+        selfTurnCounter: 0,
+        selfTurnDelay: 0,
+        preScale: 0
+    },
     alertHandle: 0,
     autoCalibrationHandle: 0,
     //delayScaleList: [],
@@ -187,11 +196,17 @@ var callLocales = function(lang) {
     });
 };
 var _callAlert = function() {
+    /*
     if (_statData.activedPage != 'alert') {
         _statData.activedPage = 'alert';
         //heatmapInstance = null;
         $("#main-content").load('pages/alert.html');
     }
+    _doAlert();
+    */
+    $(".overlay > section").empty();
+    $(".overlay > section").load('pages/alert.html');
+    $(".overlay").fadeIn(666);
     _doAlert();
 };
 var changeLocales = function(lang) {
@@ -235,6 +250,8 @@ var setConfig = function(data) {
 var _destoryMe = function() {
     if (serialport && serialport.isOpen()) {
         _statData.portOpened = false;
+        if (_statData.portListener) clearInterval(_statData.portListener);
+        _statData.portListener = 0;
         serialport.close();
     }
     serialport = null;
@@ -272,6 +289,8 @@ var resetSerialPort = function() {
         if (serialport && serialport.isOpen()) {
             serialport.close();
             _statData.portOpened = false;
+            if (_statData.portListener) clearInterval(_statData.portListener);
+            _statData.portListener = 0;
         }
     } catch (e) {
         alert(_getLocalesValue('langErrClosePort', 'Fail to close old serial port'));
@@ -344,6 +363,7 @@ var setHeatMap = function(innerData) {
         x: 0,
         y: 0
     };
+    var maxList = [];
     var max = 0;
     var min = 1024;
     var realMax = 0;
@@ -373,12 +393,13 @@ var setHeatMap = function(innerData) {
                 //if (numData < Math.abs(commConfig.noiseLimit.min - _statData.calibrationData[i][j]))
                 //    numData = 0;
             }
-            var point = {
-                x: i * radius + radius,
-                y: j * radius + radius,
-                value: numData
-            };
-            points.push(point);
+            if (numData > 5) {
+                points.push({
+                    x: i * radius + radius,
+                    y: j * radius + radius,
+                    value: numData
+                });
+            }
         }
     }
     // heatmap data format
