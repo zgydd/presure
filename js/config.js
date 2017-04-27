@@ -11,6 +11,11 @@ $(document).ready(function() {
 		if (commConfig.hasOwnProperty('autoCalibration')) $('#config-inputAutoCalibration').val(commConfig.autoCalibration);
 		if (commConfig.hasOwnProperty('delayedSampling')) $('#config-inputDelayedSampling').val(commConfig.delayedSampling);
 
+		if (commConfig.hasOwnProperty('edgeCheckDelay')) $('#config-inputEdgeCheckDelay').val(commConfig.edgeCheckDelay);
+		if (commConfig.hasOwnProperty('collapseRateWeight')) $('#config-inputCollapseRateWeight').val(commConfig.collapseRateWeight);
+		if (commConfig.hasOwnProperty('edgeConfidence')) $('#config-inputEdgeConfidence').val(commConfig.edgeConfidence);
+		if (commConfig.hasOwnProperty('edgeSensitivity')) $('#config-inputEdgeSensitivity').val(commConfig.edgeSensitivity);
+
 		if (commConfig.hasOwnProperty('noiseLimit') && commConfig.noiseLimit.hasOwnProperty('min'))
 			$('#config-inputMinNoise').val(commConfig.noiseLimit.min);
 		if (commConfig.hasOwnProperty('noiseLimit') && commConfig.noiseLimit.hasOwnProperty('max'))
@@ -262,4 +267,69 @@ $('#config-inputDelayedSampling').on('blur', function() {
 	}
 	commConfig.delayedSampling = _toInt($('#config-inputDelayedSampling').val());
 	_showMessage('ok', _getLocalesValue('langConfigMsgDelayedSampling', 'Delayed Sampling setted'));
+});
+$('#config-inputEdgeCheckDelay').on('blur', function() {
+	if (_chkEqual(commConfig.edgeCheckDelay, $('#config-inputEdgeCheckDelay').val())) return;
+	if (!/^\d{1,2}$/.test($('#config-inputEdgeCheckDelay').val().trim()) ||
+		parseInt($('#config-inputEdgeCheckDelay').val().trim()) < 3) {
+		_showMessage('warn', _getLocalesValue('langConfigWrnEdgeCheckDelay', 'Illegal edge check delay'));
+		$('#config-inputEdgeCheckDelay').parent().addClass('alert-danger');
+		$('#config-inputEdgeCheckDelay').val(commConfig.edgeCheckDelay);
+		$('#config-inputEdgeCheckDelay').focus();
+		setTimeout(function() {
+			$('#config-inputEdgeCheckDelay').parent().removeClass('alert-danger');
+		}, 888);
+		return;
+	}
+	commConfig.edgeCheckDelay = _toInt($('#config-inputEdgeCheckDelay').val());
+	_showMessage('ok', _getLocalesValue('langConfigMsgEdgeCheckDelay', 'Edge Check Delay setted'));
+});
+$('#config-inputCollapseRateWeight').on('blur', function() {
+	if (_chkEqual(commConfig.collapseRateWeight, $('#config-inputCollapseRateWeight').val())) return;
+	if (!/^\d{1,4}$/.test($('#config-inputCollapseRateWeight').val().trim()) ||
+		parseInt($('#config-inputCollapseRateWeight').val().trim()) < 6) {
+		_showMessage('warn', _getLocalesValue('langConfigWrnCollapseRateWeight', 'Illegal collapse rate weight'));
+		$('#config-inputCollapseRateWeight').parent().addClass('alert-danger');
+		$('#config-inputCollapseRateWeight').val(commConfig.collapseRateWeight);
+		$('#config-inputCollapseRateWeight').focus();
+		setTimeout(function() {
+			$('#config-inputCollapseRateWeight').parent().removeClass('alert-danger');
+		}, 888);
+		return;
+	}
+	commConfig.collapseRateWeight = _toInt($('#config-inputCollapseRateWeight').val());
+	_showMessage('ok', _getLocalesValue('langConfigMsgCollapseRateWeight', 'Collapse Rate Weight setted'));
+});
+$('#config-inputEdgeConfidence').on('blur', function() {
+	if (_chkEqual(commConfig.edgeConfidence, $('#config-inputEdgeConfidence').val())) return;
+	if (!/^\d{1}$/.test($('#config-inputEdgeConfidence').val().trim()) ||
+		parseInt($('#config-inputEdgeConfidence').val().trim()) <= 0 ||
+		parseInt($('#config-inputEdgeConfidence').val().trim()) > 4) {
+		_showMessage('warn', _getLocalesValue('langConfigWrnEdgeConfidence', 'Illegal edge confidence'));
+		$('#config-inputEdgeConfidence').parent().addClass('alert-danger');
+		$('#config-inputEdgeConfidence').val(commConfig.edgeConfidence);
+		$('#config-inputEdgeConfidence').focus();
+		setTimeout(function() {
+			$('#config-inputEdgeConfidence').parent().removeClass('alert-danger');
+		}, 888);
+		return;
+	}
+	commConfig.edgeConfidence = _toInt($('#config-inputEdgeConfidence').val());
+	_showMessage('ok', _getLocalesValue('langConfigMsgEdgeConfidence', 'Edge Confidence setted'));
+});
+$('#config-inputEdgeSensitivity').on('blur', function() {
+	if (_chkEqual(commConfig.edgeSensitivity, $('#config-inputEdgeSensitivity').val())) return;
+	if (!/^\d{1,2}$/.test($('#config-inputEdgeSensitivity').val().trim()) ||
+		parseInt($('#config-inputEdgeSensitivity').val().trim()) <= 3) {
+		_showMessage('warn', _getLocalesValue('langConfigWrnEdgeSensitivity', 'Illegal edge sensitivity'));
+		$('#config-inputEdgeSensitivity').parent().addClass('alert-danger');
+		$('#config-inputEdgeSensitivity').val(commConfig.edgeSensitivity);
+		$('#config-inputEdgeSensitivity').focus();
+		setTimeout(function() {
+			$('#config-inputEdgeSensitivity').parent().removeClass('alert-danger');
+		}, 888);
+		return;
+	}
+	commConfig.edgeSensitivity = _toInt($('#config-inputEdgeSensitivity').val());
+	_showMessage('ok', _getLocalesValue('langConfigMsgEdgeSensitivity', 'Edge Sensitivity setted'));
 });

@@ -3,7 +3,7 @@
 $(document).ready(function() {
 	callLocales(_statData.defaultLanguage);
 	if (!$('#alert-log-container').children() || !$('#alert-log-container').children().length)
-		$('#alert-log-container').append('<div class="item-group alert-record"><label>' + (new Date()).Format("yyyy-MM-dd hh:mm:ss") + '</label><br /><span z-lang="langMainMsgCountDownFinished">' + _getLocalesValue('langMainMsgCountDownFinished', 'Move move move') + '</span></div>');
+		_appendAlertRecord();
 	_resetMainHeight();
 });
 
@@ -26,6 +26,8 @@ $('#alert-submit').on('click', function() {
 			});
 		} else $('#countdown').reset(_statData.countDownTime);
 	}
+	_statData.me.actioned = (new Date()).getTime();
 	$(".overlay").hide();
 	$(".overlay > section").empty();
+	_resetMy();
 });

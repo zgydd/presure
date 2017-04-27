@@ -122,3 +122,16 @@ Date.prototype.Format = function(fmt) {
 			fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
 	return fmt;
 };
+Date.prototype.getDiff = function(oldTimeStamp) {
+	var timeStampDiff = this.getTime() - oldTimeStamp;
+
+	var days = Math.floor(timeStampDiff / (24 * 3600 * 1000));
+	var leave1 = timeStampDiff % (24 * 3600 * 1000);
+	var hours = Math.floor(leave1 / (3600 * 1000));
+	var leave2 = leave1 % (3600 * 1000);
+	var minutes = Math.floor(leave2 / (60 * 1000));
+	var leave3 = leave2 % (60 * 1000);
+	var seconds = Math.round(leave3 / 1000);
+
+	return days + " : " + hours + " : " + minutes + " : " + seconds;
+};

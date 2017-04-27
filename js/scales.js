@@ -11,6 +11,7 @@ $(document).ready(function() {
 });
 $('#scale-submit').on('click', function() {
 	if ($(this).hasClass('disabled')) return;
+	_resetMy();
 	_statData.me.preScale = _statData.constantScale + _statData.scaleData.presureRange.ranges.length;
 	_statData.preCountDown = _statData.preCountDownRange = _statData.countDownTime;
 	if (_statData.countDownTime <= 0) {
@@ -29,6 +30,7 @@ $('#scale-submit').on('click', function() {
 			});
 		} else $('#countdown').reset(_statData.countDownTime);
 	}
+	_statData.me.actioned = (new Date()).getTime();
 	callHeatmap();
 });
 $('.nav-pills li').on('click', function() {

@@ -15,12 +15,45 @@ var _dataAnaylysisWorkerCallback_ = function(event) {
 	for (var e in dataResult.middData) {
 		$('.heatmap-datainfo').append('<span>' + e + ':' + JSON.stringify(dataResult.middData[e]) + '</span><br />');
 	}
+	if (dataResult.test) return;
+
 	if ($('#heatmap-labNewScale').length)
-		$('#heatmap-labNewScale').get(0).innerText = dataResult.middData.newScale;
+		$('#heatmap-labNewScale').html(dataResult.middData.newScale);
+
+	if (dataResult.middData.innerPos && $('#edgeCav').length) {
+		var cav = document.getElementById('edgeCav');
+		var context = cav.getContext('2d');
+		var widthBase = cav.width / (commConfig.productionSize.height - 1);
+		var heightBase = cav.height / (commConfig.productionSize.width - 1);
+		context.save();
+		context.clearRect(0, 0, cav.width, cav.height);
+		context.lineWidth = 1;
+		context.strokeStyle = 'rgba(255, 0, 0, 0.6)';
+		context.beginPath();
+		context.moveTo((dataResult.middData.innerPos.topLeft.x * widthBase - 0.5), (dataResult.middData.innerPos.topLeft.y * heightBase - 0.5));
+		context.lineTo((dataResult.middData.innerPos.topRight.x * widthBase - 0.5), (dataResult.middData.innerPos.topRight.y * heightBase - 0.5));
+		context.lineTo((dataResult.middData.innerPos.rightTop.x * widthBase - 0.5), (dataResult.middData.innerPos.rightTop.y * heightBase - 0.5));
+		context.lineTo((dataResult.middData.innerPos.rightBottom.x * widthBase - 0.5), (dataResult.middData.innerPos.rightBottom.y * heightBase - 0.5));
+		context.lineTo((dataResult.middData.innerPos.bottomRight.x * widthBase - 0.5), (dataResult.middData.innerPos.bottomRight.y * heightBase - 0.5));
+		context.lineTo((dataResult.middData.innerPos.bottomLeft.x * widthBase - 0.5), (dataResult.middData.innerPos.bottomLeft.y * heightBase - 0.5));
+		context.lineTo((dataResult.middData.innerPos.leftBottom.x * widthBase - 0.5), (dataResult.middData.innerPos.leftBottom.y * heightBase - 0.5));
+		context.lineTo((dataResult.middData.innerPos.leftTop.x * widthBase - 0.5), (dataResult.middData.innerPos.leftTop.y * heightBase - 0.5));
+		context.lineTo((dataResult.middData.innerPos.topLeft.x * widthBase - 0.5), (dataResult.middData.innerPos.topLeft.y * heightBase - 0.5));
+		context.stroke();
+	}
+
+	if (dataResult.leave) {
+		if ($('#countdown').length) $('#countdown').stop();
+		if ($('#edgeCav').length) {
+			var cav = document.getElementById('edgeCav');
+			var context = cav.getContext('2d');
+			context.clearRect(0, 0, cav.width, cav.height);
+		}
+		_statData.me.leaveCounter++;
+		if ($('#heatmap-labLeave').length) $('#heatmap-labLeave').html(_statData.me.leaveCounter);
+	}
 	if (dataResult.forceback) {
-		if ((_statData.me.selfTurnDelay && (new Date()).getTime() - _statData.me.selfTurnDelay <= 3000))
-			_statData.me.selfTurnCounter++;
-		_statData.me.selfTurnDelay = (new Date()).getTime();
+		_statData.me.selfTurnCounter++;
 		$('#heatmap-labSelfTurn').html(_statData.me.selfTurnCounter);
 	}
 	if (dataResult.data === 0) {
@@ -28,8 +61,7 @@ var _dataAnaylysisWorkerCallback_ = function(event) {
 		return;
 	}
 	if (!dataResult.forceback && ((dataResult.data * 60) === _statData.preCountDownRange)) return;
-	if ($('#heatmap-labNewScale').length)
-		$('#heatmap-labNewScale').get(0).innerText = _statData.me.preScale = dataResult.middData.newScale;
+	_statData.me.preScale = dataResult.middData.newScale;
 	$('#countdown').stop();
 	var tmpDist = (_statData.restDistance - ((_statData.preCountDown - dataResult.cd) / (_statData.preCountDownRange * 60)));
 	var newTime = parseInt(tmpDist * dataResult.data * 60);
@@ -41,6 +73,21 @@ var _dataAnaylysisWorkerCallback_ = function(event) {
 	_statData.restDistance = tmpDist;
 	_statData.preCountDown = newTime;
 	_statData.preCountDownRange = dataResult.data * 60;
+};
+var _countDownCallBack = function(hours, minutes, seconds, cd) {
+	//console.log(hours + ':' + minutes + ':' + seconds);
+	if (cd <= 60) {
+		$('#countdown').removeClass('alert-success');
+		$('#countdown').addClass('alert-danger');
+	} else {
+		$('#countdown').removeClass('alert-danger');
+		$('#countdown').addClass('alert-success');
+	}
+	if (cd === 0) {
+		_setCountDownZero();
+		return;
+	}
+	_recalcScale(cd);
 };
 //commomn logic
 var _chkPortListener = function() {
@@ -117,52 +164,6 @@ var _autoCalibration = function() {
 		_statData.me.backCounter++;
 		if ($('#heatmap-labBack').length) $('#heatmap-labBack').html(_statData.me.backCounter);
 	}
-	//alert('variance=' + variance + ' : avgCalibration=' + avgCalibration + ' : avgInner=' + avgInner);
-	/*
-	if (_statData.maxPresureList.length < commConfig.productionSize.width * commConfig.productionSize.height) return;
-	var max = 0;
-
-	max = _statData.maxPresureList[_statData.maxPresureList.length - 1];
-	var aHasValue = [];
-	for (var i = 0; i < _statData.maxPresureList.length; i++) {
-	    max = Math.max(max, _statData.maxPresureList[i]);
-	    if (_statData.maxPresureList[i] === 0) continue;
-	    aHasValue.push(_statData.maxPresureList[i]);
-	}
-
-	aHasValue = aHasValue.sort().slice(Math.floor(aHasValue.length / 4), Math.floor(aHasValue.length * 3 / 4));
-
-	var avg = eval(aHasValue.join('+')) / aHasValue.length;
-
-	if (commConfig.noiseLimit.min < 10) {
-	    commConfig.noiseLimit.min = max + 10;
-	    _statData.preAvgPresure = avg;
-	    if (heatmapInstance) heatmapInstance.repaint();
-	} else {
-	    if (avg <= Math.ceil(_statData.preAvgPresure * 1.2) && avg >= Math.floor(_statData.preAvgPresure * 0.8)) {
-	        commConfig.noiseLimit.min = max + 10;
-	        _statData.preAvgPresure = avg;
-	        if (heatmapInstance) heatmapInstance.repaint();
-	    }
-	}
-	_statData.maxPresureList.length = 0;
-	//alert(commConfig.noiseLimit.min);
-	*/
-};
-var _countDownCallBack = function(hours, minutes, seconds, cd) {
-	//console.log(hours + ':' + minutes + ':' + seconds);
-	if (cd <= 60) {
-		$('#countdown').removeClass('alert-success');
-		$('#countdown').addClass('alert-danger');
-	} else {
-		$('#countdown').removeClass('alert-danger');
-		$('#countdown').addClass('alert-success');
-	}
-	if (cd === 0) {
-		_setCountDownZero();
-		return;
-	}
-	_recalcScale(cd);
 };
 var _recalcScale = function(cd) {
 	if (serialport && !serialport.isOpen()) {
@@ -197,93 +198,11 @@ var _recalcScale = function(cd) {
 	postData.threshold = _statData.scaleData.threshold;
 	postData.cd = cd;
 	postData.delayedSampling = commConfig.delayedSampling;
+	postData.edgeCheckDelay = commConfig.edgeCheckDelay;
+	postData.collapseRateWeight = commConfig.collapseRateWeight;
+	postData.edgeConfidence = commConfig.edgeConfidence;
+    postData.edgeSensitivity = commConfig.edgeSensitivity;
 	dataAnalysisWorker.postMessage(JSON.stringify(postData));
-	/*
-	var newScale = _statData.constantScale;
-
-	var maxPrecent = 0;
-	for (var i = 0; i < innerData.length; i++) {
-		for (var j = 0; j < innerData[i].length; j++) {
-			if (innerData[i][j] === 0 || innerData[i][j] <= _statData.calibrationData[i][j]) continue;
-			maxPrecent = Math.max(maxPrecent, (innerData[i][j] - _statData.calibrationData[i][j]) / (1024 - _statData.calibrationData[i][j]));
-		}
-	}
-	var idxPresureRange = 0;
-	for (idxPresureRange = _statData.scaleData.presureRange.ranges.length; idxPresureRange > 0; idxPresureRange--) {
-		if (maxPrecent > ((1024 / _statData.scaleData.presureRange.ranges.length * idxPresureRange) / 1024)) {
-			newScale += idxPresureRange;
-			break;
-		}
-	}
-	if (idxPresureRange <= 0) newScale += _statData.scaleData.presureRange.ranges.length;
-	var newCountDownRange = 0;
-	for (var i = 0; i < _statData.scaleData.threshold.length; i++) {
-		if (_statData.scaleData.threshold[i].min <= newScale && _statData.scaleData.threshold[i].max >= newScale) {
-			newCountDownRange = _statData.scaleData.threshold[i].rangeTime;
-			break;
-		}
-	}
-
-	///*-----------delay recalc
-	if (_statData.delayScaleList.length < 31) {
-		_statData.delayScaleList.push(newCountDownRange);
-		return;
-	}
-	_statData.delayScaleList.sort();
-
-	var tmpIdx = [];
-	for (var i = 0; i < _statData.delayScaleList.length - 1; i++) {
-		if (_statData.delayScaleList[i] !== _statData.delayScaleList[i + 1]) {
-			if (!tmpIdx.length) tmpIdx.push({
-				cnt: i + 1,
-				value: _statData.delayScaleList[i]
-			});
-			else tmpIdx.push({
-				cnt: i + 1 - tmpIdx[tmpIdx.length - 1].cnt,
-				value: _statData.delayScaleList[i]
-			});
-		}
-	}
-	if (!tmpIdx.length) tmpIdx.push({
-		cnt: _statData.delayScaleList.length,
-		value: _statData.delayScaleList[_statData.delayScaleList.length - 1]
-	});
-	else tmpIdx.push({
-		cnt: _statData.delayScaleList.length - tmpIdx[tmpIdx.length - 1],
-		value: _statData.delayScaleList[_statData.delayScaleList.length - 1]
-	});
-	if (tmpIdx.length <= 1) newCountDownRange = _statData.delayScaleList[0];
-	else {
-		var max = 0;
-		var maxRange = 0;
-		for (var i = 0; i < tmpIdx.length; i++) {
-			if (tmpIdx[i].cnt > max) {
-				maxRange = tmpIdx[i].value;
-				max = tmpIdx[i].cnt;
-			}
-		}
-		if (maxRange !== 0) newCountDownRange = maxRange;
-	}
-	_statData.delayScaleList.length = 0;
-	//----------------------
-
-	if (newCountDownRange === 0) {
-		_setCountDownZero();
-		return;
-	}
-	if ((newCountDownRange * 60) === _statData.preCountDownRange) return;
-	$('#countdown').stop();
-	var tmpDist = (_statData.restDistance - ((_statData.preCountDown - cd) / (_statData.preCountDownRange * 60)));
-	var newTime = parseInt(tmpDist * newCountDownRange * 60);
-	if (newTime <= 0) {
-		_setCountDownZero();
-		return;
-	}
-	$('#countdown').reset(newTime);
-	_statData.restDistance = tmpDist;
-	_statData.preCountDown = newTime;
-	_statData.preCountDownRange = newCountDownRange * 60;
-	*/
 };
 
 var _setCountDownZero = function() {
@@ -312,13 +231,28 @@ var _setCountDownZero = function() {
 	_statData.restDistance = 1;
 	_callAlert();
 };
+var _appendAlertRecord = function() {
+	var htmRecord = '<div class="item-group alert-record">' +
+		'<label>' + (new Date()).Format("yyyy-MM-dd hh:mm:ss") + '</label><br />' +
+		'<label z-lang="">' + _getLocalesValue('', 'Count time: ') + '</label>' +
+		'<span>' + (new Date()).getDiff(_statData.me.actioned) + '</span><br />' +
+		'<label z-lang="langHeatmapLabLeave">' + _getLocalesValue('langHeatmapLabLeave', 'Leave times: ') + '</label>' +
+		'<span>' + _statData.me.leaveCounter + '</span><br />' +
+		'<label z-lang="langHeatmapLabBack">' + _getLocalesValue('langHeatmapLabBack', 'Back times: ') + '</label>' +
+		'<span>' + _statData.me.backCounter + '</span><br />' +
+		'<label z-lang="langHeatmapLabSelfTurn">' + _getLocalesValue('langHeatmapLabSelfTurn', 'Self Turn: ') + '</label>' +
+		'<span>' + _statData.me.selfTurnCounter + '</span><br />' +
+		'<span z-lang="langMainMsgCountDownFinished">' + _getLocalesValue('langMainMsgCountDownFinished', 'Move') + '</span>' +
+		'</div>';
+	$('#alert-log-container').prepend(htmRecord);
+};
 var _doAlert = function() {
 	var audio = document.getElementById('main-audio-alert');
 	audio.play();
 	setTimeout(function() {
 		audio.pause();
 	}, (commConfig.alertTime * 1000));
-	$('#alert-log-container').prepend('<div class="item-group alert-record"><label>' + (new Date()).Format("yyyy-MM-dd hh:mm:ss") + '</label><br /><span z-lang="langMainMsgCountDownFinished">' + _getLocalesValue('langMainMsgCountDownFinished', 'Move') + '</span></div>');
+	_appendAlertRecord();
 	_statData.alertHandle = setTimeout(_doAlert, (commConfig.alertFreque * 1000));
 };
 var _parseScaleStream = function(stream) {
@@ -514,8 +448,12 @@ var _fixRadius = function() {
 	//canvas.width = width;
 	//canvas.height = height;
 
+	$('#edgeCav').width(width);
+	$('#edgeCav').height(height);
+
 	$('.heatmap').width(width);
 	$('.heatmap').height(height);
+
 	$('.heatmap').empty();
 	resetHeatmap();
 };
@@ -527,12 +465,6 @@ var _getCalibrationData = function() {
 			record.push(innerData[i][j]);
 		}
 		_statData.calibrationData.push(record);
-	}
-	if ($('#countdown').length) {
-		$('#countdown').stop();
-		//How to check leave
-		if (_statData.me.backCounter) _statData.me.leaveCounter = _statData.me.backCounter;
-		$('#heatmap-labLeave').html(_statData.me.leaveCounter);
 	}
 };
 //event
@@ -746,4 +678,14 @@ var _addItemEvent = function() {
 	$('#set-modalEdit').modal({
 		keyboard: false
 	});
+};
+var _resetMy = function() {
+	_statData.me.leaveCounter = 0;
+	if ($('#heatmap-labLeave').length) $('#heatmap-labLeave').html(_statData.me.leaveCounter);
+	_statData.me.backCounter = 0;
+	if ($('#heatmap-labBack').length) $('#heatmap-labBack').html(_statData.me.backCounter);
+	_statData.me.selfTurnCounter = 0;
+	if ($('#heatmap-labSelfTurn').length) $('#heatmap-labSelfTurn').html(_statData.me.selfTurnCounter);
+	_statData.me.selfTurnDelay = 0;
+	_statData.me.preScale = 0;
 };

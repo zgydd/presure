@@ -32,6 +32,10 @@ try {
             //saveData.flushRange = commConfig.flushRange;
             saveData.autoCalibration = commConfig.autoCalibration;
             saveData.delayedSampling = commConfig.delayedSampling;
+            saveData.edgeCheckDelay = commConfig.edgeCheckDelay;
+            saveData.collapseRateWeight = commConfig.collapseRateWeight;
+            saveData.edgeConfidence = commConfig.edgeConfidence;
+            saveData.edgeSensitivity = commConfig.edgeSensitivity;
             saveData.productionWidth = commConfig.productionSize.width;
             saveData.productionHeight = commConfig.productionSize.height;
             saveData.minNoise = commConfig.noiseLimit.min;
@@ -51,7 +55,7 @@ try {
 
 //config data
 var commConfig = {
-    port: 'COM15',
+    port: 'COM1',
     baudRange: 500000,
     radius: 0,
     //flushRange: 1,
@@ -59,6 +63,10 @@ var commConfig = {
     alertFreque: 120,
     alertTime: 3,
     delayedSampling: 31,
+    edgeCheckDelay: 5,
+    collapseRateWeight: 6,
+    edgeConfidence: 3,
+    edgeSensitivity: 5,
     productionSize: {
         width: 16,
         height: 16
@@ -86,10 +94,10 @@ var _statData = {
     portListener: 0,
     reOpenDelayCnt: 0,
     me: {
+        actioned: 0,
         leaveCounter: 0,
         backCounter: 0,
         selfTurnCounter: 0,
-        selfTurnDelay: 0,
         preScale: 0
     },
     alertHandle: 0,
@@ -231,6 +239,11 @@ var setConfig = function(data) {
     //if (data.hasOwnProperty('flushRange')) commConfig.flushRange = _toInt(data.flushRange);
     if (data.hasOwnProperty('autoCalibration')) commConfig.autoCalibration = _toInt(data.autoCalibration);
     if (data.hasOwnProperty('delayedSampling')) commConfig.delayedSampling = _toInt(data.delayedSampling);
+
+    if (data.hasOwnProperty('edgeCheckDelay')) commConfig.edgeCheckDelay = _toInt(data.edgeCheckDelay);
+    if (data.hasOwnProperty('collapseRateWeight')) commConfig.collapseRateWeight = _toInt(data.collapseRateWeight);
+    if (data.hasOwnProperty('edgeConfidence')) commConfig.edgeConfidence = _toInt(data.edgeConfidence);
+    if (data.hasOwnProperty('edgeSensitivity')) commConfig.edgeSensitivity = _toInt(data.edgeSensitivity);
 
     if (data.hasOwnProperty('productionWidth')) commConfig.productionSize.width = _toInt(data.productionWidth);
     if (data.hasOwnProperty('productionHeight')) commConfig.productionSize.height = _toInt(data.productionHeight);
