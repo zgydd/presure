@@ -402,7 +402,8 @@ var setHeatMap = function(innerData) {
             min = Math.min(min, numData);
 
             if (_statData.calibrationData.length > i && _statData.calibrationData[0].length > j) {
-                numData = Math.abs(numData - _statData.calibrationData[i][j]);
+                if (numData < _statData.calibrationData[i][j]) numData = 0;
+                else numData = Math.abs(numData - _statData.calibrationData[i][j]);
                 //if (numData < Math.abs(commConfig.noiseLimit.min - _statData.calibrationData[i][j]))
                 //    numData = 0;
             }

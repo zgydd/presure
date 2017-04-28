@@ -201,7 +201,7 @@ var _recalcScale = function(cd) {
 	postData.edgeCheckDelay = commConfig.edgeCheckDelay;
 	postData.collapseRateWeight = commConfig.collapseRateWeight;
 	postData.edgeConfidence = commConfig.edgeConfidence;
-    postData.edgeSensitivity = commConfig.edgeSensitivity;
+	postData.edgeSensitivity = commConfig.edgeSensitivity;
 	dataAnalysisWorker.postMessage(JSON.stringify(postData));
 };
 
@@ -234,7 +234,7 @@ var _setCountDownZero = function() {
 var _appendAlertRecord = function() {
 	var htmRecord = '<div class="item-group alert-record">' +
 		'<label>' + (new Date()).Format("yyyy-MM-dd hh:mm:ss") + '</label><br />' +
-		'<label z-lang="">' + _getLocalesValue('', 'Count time: ') + '</label>' +
+		'<label z-lang="langHeatmapLabCountTime">' + _getLocalesValue('langHeatmapLabCountTime', 'Count time: ') + '</label>' +
 		'<span>' + (new Date()).getDiff(_statData.me.actioned) + '</span><br />' +
 		'<label z-lang="langHeatmapLabLeave">' + _getLocalesValue('langHeatmapLabLeave', 'Leave times: ') + '</label>' +
 		'<span>' + _statData.me.leaveCounter + '</span><br />' +
