@@ -28,6 +28,7 @@ $('#scale-submit').on('click', function() {
 				timestamp: _statData.countDownTime,
 				callback: _countDownCallBack
 			});
+			$('#countdown .countDownMark').on('click', _triggerCountDown);
 		} else $('#countdown').reset(_statData.countDownTime);
 	}
 	_statData.me.actioned = (new Date()).getTime();

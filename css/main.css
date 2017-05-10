@@ -100,17 +100,25 @@ footer {
     z-index: 30;
     overflow: hidden;
     white-space: nowrap;
-    border-bottom-left-radius: 0.25em;
-    border-bottom-right-radius: 0.25em;
+    border-top-left-radius: 0.25em;
+    border-top-right-radius: 0.25em;
     opacity: 0.9;
     position: absolute;
-    width: 100%;
-    bottom: 1.11em;
+    /*width: 100%;*/
+    right: 0;
+    bottom: 0em;
+    left: 0;
+    margin: 0 30%;
     padding-top: 0.25em;
     /*margin-top: -2.43em;*/
-    transition: background-color 1s ease-in, margin-top 1s ease-in;
+    transition: background-color 1s ease-in, bottom 0.8s ease-in;
 }
-
+#countdown .countDownMark {
+    display: block;
+    font-size: 0.6em;
+    line-height: 0.6em;
+    cursor: pointer;
+}
 main {
     overflow: auto;
     position: relative;
@@ -183,7 +191,7 @@ main {
 }
 .heatmap-container {
     display: inline-block;
-    margin: 1.75em;
+    margin: 0;
     -webkit-box-shadow: 0.375em 0.375em 0.625em rgba(255,50,0,0.5),
                         0.625em 0.625em 1.25em #270;
     box-shadow: 0.375em 0.375em 0.625em rgba(255,0,0,0.75),

@@ -71,22 +71,24 @@
 
 	function init(elem, options) {
 		elem.addClass('countdownHolder');
+		/*
+				// Creating the markup inside the container
+				$.each(['Hours', 'Minutes', 'Seconds'], function(i) {
+					$('<span class="count' + this + '">').html(
+						'<span class="position">\
+							<span class="digit static">0</span>\
+						</span>\
+						<span class="position">\
+							<span class="digit static">0</span>\
+						</span>'
+					).appendTo(elem);
 
-		// Creating the markup inside the container
-		$.each(['Hours', 'Minutes', 'Seconds'], function(i) {
-			$('<span class="count' + this + '">').html(
-				'<span class="position">\
-					<span class="digit static">0</span>\
-				</span>\
-				<span class="position">\
-					<span class="digit static">0</span>\
-				</span>'
-			).appendTo(elem);
-
-			if (this != "Seconds") {
-				elem.append('<span class="countDiv countDiv' + i + '"></span>');
-			}
-		});
+					if (this != "Seconds") {
+						elem.append('<span class="countDiv countDiv' + i + '"></span>');
+					}
+				});
+		*/
+		elem.append('<span class="countDownMark"><i class="icon-double-angle-down"></i></span><span id="countDownValue"></span>');
 	}
 
 	// Creates an animated transition between the two numbers
@@ -166,14 +168,20 @@
 
 		var cd = h * 3600 + m * 60 + s;
 		// Calling an optional user supplied callback
+		$('#countDownValue').html(pandLeft(h) + ' : ' + pandLeft(m) + ' : ' + pandLeft(s));
 		options.callback(h, m, s, cd);
 
 		// Scheduling another call of this function in 1s
 		if (cd > 0) lockTick = setTimeout(tick, 1000);
 	}
+
+	function pandLeft(value) {
+		if (value < 10) return '0' + value;
+		return value;
+	}
 	// This function updates two digit positions at once
 	function updateDuo(minor, major, value) {
-		switchDigit(positions.eq(minor), Math.floor(value / 10) % 10);
-		switchDigit(positions.eq(major), value % 10);
+		//switchDigit(positions.eq(minor), Math.floor(value / 10) % 10);
+		//switchDigit(positions.eq(major), value % 10);
 	}
 })(jQuery);

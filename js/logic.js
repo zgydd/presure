@@ -120,10 +120,10 @@ var _chkPortListener = function() {
 };
 var _resetMainHeight = function() {
 	var height = $(window).height() - ($('footer').outerHeight() * 2.7) - $('nav').outerHeight();
-	if ($('#countdown') && $('#countdown').length &&
+	/*if ($('#countdown') && $('#countdown').length &&
 		$('#countdown').children() && $('#countdown').children().length &&
 		!$('#countdown').is(':hidden')) height -= $('#countdown').outerHeight();
-	if (!height) height = 0;
+	if (!height) height = 0;*/
 	$('main').height(height);
 };
 var _autoCalibration = function() {
@@ -436,7 +436,7 @@ var _fixRadius = function() {
 	if (_statData.activedPage !== 'heatmap') return;
 	var w = $(window).get(0).innerWidth - 120;
 	var h = $(window).get(0).innerHeight - 120;
-	commConfig.radius = Math.floor((w > h ? h : w) * (commConfig.productionSize.width === 16 ? 4 : 2.5) / 100);
+	commConfig.radius = Math.floor((w > h ? h : w) * commConfig.showMultiple / 100);
 
 	if (commConfig.productionSize.width === 16) $('#heatmap-content').css('margin-left', 'auto').css('margin-right', 'auto');
 	else $('#heatmap-content').css('margin-left', '0.1em');
@@ -479,6 +479,19 @@ var _changeScaleEvent = function() {
 		}
 	}
 	_calcScale();
+};
+var _triggerCountDown = function() {
+	if (parseInt($('#countdown').css('bottom')) >= 0) {
+		$('#countdown').css('bottom', (0 - $('#countDownValue').height() - 5) + 'px');
+		setTimeout(function() {
+			$('#countdown .countDownMark > i').removeClass('icon-double-angle-down').addClass('icon-double-angle-up');
+		}, 666);
+	} else {
+		$('#countdown').css('bottom', '0px');
+		setTimeout(function() {
+			$('#countdown .countDownMark > i').removeClass('icon-double-angle-up').addClass('icon-double-angle-down');
+		}, 666);
+	}
 };
 //DOM
 var _createScaleDOM = function() {

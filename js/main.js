@@ -28,6 +28,7 @@ try {
             saveData.alertFreque = commConfig.alertFreque;
             saveData.alertTime = commConfig.alertTime;
             saveData.baudRange = commConfig.baudRange;
+            saveData.showMultiple = commConfig.showMultiple;
             saveData.radius = commConfig.radius;
             //saveData.flushRange = commConfig.flushRange;
             saveData.autoCalibration = commConfig.autoCalibration;
@@ -57,6 +58,7 @@ try {
 var commConfig = {
     port: 'COM1',
     baudRange: 500000,
+    showMultiple: 0,
     radius: 0,
     //flushRange: 1,
     autoCalibration: 20,
@@ -228,6 +230,7 @@ var setFullScreen = function() {
     } catch (e) {}
 };
 var setConfig = function(data) {
+    commConfig.showMultiple = _getDefaultMultiples(commConfig.productionSize.width + '-' + commConfig.productionSize.height);
     if (!data) return;
     if (data.hasOwnProperty('port')) commConfig.port = data.port;
 
@@ -247,6 +250,10 @@ var setConfig = function(data) {
 
     if (data.hasOwnProperty('productionWidth')) commConfig.productionSize.width = _toInt(data.productionWidth);
     if (data.hasOwnProperty('productionHeight')) commConfig.productionSize.height = _toInt(data.productionHeight);
+
+    if (data.hasOwnProperty('showMultiple')) commConfig.showMultiple = _toFloat(data.showMultiple);
+    if (commConfig.showMultiple === 0)
+        commConfig.showMultiple = _getDefaultMultiples(commConfig.productionSize.width + '-' + commConfig.productionSize.height);
 
     if (data.hasOwnProperty('minNoise')) commConfig.noiseLimit.min = _toInt(data.minNoise);
     if (data.hasOwnProperty('maxNoise')) commConfig.noiseLimit.max = _toInt(data.maxNoise);

@@ -76,6 +76,13 @@ var _toInt = function(data) {
 		return 0;
 	}
 };
+var _toFloat = function(data) {
+	try {
+		return parseFloat(data);
+	} catch (e) {
+		return 0;
+	}
+};
 var _hex2char = function(data) {
 	var a = data;
 	switch (a.length) {
@@ -95,6 +102,22 @@ var _hex2char = function(data) {
 			break;
 	}
 	return unescape(a);
+};
+var _getDefaultMultiples = function(proudctSize) {
+	switch (proudctSize) {
+		case "16-16":
+			if (window.screen.height / window.screen.width === 9 / 16) return 5.63;
+			else return 5.45;
+		case "32-80":
+			if (window.screen.height / window.screen.width === 9 / 16) return 2.35;
+			else return 2.15;
+		default:
+			return 1;
+	}
+};
+var _setEnterCommit = function(e) {
+	var ev = document.all ? window.event : e;
+	if (ev.keyCode == 13) $(ev.target).trigger('blur');
 };
 var _clearSubDomEvent = function(baseNode, eveType, func) {
 	baseNode.each(function(i, n) {
