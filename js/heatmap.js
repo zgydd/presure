@@ -43,13 +43,12 @@ $('#heatmap-btnDoPort').on('click', function() {
                 } else {
                     _statData.portOpened = true;
                     _statData.portListener = setInterval(_chkPortListener, 500);
-                    serialport.on('data', function(data) {
-                        getDataFromBuffer(data);
-                    });
+                    _bindSerialportEmitter();
                 }
             });
             $('#heatmap-btnDoPort').html(_getLocalesValue('langHeatmapBtnClosePort', 'Deconnection'));
         } catch (e) {
+            $('#heatmap-btnDoPort').html(_getLocalesValue('langHeatmapBtnOpenPort', 'Connection'));
             alert(e);
         }
     }

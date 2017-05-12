@@ -109,13 +109,12 @@ var _chkPortListener = function() {
 				_statData.reOpenDelayCnt++;
 			} else {
 				_statData.reOpenDelayCnt = 0;
-				serialport.on('data', function(data) {
-					getDataFromBuffer(data);
-				});
+				_bindSerialportEmitter();
 			}
 		});
 	} catch (e) {
 		_statData.reOpenDelayCnt++;
+		$('#heatmap-btnDoPort').html(_getLocalesValue('langHeatmapBtnOpenPort', 'Connection'));
 	}
 };
 var _resetMainHeight = function() {
@@ -172,13 +171,13 @@ var _recalcScale = function(cd) {
 				if (!error) {
 					_statData.portOpened = true;
 					_statData.portListener = setInterval(_chkPortListener, 500);
-					serialport.on('data', function(data) {
-						getDataFromBuffer(data);
-					});
+					_bindSerialportEmitter();
 				}
 			});
 			$('#heatmap-btnDoPort').html(_getLocalesValue('langHeatmapBtnClosePort', 'Deconnection'));
-		} catch (e) {}
+		} catch (e) {
+			$('#heatmap-btnDoPort').html(_getLocalesValue('langHeatmapBtnOpenPort', 'Connection'));
+		}
 	}
 
 	if (!_statData || !_statData.constantScale || !_statData.scaleData ||
@@ -701,4 +700,21 @@ var _resetMy = function() {
 	if ($('#heatmap-labSelfTurn').length) $('#heatmap-labSelfTurn').html(_statData.me.selfTurnCounter);
 	_statData.me.selfTurnDelay = 0;
 	_statData.me.preScale = 0;
+};
+var _bindSerialportEmitter = function() {
+	serialport.on('open', function() {
+		$('#heatmap-btnDoPort').html(_getLocalesValue('langHeatmapBtnClosePort', 'Deconnection'));
+	});
+	serialport.on('data', function(data) {
+		getDataFromBuffer(data);
+	});
+	serialport.on('disconnect', function() {
+		$('#heatmap-btnDoPort').html(_getLocalesValue('langHeatmapBtnOpenPort', 'Connection'));
+	});
+	serialport.on('close', function() {
+		$('#heatmap-btnDoPort').html(_getLocalesValue('langHeatmapBtnOpenPort', 'Connection'));
+	});
+	serialport.on('error', function() {
+		$('#heatmap-btnDoPort').html(_getLocalesValue('langHeatmapBtnOpenPort', 'Connection'));
+	});
 };
