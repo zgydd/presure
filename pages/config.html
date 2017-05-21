@@ -13,8 +13,10 @@
         <select class="form-control" id="config-selectPort"></select>
     </div>
     <div class="item-group">
-        <label z-lang="langConfigLabMultiple" for="config-inputMultiple">Multiple: </label>
-        <input type="text" id="config-inputMultiple" maxlength="5" class="form-control number-input" />
+        <label z-lang="langConfigLabNoiseLimit">Noise limit: </label>
+        <input class="form-control number-input" type="text" id="config-inputMinNoise" maxlength="2" />% &nbsp;
+        <label class="page-mark">~</label>
+        <input class="form-control number-input" type="text" id="config-inputMaxNoise" maxlength="3" />%
     </div>
     <div class="item-group">
         <label z-lang="langConfigLabAlertFreque" for="config-inputAlertFreque">Alert Freque: </label>
@@ -43,13 +45,11 @@
 	        <label z-lang="langConfigLabFlushRange" for="config-inputFlushRange">Flush range: </label>
 	        <input class="form-control number-input" type="text" id="config-inputFlushRange" maxlength="3" />
 	    </div> 
-	    <br/>
+	    <br/-->
 	    <div class="item-group">
-	        <label z-lang="langConfigLabNoiseLimit">Noise limit: </label>
-	        <input class="form-control number-input" type="text" id="config-inputMinNoise" maxlength="3" />
-	        <label class="page-mark">~</label>
-	        <input class="form-control number-input" type="text" id="config-inputMaxNoise" maxlength="5" />
-	    </div-->
+	        <label z-lang="langConfigLabMultiple" for="config-inputMultiple">Multiple: </label>
+	        <input type="text" id="config-inputMultiple" maxlength="5" class="form-control number-input" />
+	    </div>
 	    <div class="item-group">
 	        <label z-lang="langConfigLabAutoCalibration" for="config-inputAutoCalibration">Calibra Freque: </label>
 	        <input class="form-control number-input" type="text" id="config-inputAutoCalibration" maxlength="3" />

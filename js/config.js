@@ -204,8 +204,8 @@ $('#config-inputFlushRange').on('blur', function() {
 */
 $('#config-inputMinNoise').on('blur', function() {
 	if (_chkEqual(commConfig.noiseLimit.min, $('#config-inputMinNoise').val())) return;
-	if (!/^\d{1,3}$/.test($('#config-inputMinNoise').val().trim()) ||
-		parseInt($('#config-inputMinNoise').val().trim()) <= 0) {
+	if (!/^\d{1,2}$/.test($('#config-inputMinNoise').val().trim()) ||
+		parseInt($('#config-inputMinNoise').val().trim()) < 0) {
 		_showMessage('warn', _getLocalesValue('langConfigWrnMinNoise', 'Illegal min noise'));
 		$('#config-inputMinNoise').parent().addClass('alert-danger');
 		$('#config-inputMinNoise').val(commConfig.noiseLimit.min);
@@ -232,8 +232,9 @@ $('#config-inputMinNoise').on('blur', function() {
 $('#config-inputMinNoise').on('keydown', _setEnterCommit);
 $('#config-inputMaxNoise').on('blur', function() {
 	if (_chkEqual(commConfig.noiseLimit.max, $('#config-inputMaxNoise').val())) return;
-	if (!/^\d{1,5}$/.test($('#config-inputMaxNoise').val().trim()) ||
-		parseInt($('#config-inputMaxNoise').val().trim()) <= 0) {
+	if (!/^\d{1,3}$/.test($('#config-inputMaxNoise').val().trim()) ||
+		parseInt($('#config-inputMaxNoise').val().trim()) <= 0 ||
+		parseInt($('#config-inputMaxNoise').val().trim()) > 100) {
 		_showMessage('warn', _getLocalesValue('langConfigWrnMaxNoise', 'Illegal max noise'));
 		$('#config-inputMaxNoise').parent().addClass('alert-danger');
 		$('#config-inputMaxNoise').val(commConfig.noiseLimit.max);

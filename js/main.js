@@ -74,7 +74,7 @@ var commConfig = {
         height: 16
     },
     noiseLimit: {
-        max: 1024,
+        max: 100,
         min: 0
     },
     portList: [],
@@ -397,7 +397,7 @@ var setHeatMap = function(innerData) {
                 realMax = numData;
             };
             numData = (numData < commConfig.noiseLimit.min) ? 0 : numData;
-            numData = (numData > commConfig.noiseLimit.max) ? commConfig.noiseLimit.max : numData;
+            numData = (numData > 1023) ? 1023 : numData;
             /*
             numData = numData + 10 - commConfig.noiseLimit.min;
             if (numData < 0) {
@@ -411,8 +411,10 @@ var setHeatMap = function(innerData) {
             if (_statData.calibrationData.length > i && _statData.calibrationData[0].length > j) {
                 if (numData < _statData.calibrationData[i][j]) numData = 0;
                 else numData = Math.abs(numData - _statData.calibrationData[i][j]);
-                //if (numData < Math.abs(commConfig.noiseLimit.min - _statData.calibrationData[i][j]))
-                //    numData = 0;
+                if ((numData * 100 / (1024 - _statData.calibrationData[i][j])) < commConfig.noiseLimit.min)
+                    numData = 0;
+                if ((numData * 100 / (1024 - _statData.calibrationData[i][j])) > commConfig.noiseLimit.max)
+                    numData = 1024 - _statData.calibrationData[i][j];
             }
             if (numData > 5) {
                 points.push({
