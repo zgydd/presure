@@ -9,6 +9,10 @@ nav i {
 nav img {
     width: 1.8em;
 }
+nav.navbar {
+    border-top-right-radius: 0;
+    border-top-left-radius: 0;
+}
 .form-control {
     display: inline-block;
 }
@@ -29,6 +33,9 @@ footer {
 }
 .block {
     display: block !important;
+}
+.invisiabled {
+    display: none !important;
 }
 .overlay {
     position: absolute;
@@ -315,7 +322,26 @@ main {
 .set-item-group > a {
     width: 2.5em;
 }
-
+.legend-container {
+}
+.legend-container > li {
+    line-height: 20px;
+    list-style: none;
+}
+.legend-container > label:first-child {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;    
+}
+.legend-container > li > span {
+    display:inline-block;
+    width:20px;
+    height:20px;
+}
+.legend-container > li > label {
+    margin: 0 8px;
+    font-size: 20px;
+}
 #heatmap-content .heatmap-datainfo {
     display: inline-block;
     position: absolute;

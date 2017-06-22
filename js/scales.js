@@ -2,6 +2,7 @@
 //Page behavior
 $(document).ready(function() {
 	callLocales(_statData.defaultLanguage);
+	whoAmI(_statData.envHost);
 	if (commConfig.scaleTables && commConfig.scaleTables.length) {
 		for (var i = 0; i < commConfig.scaleTables.length; i++) {
 			$('#scale-table-list').append('<li role="presentation"><a href="#">' + commConfig.scaleTables[i] + '</a></li>');

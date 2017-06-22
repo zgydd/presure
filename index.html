@@ -27,7 +27,7 @@
                   </button>
                   <!--img src="./asset/Meddo.png" style="width: 100px;height: 55px;" /-->
                     <a class="navbar-brand" href="#" onclick="callHome()">
-                        <img src="./asset/Meddo.png" style="width: 30px;" />
+                        <img src="./asset/meddo.png" />
                         <!--strong z-lang="langMainNavLogo">Meddo</strong-->
                     </a>
                 </div>
@@ -74,7 +74,7 @@
                           </ul>
                         </li>
                         <li>
-                            <a href="#" onclick="setFullScreen()">
+                            <a href="#" hide-in="android" onclick="setFullScreen()">
                                 <i class="icon-tablet icon-large"></i>
                             </a>
                         </li>
@@ -85,14 +85,14 @@
         </header>
         <div class="common-message alert" id="common-message"></div>
         <article id="countdown"></article>
-        <main id="main-content"></main>
+        <main id="main-content"><a href="#" onclick="whoAmI('android')">I'm android</a></main>
 
         <div class="overlay">
             <audio id="main-audio-alert" src="./asset/alert.ogg" loop="loop"></audio>
             <section></section>
         </div>
         <footer>
-            <small>&copy;Copyright 2017</small>
+            <small>&copy;Copyright 2017 CityZen SMART</small>
         </footer>
 
         <script type="text/javascript" src="./vender/jquery.min.js"></script>

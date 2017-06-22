@@ -1,6 +1,7 @@
 'use strict';
 $(document).ready(function() {
 	callLocales(_statData.defaultLanguage);
+	whoAmI(_statData.envHost);
 	if (commConfig) {
 		if (commConfig.hasOwnProperty('port')) $('#config_inputPort').val(commConfig.port);
 		if (commConfig.hasOwnProperty('alertFreque')) $('#config-inputAlertFreque').val(commConfig.alertFreque);
@@ -26,10 +27,12 @@ $(document).ready(function() {
 			switch (commConfig.productionSize.width) {
 				case 32:
 					$('#config-selectProduction').get(0).selectedIndex = 1;
+					_productCombination('v32');
 					break;
 				case 16:
 				default:
 					$('#config-selectProduction').get(0).selectedIndex = 0;
+					_productCombination('v16');
 					break;
 			}
 			$('#config-labProductionDesc').html(commConfig.productionSize.width + '*' + commConfig.productionSize.height);
@@ -73,6 +76,7 @@ $('#config-selectProduction').on('change', function() {
 			//	commConfig.radius = 10;
 			//	$('#config-inputRadius').val(10);
 			//}
+			_productCombination('v32');
 			$('#config-labProductionDesc').html(commConfig.productionSize.width + '*' + commConfig.productionSize.height);
 			break;
 		default:
@@ -82,6 +86,7 @@ $('#config-selectProduction').on('change', function() {
 			//	commConfig.radius = 40;
 			//	$('#config-inputRadius').val(40);
 			//}
+			_productCombination('v16');
 			$('#config-labProductionDesc').html(commConfig.productionSize.width + '*' + commConfig.productionSize.height);
 			break;
 	}
@@ -90,6 +95,13 @@ $('#config-selectProduction').on('change', function() {
 	$('#config-inputMultiple').val(commConfig.showMultiple);
 	innerData = initInnerData();
 	_showMessage('ok', _getLocalesValue('langConfigMsgProductionSetted', 'Production changed'));
+});
+$('#config-selectProductionFirmware').on('change', function() {
+	var myVer = $('#config-selectProductionFirmware').val();
+	if (myVer === '0') commConfig.firmware = myVer;
+	else commConfig.firmware = _commonConstant.firmwares['v' + commConfig.productionSize.width][myVer];
+	commConfig.firmwareVersion = 'v' + commConfig.productionSize.width + '#' + myVer;
+	_showMessage('ok', _getLocalesValue('langConfigMsgFirmwareSetted', 'Production firmware setted'));
 });
 $('#config-inputMultiple').on('blur', function() {
 	if (_chkEqual(commConfig.showMultiple, $('#config-inputMultiple').val())) return;

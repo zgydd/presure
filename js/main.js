@@ -3,7 +3,8 @@
 var _commonConstant = {
     path: 'C://cfgPresureMonitor/',
     config: 'config.json',
-    scale: '.scale'
+    scale: '.scale',
+    firmwares: null
 };
 //serialPort
 var SerialPort = null;
@@ -52,11 +53,12 @@ try {
             this.close(true);
         }
     });
+    WINDOW.maximize();
 } catch (e) {};
 
 //config data
 var commConfig = {
-    port: 'COM1',
+    port: 'COM998',
     baudRange: 500000,
     showMultiple: 0,
     radius: 0,
@@ -78,11 +80,14 @@ var commConfig = {
         min: 0
     },
     portList: [],
-    scaleTables: ['Braden', 'Norton', '布兰登']
+    scaleTables: ['Braden', 'Norton', '布兰登'],
+    firmwareVersion: '0',
+    firmware: '0'
 };
 
 var _statData = {
     defaultLanguage: 'en',
+    envHost: '',
     langData: {},
     activedPage: 'home',
     realMax: 0,
@@ -123,18 +128,26 @@ var initInnerData = function() {
     }
     return innerData;
 };
+
 //Page behavor
 $(document).ready(function() {
     $('#common-message').hide();
-    setConfig(_readFile(_commonConstant.path + _commonConstant.config, 'utf8', 'json'));
-    innerData = initInnerData();
-    callLocales(_statData.defaultLanguage);
-    _statData.autoCalibrationHandle = setInterval(_autoCalibration, (commConfig.autoCalibration * 1000));
     try {
+        $.getJSON('asset/firmwares.json', function(result) {
+            _commonConstant.firmwares = result;
+        });
+        setConfig(_readFile(_commonConstant.path + _commonConstant.config, 'utf8', 'json'));
+        innerData = initInnerData();
+        callLocales(_statData.defaultLanguage);
+        whoAmI(_statData.envHost);
+        _statData.autoCalibrationHandle = setInterval(_autoCalibration, (commConfig.autoCalibration * 1000));
+
         SerialPort = require('serialport');
         commConfig.portList.length = 0;
         SerialPort.list(function(err, ports) {
+            var inConfig = false;
             ports.forEach(function(port) {
+                if (port.comName === commConfig.port) inConfig = true;
                 commConfig.portList.push({
                     comName: port.comName,
                     pnpId: port.pnpId,
@@ -145,7 +158,9 @@ $(document).ready(function() {
                 if (a.comName > b.comName) return 1;
                 return -1;
             });
-            if (commConfig.portList.length === 3) {
+            if (!inConfig && commConfig.portList.length > 0) commConfig.port = commConfig.portList[0].comName;
+            if (commConfig.portList.length === 3 &&
+                (!commConfig.hasOwnProperty(port) || commConfig.port === null || commConfig.port === '')) {
                 commConfig.port = commConfig.portList[1].comName;
             }
         });
@@ -205,6 +220,11 @@ var callLocales = function(lang) {
         }
     });
 };
+var whoAmI = function(I) {
+    if (!I) return;
+    _statData.envHost = I;
+    _traverseHideInI($('body').children(), I);
+}
 var _callAlert = function() {
     /*
     if (_statData.activedPage != 'alert') {
@@ -345,12 +365,12 @@ var resetHeatmap = function() {
     var gradient = null;
     if (commConfig.productionSize.width === 16) {
         gradient = {
-            0: "rgb(153,255,255)",
+            //0: "rgb(153,255,255)",
             0.25: "rgb(0,255,255)",
             0.45: "rgb(0,255,0)",
             0.65: "rgb(255,255,0)",
-            0.85: "rgb(255,0,0)",
-            1.0: "rgb(153,0,51)"
+            0.85: "rgb(255,0,0)" //,
+                //1.0: "rgb(153,0,51)"
         };
     } else {
         gradient = {
@@ -360,6 +380,19 @@ var resetHeatmap = function() {
             0.95: "rgb(255,255,0)",
             0.995: "rgb(255,0,0)"
         };
+    }
+
+    if ($('.heatmap-datainfo').length) {
+        var html = '<ul class="legend-container">';
+        var title = _getLocalesValue('langHeatmapTitleLegend', 'Sample: input number between 0 and 1(not include) that lager shows higher presure');
+        html += '<label title="' + title + '" z-lang="langHeatmapTitleLegend">' + title + '</label>';
+        for (var ele in gradient) {
+            //html += '<li><span style="background-color:' + gradient[ele] + '"></span><label>' + ele + '</label></li>';
+            html += '<li><input class="form-control number-input" style="background-color:' + gradient[ele] + '" type="number" value="' + ele + '" old-value="' + ele + '" /></li>';
+        }
+        html += '</ul>';
+        $('.heatmap-datainfo').empty();
+        $('.heatmap-datainfo').append(html);
     }
 
     // heatmap instance configuration
@@ -449,6 +482,12 @@ var setHeatMap = function(innerData) {
         $('#test-matrix').append(strInn);
     */
 };
+
+var setHeatMapAndUpdate = function(strJson) {
+    innerData = JSON.parse(strJson);
+    setHeatMap(innerData);
+};
+
 /*
 var getDataFromBuffer = function(data) {
     var startPos = 0;
@@ -469,9 +508,22 @@ var getDataFromBuffer = function(data) {
 */
 
 var getDataFromBuffer = function(data) {
-    var buffer = new Buffer(data, 'hex');
-    var postStr = {};
-    postStr.innerData = innerData;
-    postStr.data = buffer;
-    bufferDataWorker.postMessage(JSON.stringify(postStr));
+    try {
+        var buffer = null;
+        switch (true) {
+            case (typeof(Buffer) !== undefined):
+                buffer = new Buffer(data, 'hex');
+                break;
+            case (typeof(Buffer) === 'string'):
+                buffer = JSON.parse(data);
+                break;
+            default:
+                buffer = data;
+                break;
+        }
+        var postStr = {};
+        postStr.innerData = innerData;
+        postStr.data = buffer;
+        bufferDataWorker.postMessage(JSON.stringify(postStr));
+    } catch (e) {}
 };

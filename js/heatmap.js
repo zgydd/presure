@@ -2,6 +2,7 @@
 
 $(document).ready(function() {
     callLocales(_statData.defaultLanguage);
+    whoAmI(_statData.envHost);
     if (!serialport || !serialport.isOpen()) resetSerialPort();
     if (serialport && serialport.isOpen()) $('#heatmap-btnDoPort').html(_getLocalesValue('langHeatmapBtnClosePort', 'Deconnection'));
     else $('#heatmap-btnDoPort').html(_getLocalesValue('langHeatmapBtnOpenPort', 'Connection'));
@@ -72,3 +73,22 @@ $('#heatmap-infoPanelBadge').on('click', function() {
         $('.panel-body').fadeOut(666);
     }
 });
+
+$('.legend-container .number-input').on('blur', function(event) {
+    var oldValue = parseFloat($(event.target).attr('old-value'));
+    var newValue = parseFloat($(event.target).val().trim());
+    if(oldValue === newValue) return;
+    if(isNaN(newValue) || newValue <= 0 || newValue >= 1) {
+        _showMessage('warn', _getLocalesValue('langHeatmapWrnTitleLegend', 'Please input a number between 0 and 1(not include)'));
+        $(event.target).val(oldValue);
+        return;
+    }
+    var newCfg = {};
+    var gradient = {};
+    $('.heatmap-datainfo .legend-container .number-input').each(function() {
+        gradient[$(this).val()] = $(this).css('background-color');
+    });
+    newCfg.gradient = gradient;
+    heatmapInstance.configure(newCfg);
+});
+$('.legend-container .number-input').on('keydown', _setEnterCommit);

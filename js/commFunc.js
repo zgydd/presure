@@ -24,7 +24,7 @@ var _saveFile = function(uri, bufferData, rewrite) {
 			fs.writeFile(path.normalize(uri), bufferData, function(err) {
 				if (err) throw err;
 			});
-			fs.open(path.normalize(uri), 'wx', (err, fd) => {
+			fs.open(path.normalize(uri), 'wx', function(err, fd) {
 				if (err) {
 					fs.mkdir(path.dirname(uri), function(err) {
 						if (!err) {

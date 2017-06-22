@@ -8,7 +8,12 @@
         </select>
        	<span id="config-labProductionDesc"></span>
     </div>
-    <div class="item-group">
+    <div class="item-group" id="config-grpProductionFirmware">
+        <label z-lang="langConfigLabProductionFirmware" for="config-selectProductionFirmware">Production Firmware: </label>
+        <select id="config-selectProductionFirmware" class="form-control">
+        </select>
+    </div>
+    <div class="item-group" hide-in="android">
         <label z-lang="langConfigLabPort" for="config-selectPort">Port: </label>
         <select class="form-control" id="config-selectPort"></select>
     </div>
@@ -32,7 +37,7 @@
     </div>
 
     <div id="config-advanceConfigFrame">
-	    <div class="item-group">
+	    <div class="item-group" hide-in="android">
 	        <label z-lang="langConfigLabBaudRate" for="config-inputBaudRate">Baud rate: </label>
 	        <input type="text" id="config-inputBaudRate" maxlength="8" class="form-control" />
 	    </div>

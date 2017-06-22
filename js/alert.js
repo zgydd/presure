@@ -2,6 +2,7 @@
 
 $(document).ready(function() {
 	callLocales(_statData.defaultLanguage);
+	whoAmI(_statData.envHost);
 	if (!$('#alert-log-container').children() || !$('#alert-log-container').children().length)
 		_appendAlertRecord();
 	_resetMainHeight();

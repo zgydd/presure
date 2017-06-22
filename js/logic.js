@@ -4,6 +4,14 @@ var _bufferDataWorkerCallback_ = function(event) {
 	//alert(event.data);
 	//return;
 	innerData = JSON.parse(event.data);
+	if (commConfig.firmware !== '0' && typeof(commConfig.firmware) === 'object') {
+		for (var i = 0; i < innerData.length; i++) {
+			for (var j = 0; j < innerData[i].length; j++) {
+				var tmp = Math.ceil(innerData[i][j] * commConfig.firmware[i][j]);
+				innerData[i][j] = (tmp >= 1023) ? 1023 : tmp;
+			}
+		}
+	}
 	setHeatMap(innerData);
 };
 var _dataAnaylysisWorkerCallback_ = function(event) {
@@ -417,10 +425,24 @@ var _traverseLocales = function(childElements) {
 		var attr = ele.attr('z-lang');
 		if (attr && _statData.langData.hasOwnProperty(attr)) {
 			ele.html(_statData.langData[attr]);
+			if(ele.attr('title')) ele.attr('title', _statData.langData[attr]);
 			return;
 		}
 		if (ele.children().length) {
 			_traverseLocales(ele.children());
+		}
+	});
+};
+var _traverseHideInI = function(childElements, my) {
+	childElements.each(function(i, n) {
+		var ele = $(n);
+		var attr = ele.attr('hide-in');
+		if (attr && typeof(attr) === 'string' && typeof(my) === 'string' && attr.toUpperCase().indexOf(my.toUpperCase()) >= 0) {
+			ele.addClass('invisiabled');
+			return;
+		}
+		if (ele.children().length) {
+			_traverseHideInI(ele.children(), my);
 		}
 	});
 };
@@ -701,6 +723,11 @@ var _resetMy = function() {
 	_statData.me.selfTurnDelay = 0;
 	_statData.me.preScale = 0;
 };
+var _showDisConnection_ = function() {
+	innerData = initInnerData();
+	setHeatMap(innerData);
+	$('#heatmap-btnDoPort').html(_getLocalesValue('langHeatmapBtnOpenPort', 'Connection'));
+};
 var _bindSerialportEmitter = function() {
 	serialport.on('open', function() {
 		$('#heatmap-btnDoPort').html(_getLocalesValue('langHeatmapBtnClosePort', 'Deconnection'));
@@ -708,13 +735,24 @@ var _bindSerialportEmitter = function() {
 	serialport.on('data', function(data) {
 		getDataFromBuffer(data);
 	});
-	serialport.on('disconnect', function() {
-		$('#heatmap-btnDoPort').html(_getLocalesValue('langHeatmapBtnOpenPort', 'Connection'));
-	});
-	serialport.on('close', function() {
-		$('#heatmap-btnDoPort').html(_getLocalesValue('langHeatmapBtnOpenPort', 'Connection'));
-	});
-	serialport.on('error', function() {
-		$('#heatmap-btnDoPort').html(_getLocalesValue('langHeatmapBtnOpenPort', 'Connection'));
-	});
+	serialport.on('disconnect', _showDisConnection_);
+	serialport.on('close', _showDisConnection_);
+	serialport.on('error', _showDisConnection_);
+};
+var _productCombination = function(myType) {
+	$('#config-selectProductionFirmware').empty();
+	var baseHtml = "<option value='0' z-lang='langConfigOptNoFirmware";
+	if (commConfig.firmware === '0') baseHtml += ' selected';
+	baseHtml += "'>" + _getLocalesValue('langConfigOptNoFirmware', 'Unknown') + "</option>";
+	$('#config-selectProductionFirmware').prepend(baseHtml);
+
+	var tmpVersion = (commConfig.firmware === '0') ? 0 : commConfig.firmwareVersion.split('#');
+	for (var ele in _commonConstant.firmwares[myType]) {
+		baseHtml = "<option value='" + ele + "'";
+		if (tmpVersion !== 0 && tmpVersion.length === 2)
+			if (tmpVersion[0] === 'v' + commConfig.productionSize.width && tmpVersion[1] === ele)
+				baseHtml += ' selected';
+		baseHtml += ">" + ele + "</option>";
+		$('#config-selectProductionFirmware').append(baseHtml);
+	}
 };

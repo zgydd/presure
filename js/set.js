@@ -2,6 +2,7 @@
 //Page behavior
 $(document).ready(function() {
 	callLocales(_statData.defaultLanguage);
+	whoAmI(_statData.envHost);
 	for (var i = commConfig.scaleTables.length - 1; i >= 0; i--) {
 		$('#set-content ul').prepend('<li><i class="icon-user-md"></i>' + commConfig.scaleTables[i] + '</li>');
 	}
