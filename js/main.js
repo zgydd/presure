@@ -18,33 +18,36 @@ if (typeof(Worker) !== undefined) {
     dataAnalysisWorker = new Worker('./js/dataAnalysis.worker.js');
     dataAnalysisWorker.onmessage = _dataAnaylysisWorkerCallback_;
 }
-
-var WINDOW = null;
+var getSaveData = function() {
+    var saveData = {};
+    saveData.port = commConfig.port;
+    saveData.alertFreque = commConfig.alertFreque;
+    saveData.alertTime = commConfig.alertTime;
+    saveData.baudRange = commConfig.baudRange;
+    saveData.showMultiple = commConfig.showMultiple;
+    saveData.radius = commConfig.radius;
+    //saveData.flushRange = commConfig.flushRange;
+    saveData.autoCalibration = commConfig.autoCalibration;
+    saveData.delayedSampling = commConfig.delayedSampling;
+    saveData.edgeCheckDelay = commConfig.edgeCheckDelay;
+    saveData.collapseRateWeight = commConfig.collapseRateWeight;
+    saveData.edgeConfidence = commConfig.edgeConfidence;
+    saveData.edgeSensitivity = commConfig.edgeSensitivity;
+    saveData.productionWidth = commConfig.productionSize.width;
+    saveData.productionHeight = commConfig.productionSize.height;
+    saveData.minNoise = commConfig.noiseLimit.min;
+    saveData.maxNoise = commConfig.noiseLimit.max;
+    saveData.scaleTables = commConfig.scaleTables;
+    saveData.defaultLanguage = _statData.defaultLanguage;
+    saveData.calibrationData = _statData.calibrationData;
+    return saveData;
+};
+var _WINDOW_ = null;
 try {
-    WINDOW = nw.Window.get();
-    WINDOW.on('close', function() {
+    _WINDOW_ = nw.Window.get();
+    _WINDOW_.on('close', function() {
         try {
-            var saveData = {};
-            saveData.port = commConfig.port;
-            saveData.alertFreque = commConfig.alertFreque;
-            saveData.alertTime = commConfig.alertTime;
-            saveData.baudRange = commConfig.baudRange;
-            saveData.showMultiple = commConfig.showMultiple;
-            saveData.radius = commConfig.radius;
-            //saveData.flushRange = commConfig.flushRange;
-            saveData.autoCalibration = commConfig.autoCalibration;
-            saveData.delayedSampling = commConfig.delayedSampling;
-            saveData.edgeCheckDelay = commConfig.edgeCheckDelay;
-            saveData.collapseRateWeight = commConfig.collapseRateWeight;
-            saveData.edgeConfidence = commConfig.edgeConfidence;
-            saveData.edgeSensitivity = commConfig.edgeSensitivity;
-            saveData.productionWidth = commConfig.productionSize.width;
-            saveData.productionHeight = commConfig.productionSize.height;
-            saveData.minNoise = commConfig.noiseLimit.min;
-            saveData.maxNoise = commConfig.noiseLimit.max;
-            saveData.scaleTables = commConfig.scaleTables;
-            saveData.defaultLanguage = _statData.defaultLanguage;
-            saveData.calibrationData = _statData.calibrationData;
+            var saveData = getSaveData();
             _saveFile(_commonConstant.path + _commonConstant.config, new Buffer(JSON.stringify(saveData)), true);
             _destoryMe();
         } catch (e) {
@@ -53,7 +56,7 @@ try {
             this.close(true);
         }
     });
-    WINDOW.maximize();
+    _WINDOW_.maximize();
 } catch (e) {};
 
 //config data
@@ -80,7 +83,7 @@ var commConfig = {
         min: 0
     },
     portList: [],
-    scaleTables: ['Braden', 'Norton', '布兰登'],
+    scaleTables: ['Braden', '布兰登'],
     firmwareVersion: '0',
     firmware: '0'
 };
@@ -136,34 +139,37 @@ $(document).ready(function() {
         $.getJSON('asset/firmwares.json', function(result) {
             _commonConstant.firmwares = result;
         });
-        setConfig(_readFile(_commonConstant.path + _commonConstant.config, 'utf8', 'json'));
+        if (_WINDOW_) setConfig(_readFile(_commonConstant.path + _commonConstant.config, 'utf8', 'json'));
+        else if (window.MyApp) window.MyApp.setCommConfig();
         innerData = initInnerData();
         callLocales(_statData.defaultLanguage);
         whoAmI(_statData.envHost);
         _statData.autoCalibrationHandle = setInterval(_autoCalibration, (commConfig.autoCalibration * 1000));
 
-        SerialPort = require('serialport');
-        commConfig.portList.length = 0;
-        SerialPort.list(function(err, ports) {
-            var inConfig = false;
-            ports.forEach(function(port) {
-                if (port.comName === commConfig.port) inConfig = true;
-                commConfig.portList.push({
-                    comName: port.comName,
-                    pnpId: port.pnpId,
-                    manufacturer: port.manufacturer
+        if (_WINDOW_) {
+            SerialPort = require('serialport');
+            commConfig.portList.length = 0;
+            SerialPort.list(function(err, ports) {
+                var inConfig = false;
+                ports.forEach(function(port) {
+                    if (port.comName === commConfig.port) inConfig = true;
+                    commConfig.portList.push({
+                        comName: port.comName,
+                        pnpId: port.pnpId,
+                        manufacturer: port.manufacturer
+                    });
                 });
+                commConfig.portList.sort(function(a, b) {
+                    if (a.comName > b.comName) return 1;
+                    return -1;
+                });
+                if (!inConfig && commConfig.portList.length > 0) commConfig.port = commConfig.portList[0].comName;
+                if (commConfig.portList.length === 3 &&
+                    (!commConfig.hasOwnProperty(port) || commConfig.port === null || commConfig.port === '')) {
+                    commConfig.port = commConfig.portList[1].comName;
+                }
             });
-            commConfig.portList.sort(function(a, b) {
-                if (a.comName > b.comName) return 1;
-                return -1;
-            });
-            if (!inConfig && commConfig.portList.length > 0) commConfig.port = commConfig.portList[0].comName;
-            if (commConfig.portList.length === 3 &&
-                (!commConfig.hasOwnProperty(port) || commConfig.port === null || commConfig.port === '')) {
-                commConfig.port = commConfig.portList[1].comName;
-            }
-        });
+        }
         _resetMainHeight();
     } catch (e) {
         //alert(e);
@@ -178,6 +184,12 @@ var callHome = function() {
     _statData.activedPage = 'home';
     $("#main-content").hide();
     $("#main-content").empty();
+    if (window.MyApp) {
+        try {
+            window.MyApp.closeData();
+        } catch (e) {}
+    }
+    $("#main-content").append('<label>我要写个首页……</label>');
     $("#main-content").fadeIn(666);
 };
 var callHeatmap = function() {
@@ -191,6 +203,11 @@ var callConfig = function() {
     if (_statData.activedPage === 'config') return;
     _statData.activedPage = 'config';
     $("#main-content").hide();
+    if (window.MyApp) {
+        try {
+            window.MyApp.closeData();
+        } catch (e) {}
+    }
     $("#main-content").load('pages/config.html');
     $("#main-content").fadeIn(666);
 };
@@ -199,6 +216,11 @@ var callScale = function() {
     if (_statData.activedPage === 'scales') return;
     _statData.activedPage = 'scales';
     $("#main-content").hide();
+    if (window.MyApp) {
+        try {
+            window.MyApp.closeData();
+        } catch (e) {}
+    }
     $("#main-content").load('pages/scales.html');
     $("#main-content").fadeIn(666);
 };
@@ -206,6 +228,11 @@ var callSet = function() {
     if (_statData.activedPage === 'set') return;
     _statData.activedPage = 'set';
     $("#main-content").hide();
+    if (window.MyApp) {
+        try {
+            window.MyApp.closeData();
+        } catch (e) {}
+    }
     $("#main-content").load('pages/set.html');
     $("#main-content").fadeIn(666);
 };
@@ -241,13 +268,24 @@ var _callAlert = function() {
 };
 var changeLocales = function(lang) {
     if (_statData.defaultLanguage === lang) return;
+    if (window.MyApp) {
+        try {
+            window.MyApp.postLanguage(lang);
+        } catch (e) {}
+    }
     callLocales(lang);
 };
 var setFullScreen = function() {
-    if (!WINDOW) return;
+    if (!_WINDOW_) return;
     try {
-        WINDOW.toggleFullscreen();
+        _WINDOW_.toggleFullscreen();
     } catch (e) {}
+};
+
+var setConfigFromJson = function(strJson) {
+    var data = JSON.parse(strJson);
+    setConfig(data);
+    initInnerData();
 };
 var setConfig = function(data) {
     commConfig.showMultiple = _getDefaultMultiples(commConfig.productionSize.width + '-' + commConfig.productionSize.height);
@@ -282,6 +320,8 @@ var setConfig = function(data) {
     if (data.hasOwnProperty('scaleTables')) commConfig.scaleTables = data.scaleTables;
 
     if (data.hasOwnProperty('calibrationData')) _statData.calibrationData = data.calibrationData;
+
+    if (data.hasOwnProperty('envHost')) _statData.envHost = data.envHost;
 
     var w = $(window).get(0).innerWidth;
     var h = $(window).get(0).innerHeight;
@@ -482,7 +522,6 @@ var setHeatMap = function(innerData) {
         $('#test-matrix').append(strInn);
     */
 };
-
 var setHeatMapAndUpdate = function(strJson) {
     innerData = JSON.parse(strJson);
     setHeatMap(innerData);
@@ -510,16 +549,16 @@ var getDataFromBuffer = function(data) {
 var getDataFromBuffer = function(data) {
     try {
         var buffer = null;
-        switch (true) {
-            case (typeof(Buffer) !== undefined):
-                buffer = new Buffer(data, 'hex');
-                break;
-            case (typeof(Buffer) === 'string'):
-                buffer = JSON.parse(data);
-                break;
-            default:
-                buffer = data;
-                break;
+        if (_WINDOW_) buffer = new Buffer(data, 'hex');
+        else {
+            switch (typeof(data)) {
+                case 'string':
+                    buffer = data.split(',');
+                    break;
+                default:
+                    buffer = data;
+                    break;
+            }
         }
         var postStr = {};
         postStr.innerData = innerData;

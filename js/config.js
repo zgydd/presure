@@ -94,6 +94,11 @@ $('#config-selectProduction').on('change', function() {
 	$('#config-inputRadius').val(commConfig.radius);
 	$('#config-inputMultiple').val(commConfig.showMultiple);
 	innerData = initInnerData();
+	if (window.MyApp) {
+		try {
+			window.MyApp.postComConfig(JSON.stringify(commConfig));
+		} catch (e) {}
+	}
 	_showMessage('ok', _getLocalesValue('langConfigMsgProductionSetted', 'Production changed'));
 });
 $('#config-selectProductionFirmware').on('change', function() {

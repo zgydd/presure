@@ -44,7 +44,7 @@ $('#set-modalSubmit').on('click', function() {
 		default:
 			break;
 	}
-
+	_createSetContainerDOM();
 	$('#set-modalEdit').modal('hide');
 });
 

@@ -32,3 +32,13 @@ $('#alert-submit').on('click', function() {
 	$(".overlay > section").empty();
 	_resetMy();
 });
+$('#alert-reset').on('click', function() {
+	clearTimeout(_statData.alertHandle);
+	_statData.alertHandle = 0;
+	$('#countdown').stop();
+	$('#countdown').empty();
+	$('#countdown').hide();
+	$(".overlay").hide();
+	$(".overlay > section").empty();
+	_resetMy();
+});

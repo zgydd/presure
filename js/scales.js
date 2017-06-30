@@ -31,9 +31,13 @@ $('#scale-submit').on('click', function() {
 			});
 			$('#countdown .countDownMark').on('click', _triggerCountDown);
 		} else $('#countdown').reset(_statData.countDownTime);
+		$('#countdown').show();
 	}
 	_statData.me.actioned = (new Date()).getTime();
 	callHeatmap();
+	try {
+		window.MyApp.callData();
+	} catch (e) {}
 });
 $('.nav-pills li').on('click', function() {
 	var activedPage = $(this).get(0).innerText;

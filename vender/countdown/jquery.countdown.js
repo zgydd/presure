@@ -48,6 +48,7 @@
 		}
 	};
 	$.fn.stoped = function() {
+		if (!options || !options.timestamp) return false;
 		return (options.timestamp > 0 && lockTick === 0);
 	};
 	$.fn.setFinished = function() {

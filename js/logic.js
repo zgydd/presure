@@ -19,9 +19,11 @@ var _dataAnaylysisWorkerCallback_ = function(event) {
 	//return;
 	var dataResult = JSON.parse(event.data);
 	//alert(JSON.stringify(dataResult));
-	$('.heatmap-datainfo').empty();
-	for (var e in dataResult.middData) {
-		$('.heatmap-datainfo').append('<span>' + e + ':' + JSON.stringify(dataResult.middData[e]) + '</span><br />');
+	if (_statData.envHost.indexOf('DeBuG') >= 0) {
+		$('.heatmap-datainfo').empty();
+		for (var e in dataResult.middData) {
+			$('.heatmap-datainfo').append('<span>' + e + ':' + JSON.stringify(dataResult.middData[e]) + '</span><br />');
+		}
 	}
 	if (dataResult.test) return;
 
@@ -262,6 +264,7 @@ var _doAlert = function() {
 	_appendAlertRecord();
 	_statData.alertHandle = setTimeout(_doAlert, (commConfig.alertFreque * 1000));
 };
+/*
 var _parseScaleStream = function(stream) {
 	var tmpFile = stream.toString().replace('\r', '').split('\n');
 	var formatedData = {};
@@ -306,7 +309,7 @@ var _parseScaleStream = function(stream) {
 			case (tmpFile[i].indexOf('@') === 0):
 				if (tmpData.length !== 2) break;
 				record.description = tmpData[0];
-				/*
+				/-*
 				tmpData = tmpData[1].split(',');
 				record.ranges = [];
 				for (var j = 0; j < tmpData.length; j++) {
@@ -323,7 +326,7 @@ var _parseScaleStream = function(stream) {
 					if (!a.critical || !b.critical) return -1;
 					return (b.critical - a.critical);
 				});
-				*/
+				*-/
 				record.ranges = [];
 				var tmpLength = isNaN(parseInt(tmpData[1].trim())) ? 4 : parseInt(tmpData[1].trim());
 				for (var j = tmpLength - 1; j >= 0; j--) {
@@ -348,6 +351,7 @@ var _parseScaleStream = function(stream) {
 	}
 	return formatedData;
 };
+*/
 var _calcScale = function() {
 	if (!_statData.scaleData) {
 		$('#scales-control-count').html('--');
@@ -396,6 +400,7 @@ var _getActivedScale = function(scaleName) {
 	try {
 		var scale = _readFile(_commonConstant.path + scaleName.trim().toLowerCase() + _commonConstant.scale, 'utf8', 'txt');
 		if (!scale) {
+			/*
 			_statData.scaleData = _parseScaleStream('#Braden Scale Table\n' +
 				'*Sensory:Completely Limited-1,Very Limited-2,Slight Limited-3,No Impairment-4\n' +
 				'*Moisture:Constantly Moist-1,Very Moist-2,Occasionally Moist-3,Rarely Moist-4\n' +
@@ -412,8 +417,11 @@ var _getActivedScale = function(scaleName) {
 				'$Activity:4\n' +
 				'$Mobility:4\n' +
 				'$Nutrition:4');
+			*/
+			_statData.scaleData = JSON.parse('{"descriptionItem":[{"title":"Sensory","items":[{"description":"Completely Limited","value":"1"},{"description":"Very Limited","value":"2"},{"description":"Slight Limited","value":"3"},{"description":"No Impairment","value":"4"}]},{"title":"Moisture","items":[{"description":"Constantly Moist","value":"1"},{"description":"Very Moist","value":"2"},{"description":"Occasionally Moist","value":"3"},{"description":"Rarely Moist","value":"4"}]},{"title":"Activity","items":[{"description":"Bedfast","value":"1"},{"description":"Chairfast","value":"2"},{"description":"Walks Occasionally","value":"3"},{"description":"Walks Frequently","value":"4"}]},{"title":"Mobility","items":[{"description":"Completely Immobile","value":"1"},{"description":"Very Limited","value":"2"},{"description":"Slightly Limited","value":"3"},{"description":"No Limitation","value":"4"}]},{"title":"Nutrition","items":[{"description":"Very Poor","value":"1"},{"description":"Probaly Inadequate","value":"2"},{"description":"Adequate","value":"3"},{"description":"Excellent","value":"4"}]}],"threshold":[{"min":6,"max":12,"description":"High risk","rangeTime":30},{"min":13,"max":14,"description":"Moderate risk","rangeTime":60},{"min":15,"max":18,"description":"Low risk","rangeTime":120},{"min":19,"max":24,"description":"No risk","rangeTime":1}],"constantScales":[{"item":"Sensory","scale":4},{"item":"Moisture","scale":4},{"item":"Activity","scale":4},{"item":"Mobility","scale":4},{"item":"Nutrition","scale":4}],"title":"Braden Scale Table","presureRange":{"description":"Presure Subparagraph","ranges":[{"scale":4,"critical":819},{"scale":3,"critical":614},{"scale":2,"critical":409},{"scale":1,"critical":204}]}}');
 		} else {
-			_statData.scaleData = _parseScaleStream(scale);
+			//_statData.scaleData = _parseScaleStream(scale);
+			_statData.scaleData = JSON.parse(scale);
 		}
 	} catch (e) {
 		alert(e);
@@ -425,7 +433,7 @@ var _traverseLocales = function(childElements) {
 		var attr = ele.attr('z-lang');
 		if (attr && _statData.langData.hasOwnProperty(attr)) {
 			ele.html(_statData.langData[attr]);
-			if(ele.attr('title')) ele.attr('title', _statData.langData[attr]);
+			if (ele.attr('title')) ele.attr('title', _statData.langData[attr]);
 			return;
 		}
 		if (ele.children().length) {
@@ -437,13 +445,25 @@ var _traverseHideInI = function(childElements, my) {
 	childElements.each(function(i, n) {
 		var ele = $(n);
 		var attr = ele.attr('hide-in');
-		if (attr && typeof(attr) === 'string' && typeof(my) === 'string' && attr.toUpperCase().indexOf(my.toUpperCase()) >= 0) {
-			ele.addClass('invisiabled');
-			return;
+		if (attr && typeof(attr) === 'string' && typeof(my) === 'string') {
+			switch (true) {
+				case (my.indexOf('#') > 0):
+					var tmpMy = my.split('#');
+					for (var i = 0; i < tmpMy.length; i++) {
+						if (attr.toUpperCase().indexOf(tmpMy[i].trim().toUpperCase() >= 0)) {
+							ele.addClass('invisiabled');
+							break;
+						}
+					}
+					return;
+				case (attr.toUpperCase().indexOf(my.trim().toUpperCase()) >= 0):
+					ele.addClass('invisiabled');
+					return;
+				default:
+					break;
+			}
 		}
-		if (ele.children().length) {
-			_traverseHideInI(ele.children(), my);
-		}
+		if (ele.children().length) _traverseHideInI(ele.children(), my);
 	});
 };
 var _getLocalesValue = function(node, defaultValue) {

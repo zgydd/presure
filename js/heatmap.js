@@ -12,6 +12,11 @@ $(document).ready(function() {
     $('#heatmap-labNewScale').html(_statData.me.preScale);
     _fixRadius();
     _resetMainHeight();
+    if (serialport && serialport.isOpen()) {
+        $('.common-info-panel .icon-double-angle-right').removeClass('icon-double-angle-right').addClass('icon-double-angle-left');
+        $('.panel-heading').hide();
+        $('.panel-body').hide();
+    }
 });
 
 $('#heatmap-btnCalibration').on('click', function() {
@@ -28,6 +33,13 @@ $('#heatmap-btnReset').on('click', function() {
 });
 
 $('#heatmap-btnDoPort').on('click', function() {
+    if (window.MyApp) {
+        try {
+            window.MyApp.callData();
+            $('#heatmap-btnDoPort').html(_getLocalesValue('langHeatmapBtnClosePort', 'Deconnection'));
+            return;
+        } catch (e) {}
+    }
     if (serialport && serialport.isOpen()) {
         setTimeout(function() {
             serialport.close();
@@ -77,8 +89,8 @@ $('#heatmap-infoPanelBadge').on('click', function() {
 $('.legend-container .number-input').on('blur', function(event) {
     var oldValue = parseFloat($(event.target).attr('old-value'));
     var newValue = parseFloat($(event.target).val().trim());
-    if(oldValue === newValue) return;
-    if(isNaN(newValue) || newValue <= 0 || newValue >= 1) {
+    if (oldValue === newValue) return;
+    if (isNaN(newValue) || newValue <= 0 || newValue >= 1) {
         _showMessage('warn', _getLocalesValue('langHeatmapWrnTitleLegend', 'Please input a number between 0 and 1(not include)'));
         $(event.target).val(oldValue);
         return;
