@@ -510,16 +510,32 @@ var setHeatMap = function(innerData) {
     // if you have a set of datapoints always use setData instead of addData
     // for data initialization
     heatmapInstance.setData(data);
-    /*
-        var strInn = '<div>';
-        for (var i = 0; i < innerData.length; i++) {
-            for (var j = 0; j < innerData[i].length; j++) {
-                strInn += '<span style="margin:0.25em;display:inline-block;width:2.2em;">' + innerData[i][j] + '</span>';
-            }
-            strInn += '<br />';
+/*
+    var canvas = $('.heatmap canvas').get(0);
+    var ctx = canvas.getContext("2d");
+    var imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+
+    var inner = [];
+    var row = [];
+    for (var i = 0; i < imgData.length; i += 4) {
+        row.push(imgData[i + 3]);
+        if (row.length === canvas.width) {
+            inner.push(row.slice(0));
+            row.length = 0;
         }
-        strInn += '</div>';
-        $('#test-matrix').append(strInn);
+    }
+    console.log(inner);
+
+    /*
+    var strInn = '<table border="1">';
+    for (var i = 0; i < innerData.length; i++) {
+        strInn += '<tr>';
+        for (var j = 0; j < innerData[i].length; j++) {
+            strInn += '<td>' + innerData[i][j].toFixed(2) + '</td>';
+        }
+        strInn += '</tr>';
+    }
+    $('#test-matrix').append(strInn + '<br />');
     */
 };
 var setHeatMapAndUpdate = function(strJson) {

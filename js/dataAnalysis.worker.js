@@ -7,6 +7,117 @@ var _setPoint = function(target, base) {
 	target.x = base.x;
 	target.y = base.y;
 };
+//ÖÐÖµÂË²¨
+var _medianFilter = function(matrix) {
+	var tmpInner = [];
+	for (var i = 0; i < matrix.length; i++) {
+		var row = [];
+		for (var j = 0; j < matrix[i].length; j++) {
+			var tmpNum = matrix[i][j];
+			switch (true) {
+				case (i === 0 && j === 0):
+					tmpNum += 25 / 9 * matrix[i][j];
+					tmpNum += matrix[i + 1][j];
+					tmpNum += matrix[i][j + 1];
+					tmpNum += matrix[i + 1][j + 1];
+					break;
+				case (i === (matrix.length - 1) && j === (matrix[i].length - 1)):
+					tmpNum += 25 / 9 * matrix[i][j];
+					tmpNum += matrix[i - 1][j];
+					tmpNum += matrix[i][j - 1];
+					tmpNum += matrix[i - 1][j - 1];
+					break;
+				case (i === (matrix.length - 1) && j === 0):
+					tmpNum += 25 / 9 * matrix[i][j];
+					tmpNum += matrix[i - 1][j];
+					tmpNum += matrix[i - 1][j + 1];
+					tmpNum += matrix[i][j + 1];
+					break;
+				case (i === 0 && j === (matrix[i].length - 1)):
+					tmpNum += 25 / 9 * matrix[i][j];
+					tmpNum += matrix[i][j - 1];
+					tmpNum += matrix[i + 1][j - 1];
+					tmpNum += matrix[i + 1][j];
+					break;
+				case (i === 0 && j <= (matrix[i].length - 1)):
+					tmpNum += 5 / 3 * matrix[i][j];
+					tmpNum += matrix[i][j - 1];
+					tmpNum += matrix[i + 1][j - 1];
+					tmpNum += matrix[i + 1][j];
+					tmpNum += matrix[i][j + 1];
+					tmpNum += matrix[i + 1][j + 1];
+					break;
+				case (j === 0 && i < (matrix.length - 1)):
+					tmpNum += 5 / 3 * matrix[i][j];
+					tmpNum += matrix[i - 1][j];
+					tmpNum += matrix[i - 1][j + 1];
+					tmpNum += matrix[i + 1][j];
+					tmpNum += matrix[i][j + 1];
+					tmpNum += matrix[i + 1][j + 1];
+					break;
+				case (i === (matrix.length - 1)):
+					tmpNum += 5 / 3 * matrix[i][j];
+					tmpNum += matrix[i][j + 1];
+					tmpNum += matrix[i - 1][j + 1];
+					tmpNum += matrix[i - 1][j];
+					tmpNum += matrix[i][j - 1];
+					tmpNum += matrix[i - 1][j - 1];
+					break;
+				case (j === (matrix[i].length - 1)):
+					tmpNum += 5 / 3 * matrix[i][j];
+					tmpNum += matrix[i + 1][j];
+					tmpNum += matrix[i + 1][j - 1];
+					tmpNum += matrix[i - 1][j];
+					tmpNum += matrix[i][j - 1];
+					tmpNum += matrix[i - 1][j - 1];
+					break;
+				default:
+					tmpNum += matrix[i - 1][j - 1];
+					tmpNum += matrix[i - 1][j];
+					tmpNum += matrix[i - 1][j + 1];
+					tmpNum += matrix[i][j + 1];
+					tmpNum += matrix[i + 1][j + 1];
+					tmpNum += matrix[i + 1][j];
+					tmpNum += matrix[i + 1][j - 1];
+					tmpNum += matrix[i][j - 1];
+					break;
+			}
+			tmpNum /= 9;
+			row.push(tmpNum);
+		}
+		tmpInner.push(row);
+	}
+	return tmpInner;
+};
+//sobel¾í»ý
+var _sobelConvolution = function(matrix) {
+	var tmpInner = [];
+	for (var i = 1; i < matrix.length - 1; i++) {
+		var row = [];
+		for (var j = 1; j < matrix[i].length; j++) {
+			var Gx = (matrix[i + 1][j - 1] + 2 * matrix[i + 1][j] + matrix[i + 1][j + 1]) - (matrix[i - 1][j - 1] + 2 * matrix[i - 1][j] + matrix[i - 1][j + 1]);
+			var Gy = (matrix[i - 1][j - 1] + 2 * matrix[i][j - 1] + matrix[i + 1][j - 1]) - (matrix[i - 1][j + 1] + 2 * matrix[i][j + 1] + matrix[i + 1][j + 1]);
+			row.push(Math.abs(Gx) + Math.abs(Gy));
+		}
+		tmpInner.push(row);
+	}
+
+	var innerMatrix = [];
+	var maxValue = 0;
+	for (var i = 0; i < tmpInner[0].length; i++) {
+		var row = [];
+		for (var j = 0; j < tmpInner.length; j++) {
+			row.push(tmpInner[j][i]);
+			if (tmpInner[j][i] > maxValue) maxValue = tmpInner[j][i];
+		}
+		innerMatrix.push(row);
+	}
+	return {
+		matrix: innerMatrix,
+		maxValue: maxValue
+	};
+};
+
 onmessage = function(event) {
 	//postMessage(event.data);
 	var sourceData = JSON.parse(event.data);
@@ -17,11 +128,10 @@ onmessage = function(event) {
 	var threshold = sourceData.threshold;
 	var cd = sourceData.cd ? sourceData.cd : 0;
 	var delayedSampling = sourceData.delayedSampling ? sourceData.delayedSampling : 31;
-	var edgeCheckDelay = sourceData.edgeCheckDelay ? sourceData.edgeCheckDelay : 5;
+	//var edgeCheckDelay = sourceData.edgeCheckDelay ? sourceData.edgeCheckDelay : 5;
 	var collapseRateWeight = sourceData.collapseRateWeight ? sourceData.collapseRateWeight : 6;
 	var edgeConfidence = sourceData.edgeConfidence ? sourceData.edgeConfidence : 2;
 	var edgeSensitivity = sourceData.edgeSensitivity ? sourceData.edgeSensitivity : 5;
-
 	var middData = {};
 
 	var innerEdges = {
@@ -29,8 +139,15 @@ onmessage = function(event) {
 	};
 
 	if (preInnerData === null) preInnerData = innerData;
-	//##########Algorithms about times and presure################
 
+	//Edge detection
+	var matrixHeatMap = sourceData.matrixHeatMap ? sourceData.matrixHeatMap : null;
+	if (matrixHeatMap) {
+		for (var i = 0; i < 3; i++) matrixHeatMap = _medianFilter(matrixHeatMap);
+		matrixHeatMap = _sobelConvolution(matrixHeatMap);
+	}
+
+	//##########Algorithms about times and presure################
 	var maxPrecent = 0;
 	//var cntChangedPoint = 0;
 	for (var i = 0; i < innerData.length; i++) {
@@ -60,66 +177,66 @@ onmessage = function(event) {
 				});
 		}
 	}
-
-	var edge8 = {
-		topLeft: null,
-		topRight: null,
-		rightTop: null,
-		rightBottom: null,
-		bottomRight: null,
-		bottomLeft: null,
-		leftBottom: null,
-		leftTop: null
-	};
-	var minX = innerData.length;
-	var maxX = 0;
-	var minY = innerData[0].length;
-	var maxY = 0;
-	for (var i = 0; i < innerEdges.samplingPoint.length; i++) {
-		minX = Math.min(minX, innerEdges.samplingPoint[i].x);
-		maxX = Math.max(maxX, innerEdges.samplingPoint[i].x);
-		minY = Math.min(minY, innerEdges.samplingPoint[i].y);
-		maxY = Math.max(maxY, innerEdges.samplingPoint[i].y);
-	}
-	var tmpLineTop = [];
-	var tmpLineRight = [];
-	var tmpLineBottom = [];
-	var tmpLineLeft = [];
-	for (var i = 0; i < innerEdges.samplingPoint.length; i++) {
-		if (innerEdges.samplingPoint[i].y === minY) tmpLineTop.push(innerEdges.samplingPoint[i]);
-		if (innerEdges.samplingPoint[i].x === maxX) tmpLineRight.push(innerEdges.samplingPoint[i]);
-		if (innerEdges.samplingPoint[i].y === maxY) tmpLineBottom.push(innerEdges.samplingPoint[i]);
-		if (innerEdges.samplingPoint[i].x === minX) tmpLineLeft.push(innerEdges.samplingPoint[i]);
-	}
-	tmpLineTop.sort(function(a, b) {
-		return a.x - b.x;
-	});
-	tmpLineRight.sort(function(a, b) {
-		return a.y - b.y;
-	});
-	tmpLineBottom.sort(function(a, b) {
-		return b.x - a.x;
-	});
-	tmpLineLeft.sort(function(a, b) {
-		return b.y - a.y;
-	});
-	if (tmpLineTop.length) {
-		edge8.topLeft = tmpLineTop[0];
-		edge8.topRight = tmpLineTop[tmpLineTop.length - 1];
-	}
-	if (tmpLineRight.length) {
-		edge8.rightTop = tmpLineRight[0];
-		edge8.rightBottom = tmpLineRight[tmpLineRight.length - 1];
-	}
-	if (tmpLineBottom.length) {
-		edge8.bottomRight = tmpLineBottom[0];
-		edge8.bottomLeft = tmpLineBottom[tmpLineBottom.length - 1];
-	}
-	if (tmpLineLeft.length) {
-		edge8.leftBottom = tmpLineLeft[0];
-		edge8.leftTop = tmpLineLeft[tmpLineLeft.length - 1];
-	}
-
+	/*
+		var edge8 = {
+			topLeft: null,
+			topRight: null,
+			rightTop: null,
+			rightBottom: null,
+			bottomRight: null,
+			bottomLeft: null,
+			leftBottom: null,
+			leftTop: null
+		};
+		var minX = innerData.length;
+		var maxX = 0;
+		var minY = innerData[0].length;
+		var maxY = 0;
+		for (var i = 0; i < innerEdges.samplingPoint.length; i++) {
+			minX = Math.min(minX, innerEdges.samplingPoint[i].x);
+			maxX = Math.max(maxX, innerEdges.samplingPoint[i].x);
+			minY = Math.min(minY, innerEdges.samplingPoint[i].y);
+			maxY = Math.max(maxY, innerEdges.samplingPoint[i].y);
+		}
+		var tmpLineTop = [];
+		var tmpLineRight = [];
+		var tmpLineBottom = [];
+		var tmpLineLeft = [];
+		for (var i = 0; i < innerEdges.samplingPoint.length; i++) {
+			if (innerEdges.samplingPoint[i].y === minY) tmpLineTop.push(innerEdges.samplingPoint[i]);
+			if (innerEdges.samplingPoint[i].x === maxX) tmpLineRight.push(innerEdges.samplingPoint[i]);
+			if (innerEdges.samplingPoint[i].y === maxY) tmpLineBottom.push(innerEdges.samplingPoint[i]);
+			if (innerEdges.samplingPoint[i].x === minX) tmpLineLeft.push(innerEdges.samplingPoint[i]);
+		}
+		tmpLineTop.sort(function(a, b) {
+			return a.x - b.x;
+		});
+		tmpLineRight.sort(function(a, b) {
+			return a.y - b.y;
+		});
+		tmpLineBottom.sort(function(a, b) {
+			return b.x - a.x;
+		});
+		tmpLineLeft.sort(function(a, b) {
+			return b.y - a.y;
+		});
+		if (tmpLineTop.length) {
+			edge8.topLeft = tmpLineTop[0];
+			edge8.topRight = tmpLineTop[tmpLineTop.length - 1];
+		}
+		if (tmpLineRight.length) {
+			edge8.rightTop = tmpLineRight[0];
+			edge8.rightBottom = tmpLineRight[tmpLineRight.length - 1];
+		}
+		if (tmpLineBottom.length) {
+			edge8.bottomRight = tmpLineBottom[0];
+			edge8.bottomLeft = tmpLineBottom[tmpLineBottom.length - 1];
+		}
+		if (tmpLineLeft.length) {
+			edge8.leftBottom = tmpLineLeft[0];
+			edge8.leftTop = tmpLineLeft[tmpLineLeft.length - 1];
+		}
+	*/
 	if (maxPrecent <= 0) {
 		preInnerData = innerData;
 		return;
@@ -130,12 +247,15 @@ onmessage = function(event) {
 	//middData.cntChangedPoint = cntChangedPoint;
 	//middData.cntChangedPointPrec = cntChangedPoint / (innerData.length * innerData[0].length);
 	middData.innerEdges = innerEdges;
+
+	/*
 	middData.innerPos = edge8;
 	if (edge8.topLeft && edge8.topRight && edge8.rightTop && edge8.rightBottom &&
 		edge8.bottomRight && edge8.bottomLeft && edge8.leftBottom && edge8.leftTop)
 		turnPosChkList.push(edge8);
-
+	*/
 	var forceback = false;
+	/*
 	middData.turnPosChkListLength = turnPosChkList.length;
 	middData.edgeCheckDelay = edgeCheckDelay;
 	if (turnPosChkList.length > edgeCheckDelay) {
@@ -162,14 +282,8 @@ onmessage = function(event) {
 		if (displaceCount > edgeSensitivity) forceback = true;
 		middData.displaceCount = displaceCount;
 		turnPosChkList.length = 0;
-		/*
-		postMessage(JSON.stringify({
-			middData: middData,
-			displaceCount: displaceCount,
-			test: true
-		}));
-		*/
 	}
+	*/
 	if (!forceback) {
 		var idxPresureRange = 0;
 		for (idxPresureRange = 1; idxPresureRange <= presureRanges.length; idxPresureRange++) {
@@ -203,27 +317,27 @@ onmessage = function(event) {
 		}
 	}
 	middData.newCountDownRange = newCountDownRange;
-
-	if (innerEdges.samplingPoint.length < 10) {
-		delayScaleList.length = 0;
-		turnPosChkList.length = 0;
-		postMessage(JSON.stringify({
-			cd: cd,
-			data: newCountDownRange,
-			middData: middData,
-			leave: true
-		}));
-	}
-
-	if (forceback) {
-		delayScaleList.length = 0;
-		postMessage(JSON.stringify({
-			cd: cd,
-			data: newCountDownRange,
-			middData: middData,
-			forceback: true
-		}));
-	}
+	/*
+		if (innerEdges.samplingPoint.length < 10) {
+			delayScaleList.length = 0;
+			turnPosChkList.length = 0;
+			postMessage(JSON.stringify({
+				cd: cd,
+				data: newCountDownRange,
+				middData: middData,
+				leave: true
+			}));
+		}
+		if (forceback) {
+			delayScaleList.length = 0;
+			postMessage(JSON.stringify({
+				cd: cd,
+				data: newCountDownRange,
+				middData: middData,
+				forceback: true
+			}));
+		}
+	*/
 	///*-----------delay recalc
 	if (delayScaleList.length < delayedSampling) {
 		delayScaleList.push(newCountDownRange);
@@ -273,6 +387,7 @@ onmessage = function(event) {
 	postMessage(JSON.stringify({
 		cd: cd,
 		data: newCountDownRange,
+		matrixHeatMap: matrixHeatMap,
 		middData: middData
 	}));
 };
