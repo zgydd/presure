@@ -12,11 +12,14 @@ var serialport = null;
 
 var bufferDataWorker = null;
 var dataAnalysisWorker = null;
+var edgeDetectionWorker = null;
 if (typeof(Worker) !== undefined) {
     bufferDataWorker = new Worker('./js/bufferData.worker.js');
     bufferDataWorker.onmessage = _bufferDataWorkerCallback_;
     dataAnalysisWorker = new Worker('./js/dataAnalysis.worker.js');
     dataAnalysisWorker.onmessage = _dataAnaylysisWorkerCallback_;
+    edgeDetectionWorker = new Worker('./js/edgeDetection.worker.js');
+    edgeDetectionWorker.onmessage = _edgeDetectionWorkerCallback_;
 }
 var getSaveData = function() {
     var saveData = {};
@@ -29,10 +32,10 @@ var getSaveData = function() {
     //saveData.flushRange = commConfig.flushRange;
     saveData.autoCalibration = commConfig.autoCalibration;
     saveData.delayedSampling = commConfig.delayedSampling;
-    saveData.edgeCheckDelay = commConfig.edgeCheckDelay;
-    saveData.collapseRateWeight = commConfig.collapseRateWeight;
-    saveData.edgeConfidence = commConfig.edgeConfidence;
-    saveData.edgeSensitivity = commConfig.edgeSensitivity;
+    saveData.filterTimes = commConfig.filterTimes;
+    saveData.sobelThreshold = commConfig.sobelThreshold;
+    //saveData.edgeConfidence = commConfig.edgeConfidence;
+    //saveData.edgeSensitivity = commConfig.edgeSensitivity;
     saveData.productionWidth = commConfig.productionSize.width;
     saveData.productionHeight = commConfig.productionSize.height;
     saveData.minNoise = commConfig.noiseLimit.min;
@@ -70,10 +73,10 @@ var commConfig = {
     alertFreque: 120,
     alertTime: 3,
     delayedSampling: 31,
-    edgeCheckDelay: 5,
-    collapseRateWeight: 6,
-    edgeConfidence: 3,
-    edgeSensitivity: 5,
+    filterTimes: 3,
+    sobelThreshold: 68,
+    //edgeConfidence: 3,
+    //edgeSensitivity: 5,
     productionSize: {
         width: 16,
         height: 16
@@ -112,6 +115,7 @@ var _statData = {
     },
     alertHandle: 0,
     autoCalibrationHandle: 0,
+    inEdgeDetectionRange: false,
     //delayScaleList: [],
     calibrationData: []
 };
@@ -301,10 +305,10 @@ var setConfig = function(data) {
     if (data.hasOwnProperty('autoCalibration')) commConfig.autoCalibration = _toInt(data.autoCalibration);
     if (data.hasOwnProperty('delayedSampling')) commConfig.delayedSampling = _toInt(data.delayedSampling);
 
-    if (data.hasOwnProperty('edgeCheckDelay')) commConfig.edgeCheckDelay = _toInt(data.edgeCheckDelay);
-    if (data.hasOwnProperty('collapseRateWeight')) commConfig.collapseRateWeight = _toInt(data.collapseRateWeight);
-    if (data.hasOwnProperty('edgeConfidence')) commConfig.edgeConfidence = _toInt(data.edgeConfidence);
-    if (data.hasOwnProperty('edgeSensitivity')) commConfig.edgeSensitivity = _toInt(data.edgeSensitivity);
+    if (data.hasOwnProperty('filterTimes')) commConfig.filterTimes = _toInt(data.filterTimes);
+    if (data.hasOwnProperty('sobelThreshold')) commConfig.sobelThreshold = _toInt(data.sobelThreshold);
+    //if (data.hasOwnProperty('edgeConfidence')) commConfig.edgeConfidence = _toInt(data.edgeConfidence);
+    //if (data.hasOwnProperty('edgeSensitivity')) commConfig.edgeSensitivity = _toInt(data.edgeSensitivity);
 
     if (data.hasOwnProperty('productionWidth')) commConfig.productionSize.width = _toInt(data.productionWidth);
     if (data.hasOwnProperty('productionHeight')) commConfig.productionSize.height = _toInt(data.productionHeight);
@@ -340,6 +344,8 @@ var _destoryMe = function() {
     bufferDataWorker = null;
     if (dataAnalysisWorker) dataAnalysisWorker.terminate();
     dataAnalysisWorker = null;
+    if (edgeDetectionWorker) edgeDetectionWorker.terminate();
+    edgeDetectionWorker = null;
     commConfig = null;
     _statData = null;
     heatmapInstance = null;
@@ -510,57 +516,32 @@ var setHeatMap = function(innerData) {
     // if you have a set of datapoints always use setData instead of addData
     // for data initialization
     heatmapInstance.setData(data);
-/*
-    var canvas = $('.heatmap canvas').get(0);
-    var ctx = canvas.getContext("2d");
-    var imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-
-    var inner = [];
-    var row = [];
-    for (var i = 0; i < imgData.length; i += 4) {
-        row.push(imgData[i + 3]);
-        if (row.length === canvas.width) {
-            inner.push(row.slice(0));
-            row.length = 0;
+    if (!_statData.inEdgeDetectionRange && $('.heatmap canvas').length > 0 && serialport.isOpen()) {
+        _statData.inEdgeDetectionRange = true;
+        var canvas = $('.heatmap canvas').get(0);
+        var ctx = canvas.getContext("2d");
+        var imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+        var inner = [];
+        var row = [];
+        for (var i = 0; i < imgData.length; i += 4) {
+            if (imgData[i] === null) continue;
+            row.push((((imgData[i] * 299 + imgData[i + 1] * 587 + imgData[i + 2] * 114 + 500) / 1000) /* (imgData[i + 3] / 255)*/ ));
+            //row.push(imgData[i + 3]);
+            if (row.length === canvas.width) {
+                inner.push(row.slice(0));
+                row.length = 0;
+            }
         }
+        var postData = {};
+        postData.imgData = inner;
+        postData.filterTimes = commConfig.filterTimes;
+        edgeDetectionWorker.postMessage(JSON.stringify(postData));
     }
-    console.log(inner);
-
-    /*
-    var strInn = '<table border="1">';
-    for (var i = 0; i < innerData.length; i++) {
-        strInn += '<tr>';
-        for (var j = 0; j < innerData[i].length; j++) {
-            strInn += '<td>' + innerData[i][j].toFixed(2) + '</td>';
-        }
-        strInn += '</tr>';
-    }
-    $('#test-matrix').append(strInn + '<br />');
-    */
 };
 var setHeatMapAndUpdate = function(strJson) {
     innerData = JSON.parse(strJson);
     setHeatMap(innerData);
 };
-
-/*
-var getDataFromBuffer = function(data) {
-    var startPos = 0;
-    var buffer = new Buffer(data, 'hex');
-    for (startPos = 0; startPos < buffer.length; startPos++) {
-        if (buffer[startPos] === 255) break;
-    }
-    if (startPos >= buffer.length) return;
-    var startIdx = startPos + 1;
-    for (var i = startPos + 1; i < buffer.length; i++) {
-        if (buffer[i] === 255) {
-            _formatABufferData(startIdx, i, buffer);
-            startIdx = i + 1;
-        }
-    }
-    setHeatMap(innerData);
-};
-*/
 
 var getDataFromBuffer = function(data) {
     try {

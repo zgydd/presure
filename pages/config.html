@@ -8,11 +8,6 @@
         </select>
        	<span id="config-labProductionDesc"></span>
     </div>
-    <div class="item-group" id="config-grpProductionFirmware">
-        <label z-lang="langConfigLabProductionFirmware" for="config-selectProductionFirmware">Production Firmware: </label>
-        <select id="config-selectProductionFirmware" class="form-control">
-        </select>
-    </div>
     <div class="item-group" hide-in="android">
         <label z-lang="langConfigLabPort" for="config-selectPort">Port: </label>
         <select class="form-control" id="config-selectPort"></select>
@@ -37,42 +32,66 @@
     </div>
 
     <div id="config-advanceConfigFrame">
-	    <div class="item-group" hide-in="android">
-	        <label z-lang="langConfigLabBaudRate" for="config-inputBaudRate">Baud rate: </label>
-	        <input type="text" id="config-inputBaudRate" maxlength="8" class="form-control" />
-	    </div>
-	    <div class="item-group">
-	        <label z-lang="langConfigLabRadius" for="config-inputRadius">Radius: </label>
-	        <input class="form-control number-input" type="text" id="config-inputRadius" maxlength="3" readonly="readonly" />
-	    </div>
-	    <br/>
+    <article class="panel panel-info">
+    	<section class="panel-heading"><h3 class="panel-title" z-lang="langConfigLabAdvancePages">Pages</h3></section>
+    	<section class="panel-body">
+		    <div class="item-group">
+		        <label z-lang="langConfigLabRadius" for="config-inputRadius">Radius: </label>
+		        <input class="form-control number-input" type="text" id="config-inputRadius" maxlength="3" readonly="readonly" />
+		    </div>
+		    <div class="item-group">
+		        <label z-lang="langConfigLabMultiple" for="config-inputMultiple">Multiple: </label>
+		        <input type="text" id="config-inputMultiple" maxlength="5" class="form-control number-input" />
+		    </div>
+    	</section>
+    </article>
+    <article class="panel panel-info">
+    	<section class="panel-heading"><h3 class="panel-title" z-lang="langConfigLabAdvanceBehavior">Behavior</h3></section>
+    	<section class="panel-body">
+		    <div class="item-group">
+		        <label z-lang="langConfigLabAutoCalibration" for="config-inputAutoCalibration">Calibra Freque: </label>
+		        <input class="form-control number-input" type="text" id="config-inputAutoCalibration" maxlength="3" />
+		    </div>
+		    <div class="item-group">
+		        <label z-lang="langConfigLabDelayedSampling" for="config-inputDelayedSampling">Delayed Sampling: </label>
+		        <input class="form-control number-input" type="text" id="config-inputDelayedSampling" maxlength="2" />
+		    </div>
+    	</section>
+    </article>
+    <article class="panel panel-info">
+    	<section class="panel-heading"><h3 class="panel-title" z-lang="langConfigLabAdvanceHardware">Hardware</h3></section>
+    	<section class="panel-body">
+		    <div class="item-group" hide-in="android">
+		        <label z-lang="langConfigLabBaudRate" for="config-inputBaudRate">Baud rate: </label>
+		        <input type="text" id="config-inputBaudRate" maxlength="8" class="form-control" />
+		    </div>
+		    <div class="item-group" id="config-grpProductionFirmware">
+		        <label z-lang="langConfigLabProductionFirmware" for="config-selectProductionFirmware">Production Firmware: </label>
+		        <select id="config-selectProductionFirmware" class="form-control">
+		        </select>
+		    </div>
+    	</section>
+    </article>
+    <article class="panel panel-info">
+    	<section class="panel-heading"><h3 class="panel-title" z-lang="langConfigLabAdvanceEdgeDetection">Edge detection</h3></section>
+    	<section class="panel-body">
+		    <div class="item-group">
+		        <label z-lang="langConfigLabFilterTimes" for="config-inputFilterTimes">Filter times: </label>
+		        <input class="form-control number-input" type="text" id="config-inputFilterTimes" maxlength="2" />
+		    </div>
+		    <div class="item-group">
+		        <label z-lang="langConfigLabSobelThreshold" for="config-inputSobelThreshold">Sobel Threshold: </label>
+		        <input class="form-control number-input" type="text" id="config-inputSobelThreshold" maxlength="2" />%
+		    </div>
+    	</section>
+    </article>
+
 	    <!--div class="item-group">
 	        <label z-lang="langConfigLabFlushRange" for="config-inputFlushRange">Flush range: </label>
 	        <input class="form-control number-input" type="text" id="config-inputFlushRange" maxlength="3" />
 	    </div> 
 	    <br/-->
-	    <div class="item-group">
-	        <label z-lang="langConfigLabMultiple" for="config-inputMultiple">Multiple: </label>
-	        <input type="text" id="config-inputMultiple" maxlength="5" class="form-control number-input" />
-	    </div>
-	    <div class="item-group">
-	        <label z-lang="langConfigLabAutoCalibration" for="config-inputAutoCalibration">Calibra Freque: </label>
-	        <input class="form-control number-input" type="text" id="config-inputAutoCalibration" maxlength="3" />
-	    </div>
-	    <div class="item-group">
-	        <label z-lang="langConfigLabDelayedSampling" for="config-inputDelayedSampling">Delayed Sampling: </label>
-	        <input class="form-control number-input" type="text" id="config-inputDelayedSampling" maxlength="2" />
-	    </div>
-	    <br/>
-	    <div class="item-group">
-	        <label z-lang="langConfigLabEdgeCheckDelay" for="config-inputEdgeCheckDelay">Edge Check Delay: </label>
-	        <input class="form-control number-input" type="text" id="config-inputEdgeCheckDelay" maxlength="2" />
-	    </div>
-	    <div class="item-group">
-	        <label z-lang="langConfigLabCollapseRateWeight" for="config-inputCollapseRateWeight">Collapse Rate Weight: </label>
-	        <input class="form-control number-input" type="text" id="config-inputCollapseRateWeight" maxlength="4" />
-	    </div>
-	    <br/>
+	    <!--br/>
 	    <div class="item-group">
 	        <label z-lang="langConfigLabEdgeConfidence" for="config-inputEdgeConfidence">Edge Confidence: </label>
 	        <input class="form-control number-input" type="text" id="config-inputEdgeConfidence" maxlength="1" />
@@ -80,6 +99,6 @@
 	    <div class="item-group">
 	        <label z-lang="langConfigLabEdgeSensitivity" for="config-inputEdgeSensitivity">Edge Sensitivity: </label>
 	        <input class="form-control number-input" type="text" id="config-inputEdgeSensitivity" maxlength="2" />
-	    </div>
+	    </div-->
     </div>
 </div>

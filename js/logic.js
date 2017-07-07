@@ -30,46 +30,6 @@ var _dataAnaylysisWorkerCallback_ = function(event) {
 	if ($('#heatmap-labNewScale').length)
 		$('#heatmap-labNewScale').html(dataResult.middData.newScale);
 
-	if (dataResult.matrixHeatMap.matrix && $('#edgeCav').length) {
-		var cav = $('#edgeCav').get(0);
-		cav.width = dataResult.matrixHeatMap.matrix.length + 1;
-		cav.height = dataResult.matrixHeatMap.matrix[0].length + 1;
-		var canvas = $('.heatmap canvas').get(0);
-		var context = cav.getContext('2d');
-		context.clearRect(0, 0, cav.width, cav.height);
-		context.fillStyle = 'rgba(0, 0, 0, 0.9)';
-		for (var i = 0; i < dataResult.matrixHeatMap.matrix.length; i++) {
-			for (var j = 0; j < dataResult.matrixHeatMap.matrix[i].length; j++) {
-				if (dataResult.matrixHeatMap.matrix[i][j] > dataResult.matrixHeatMap.maxValue * 0.68) {
-					context.fillRect(i, j, 1, 1);
-				}
-			}
-		}
-	}
-
-	/*
-		if (dataResult.middData.innerPos && $('#edgeCav').length) {
-			var cav = document.getElementById('edgeCav');
-			var context = cav.getContext('2d');
-			var widthBase = cav.width / (commConfig.productionSize.height - 1);
-			var heightBase = cav.height / (commConfig.productionSize.width - 1);
-			context.save();
-			context.clearRect(0, 0, cav.width, cav.height);
-			context.lineWidth = 1;
-			context.strokeStyle = 'rgba(255, 0, 0, 0.6)';
-			context.beginPath();
-			context.moveTo((dataResult.middData.innerPos.topLeft.x * widthBase - 0.5), (dataResult.middData.innerPos.topLeft.y * heightBase - 0.5));
-			context.lineTo((dataResult.middData.innerPos.topRight.x * widthBase - 0.5), (dataResult.middData.innerPos.topRight.y * heightBase - 0.5));
-			context.lineTo((dataResult.middData.innerPos.rightTop.x * widthBase - 0.5), (dataResult.middData.innerPos.rightTop.y * heightBase - 0.5));
-			context.lineTo((dataResult.middData.innerPos.rightBottom.x * widthBase - 0.5), (dataResult.middData.innerPos.rightBottom.y * heightBase - 0.5));
-			context.lineTo((dataResult.middData.innerPos.bottomRight.x * widthBase - 0.5), (dataResult.middData.innerPos.bottomRight.y * heightBase - 0.5));
-			context.lineTo((dataResult.middData.innerPos.bottomLeft.x * widthBase - 0.5), (dataResult.middData.innerPos.bottomLeft.y * heightBase - 0.5));
-			context.lineTo((dataResult.middData.innerPos.leftBottom.x * widthBase - 0.5), (dataResult.middData.innerPos.leftBottom.y * heightBase - 0.5));
-			context.lineTo((dataResult.middData.innerPos.leftTop.x * widthBase - 0.5), (dataResult.middData.innerPos.leftTop.y * heightBase - 0.5));
-			context.lineTo((dataResult.middData.innerPos.topLeft.x * widthBase - 0.5), (dataResult.middData.innerPos.topLeft.y * heightBase - 0.5));
-			context.stroke();
-		}
-	*/
 	if (dataResult.leave) {
 		if ($('#countdown').length) $('#countdown').stop();
 		if ($('#edgeCav').length) {
@@ -101,6 +61,26 @@ var _dataAnaylysisWorkerCallback_ = function(event) {
 	_statData.restDistance = tmpDist;
 	_statData.preCountDown = newTime;
 	_statData.preCountDownRange = dataResult.data * 60;
+};
+var _edgeDetectionWorkerCallback_ = function(event) {
+	var dataResult = JSON.parse(event.data);
+	if (dataResult.matrix && $('#edgeCav').length) {
+		var cav = $('#edgeCav').get(0);
+		cav.width = dataResult.matrix.length + 1;
+		cav.height = dataResult.matrix[0].length + 1;
+		var canvas = $('.heatmap canvas').get(0);
+		var context = cav.getContext('2d');
+		context.clearRect(0, 0, cav.width, cav.height);
+		context.fillStyle = 'rgba(0, 180, 75, 0.6)';
+		for (var i = 0; i < dataResult.matrix.length; i++) {
+			for (var j = 0; j < dataResult.matrix[i].length; j++) {
+				if (dataResult.matrix[i][j] > dataResult.maxValue * (commConfig.sobelThreshold / 100)) {
+					context.fillRect(i, j, 1, 1);
+				}
+			}
+		}
+	}
+	_statData.inEdgeDetectionRange = false;
 };
 var _countDownCallBack = function(hours, minutes, seconds, cd) {
 	//console.log(hours + ':' + minutes + ':' + seconds);
@@ -225,47 +205,10 @@ var _recalcScale = function(cd) {
 	postData.threshold = _statData.scaleData.threshold;
 	postData.cd = cd;
 	postData.delayedSampling = commConfig.delayedSampling;
-	postData.edgeCheckDelay = commConfig.edgeCheckDelay;
-	postData.collapseRateWeight = commConfig.collapseRateWeight;
-	postData.edgeConfidence = commConfig.edgeConfidence;
-	postData.edgeSensitivity = commConfig.edgeSensitivity;
-
-	if ($('.heatmap canvas').length > 0) {
-		var canvas = $('.heatmap canvas').get(0);
-		var ctx = canvas.getContext("2d");
-		var imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-
-		var inner = [];
-		var row = [];
-		for (var i = 0; i < imgData.length; i += 4) {
-			row.push((((imgData[i] * 299 + imgData[i + 1] * 587 + imgData[i + 2] * 114 + 500) / 1000) /* (imgData[i + 3] / 255)*/ ));
-			//row.push(imgData[i + 3]);
-			if (row.length === canvas.width) {
-				inner.push(row.slice(0));
-				row.length = 0;
-			}
-		}
-		postData.matrixHeatMap = inner;
-		/*
-				var tmpcav = document.getElementById('tmpCav');
-				var tmpctx = tmpcav.getContext("2d");
-				$(tmpcav).width(canvas.width);
-				$(tmpcav).height(canvas.height);
-				var tmpimg = tmpctx.getImageData(0, 0, tmpcav.width, tmpcav.height);
-				var cursorx = 0;
-				var cursory = 0;
-				for (var i = 0; i < tmpimg.data.length; i += 4) {
-					tmpimg.data[i + 3] = inner[cursorx][cursory];
-					if (cursorx + 1 >= inner.length) {
-						cursorx = 0;
-						cursory++;
-					} else {
-						cursorx++;
-					}
-				}
-				tmpctx.putImageData(tmpimg, 0, 0);
-		*/
-	}
+	postData.filterTimes = commConfig.filterTimes;
+	postData.sobelThreshold = commConfig.sobelThreshold;
+	//postData.edgeConfidence = commConfig.edgeConfidence;
+	//postData.edgeSensitivity = commConfig.edgeSensitivity;
 
 	dataAnalysisWorker.postMessage(JSON.stringify(postData));
 };
