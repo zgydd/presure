@@ -43,6 +43,10 @@
 		        <label z-lang="langConfigLabMultiple" for="config-inputMultiple">Multiple: </label>
 		        <input type="text" id="config-inputMultiple" maxlength="5" class="form-control number-input" />
 		    </div>
+            <div class="item-group">
+                <label z-lang="langConfigLabIslandPoint" for="config-inputIslandPoint">Island Point: </label>
+                <input type="text" id="config-inputIslandPoint" maxlength="1" class="form-control number-input" />
+            </div>
     	</section>
     </article>
     <article class="panel panel-info">
@@ -56,6 +60,14 @@
 		        <label z-lang="langConfigLabDelayedSampling" for="config-inputDelayedSampling">Delayed Sampling: </label>
 		        <input class="form-control number-input" type="text" id="config-inputDelayedSampling" maxlength="2" />
 		    </div>
+            <div class="item-group">
+                <label z-lang="langConfigLabLeaveJudge" for="config-inputLeaveJudge">Leave Judge: </label>
+                <input class="form-control number-input" type="text" id="config-inputLeaveJudge" maxlength="2" />%
+            </div>
+            <div class="item-group">
+                <label z-lang="langConfigLabTurnJudge" for="config-inputTurnJudge">Turn Judge: </label>
+                <input class="form-control number-input" type="text" id="config-inputTurnJudge" maxlength="2" />%
+            </div>
     	</section>
     </article>
     <article class="panel panel-info">
@@ -73,7 +85,7 @@
     	</section>
     </article>
     <article class="panel panel-info">
-    	<section class="panel-heading"><h3 class="panel-title" z-lang="langConfigLabAdvanceEdgeDetection">Edge detection</h3></section>
+    	<section class="panel-heading"><h3 class="panel-title" z-lang="langConfigLabAdvanceEdgeDetection">Edge/Skeleton detection</h3></section>
     	<section class="panel-body">
 		    <div class="item-group">
 		        <label z-lang="langConfigLabFilterTimes" for="config-inputFilterTimes">Filter times: </label>
@@ -83,22 +95,11 @@
 		        <label z-lang="langConfigLabSobelThreshold" for="config-inputSobelThreshold">Sobel Threshold: </label>
 		        <input class="form-control number-input" type="text" id="config-inputSobelThreshold" maxlength="2" />%
 		    </div>
+            <div class="item-group" hide-in="android">
+                <label z-lang="langConfigLabSkeletonLimit" for="config-inputSkeletonLimit">Skeleton Limit: </label>
+                <input type="text" id="config-inputSkeletonLimit" maxlength="5" class="form-control number-input" />
+            </div>
     	</section>
     </article>
-
-	    <!--div class="item-group">
-	        <label z-lang="langConfigLabFlushRange" for="config-inputFlushRange">Flush range: </label>
-	        <input class="form-control number-input" type="text" id="config-inputFlushRange" maxlength="3" />
-	    </div> 
-	    <br/-->
-	    <!--br/>
-	    <div class="item-group">
-	        <label z-lang="langConfigLabEdgeConfidence" for="config-inputEdgeConfidence">Edge Confidence: </label>
-	        <input class="form-control number-input" type="text" id="config-inputEdgeConfidence" maxlength="1" />
-	    </div>
-	    <div class="item-group">
-	        <label z-lang="langConfigLabEdgeSensitivity" for="config-inputEdgeSensitivity">Edge Sensitivity: </label>
-	        <input class="form-control number-input" type="text" id="config-inputEdgeSensitivity" maxlength="2" />
-	    </div-->
     </div>
 </div>

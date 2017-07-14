@@ -1,9 +1,25 @@
 'use strict';
 var delayScaleList = [];
 var preInnerData = null;
+var preEdgeData = null;
+var preSkeletonData = null;
+
 onmessage = function(event) {
 	//postMessage(event.data);
+	//return;
 	var sourceData = JSON.parse(event.data);
+
+	var type2 = false;
+	if (sourceData.resetEdge) {
+		preEdgeData = null;
+		type2 = true;
+	}
+	if (sourceData.resetSkeleton) {
+		preSkeletonData = null;
+		type2 = true;
+	}
+	if (type2) return;
+
 	var innerData = sourceData.innerData;
 	var calibrationData = sourceData.calibrationData;
 	var presureRanges = sourceData.presureRanges;
@@ -11,6 +27,12 @@ onmessage = function(event) {
 	var threshold = sourceData.threshold;
 	var cd = sourceData.cd ? sourceData.cd : 0;
 	var delayedSampling = sourceData.delayedSampling ? sourceData.delayedSampling : 31;
+
+	var leaveJudge = sourceData.leaveJudge ? sourceData.leaveJudge : 10;
+	var turnJudge = sourceData.turnJudge ? sourceData.turnJudge : 60;
+	var edgeData = sourceData.edgeList ? sourceData.edgeList : null;
+	var skeletonData = sourceData.skeletonList ? sourceData.skeletonList : null;
+
 	var middData = {};
 
 	if (preInnerData === null) preInnerData = innerData;
@@ -101,10 +123,32 @@ onmessage = function(event) {
 	middData.dualCountDownRange = newCountDownRange;
 	delayScaleList.length = 0;
 	//---------------------------------------*/
-	preInnerData = innerData;
-	postMessage(JSON.stringify({
+
+	var analysisResult = {
 		cd: cd,
 		data: newCountDownRange,
 		middData: middData
-	}));
+	};
+
+	if (preEdgeData && (!edgeData || (edgeData.length / preEdgeData.length) < (leaveJudge / 100)))
+		analysisResult.leave = true;
+	else {
+		if (preSkeletonData && preSkeletonData.length && skeletonData && skeletonData.length) {
+			var cntSameData = 0;
+			for (var i = 0; i < preSkeletonData.length; i++) {
+				for (var j = 0; j < skeletonData.length; j++) {
+					if (preSkeletonData[i] === skeletonData[j]) {
+						cntSameData++;
+
+					}
+				}
+			}
+			if (cntSameData === 0) analysisResult.forceback = true;
+			else if ((cntSameData / preSkeletonData.length) < (turnJudge / 100)) analysisResult.forceback = true;
+		}
+	}
+	preInnerData = innerData;
+	preEdgeData = edgeData;
+	preSkeletonData = skeletonData;
+	postMessage(JSON.stringify(analysisResult));
 };

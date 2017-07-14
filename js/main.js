@@ -13,6 +13,7 @@ var serialport = null;
 var bufferDataWorker = null;
 var dataAnalysisWorker = null;
 var edgeDetectionWorker = null;
+var skeletonExtractionWorker = null;
 if (typeof(Worker) !== undefined) {
     bufferDataWorker = new Worker('./js/bufferData.worker.js');
     bufferDataWorker.onmessage = _bufferDataWorkerCallback_;
@@ -20,6 +21,8 @@ if (typeof(Worker) !== undefined) {
     dataAnalysisWorker.onmessage = _dataAnaylysisWorkerCallback_;
     edgeDetectionWorker = new Worker('./js/edgeDetection.worker.js');
     edgeDetectionWorker.onmessage = _edgeDetectionWorkerCallback_;
+    skeletonExtractionWorker = new Worker('./js/skeletonExtraction.worker.js');
+    skeletonExtractionWorker.onmessage = _skeletonExtractionWorkerCallback_;
 }
 var getSaveData = function() {
     var saveData = {};
@@ -29,13 +32,14 @@ var getSaveData = function() {
     saveData.baudRange = commConfig.baudRange;
     saveData.showMultiple = commConfig.showMultiple;
     saveData.radius = commConfig.radius;
-    //saveData.flushRange = commConfig.flushRange;
+    saveData.islandPoint = commConfig.islandPoint;
     saveData.autoCalibration = commConfig.autoCalibration;
     saveData.delayedSampling = commConfig.delayedSampling;
     saveData.filterTimes = commConfig.filterTimes;
     saveData.sobelThreshold = commConfig.sobelThreshold;
-    //saveData.edgeConfidence = commConfig.edgeConfidence;
-    //saveData.edgeSensitivity = commConfig.edgeSensitivity;
+    saveData.leaveJudge = commConfig.leaveJudge;
+    saveData.turnJudge = commConfig.turnJudge;
+    saveData.skeletonLimit = commConfig.skeletonLimit;
     saveData.productionWidth = commConfig.productionSize.width;
     saveData.productionHeight = commConfig.productionSize.height;
     saveData.minNoise = commConfig.noiseLimit.min;
@@ -68,15 +72,16 @@ var commConfig = {
     baudRange: 500000,
     showMultiple: 0,
     radius: 0,
-    //flushRange: 1,
+    islandPoint: 0,
     autoCalibration: 20,
     alertFreque: 120,
     alertTime: 3,
     delayedSampling: 31,
     filterTimes: 3,
     sobelThreshold: 68,
-    //edgeConfidence: 3,
-    //edgeSensitivity: 5,
+    leaveJudge: 10,
+    turnJudge: 60,
+    skeletonLimit: 0,
     productionSize: {
         width: 16,
         height: 16
@@ -116,6 +121,7 @@ var _statData = {
     alertHandle: 0,
     autoCalibrationHandle: 0,
     inEdgeDetectionRange: false,
+    inSkeletonDetectionRange: false,
     //delayScaleList: [],
     calibrationData: []
 };
@@ -167,10 +173,9 @@ $(document).ready(function() {
                     if (a.comName > b.comName) return 1;
                     return -1;
                 });
-                if (!inConfig && commConfig.portList.length > 0) commConfig.port = commConfig.portList[0].comName;
-                if (commConfig.portList.length === 3 &&
-                    (!commConfig.hasOwnProperty(port) || commConfig.port === null || commConfig.port === '')) {
-                    commConfig.port = commConfig.portList[1].comName;
+                if (!inConfig) {
+                    if (commConfig.portList.length === 3) commConfig.port = commConfig.portList[1].comName;
+                    else if (commConfig.portList.length > 0) commConfig.port = commConfig.portList[0].comName;
                 }
             });
         }
@@ -301,14 +306,15 @@ var setConfig = function(data) {
 
     if (data.hasOwnProperty('baudRange')) commConfig.baudRange = _toInt(data.baudRange);
     if (data.hasOwnProperty('radius')) commConfig.radius = _toInt(data.radius);
-    //if (data.hasOwnProperty('flushRange')) commConfig.flushRange = _toInt(data.flushRange);
+    if (data.hasOwnProperty('islandPoint')) commConfig.islandPoint = _toInt(data.islandPoint);
     if (data.hasOwnProperty('autoCalibration')) commConfig.autoCalibration = _toInt(data.autoCalibration);
     if (data.hasOwnProperty('delayedSampling')) commConfig.delayedSampling = _toInt(data.delayedSampling);
 
     if (data.hasOwnProperty('filterTimes')) commConfig.filterTimes = _toInt(data.filterTimes);
     if (data.hasOwnProperty('sobelThreshold')) commConfig.sobelThreshold = _toInt(data.sobelThreshold);
-    //if (data.hasOwnProperty('edgeConfidence')) commConfig.edgeConfidence = _toInt(data.edgeConfidence);
-    //if (data.hasOwnProperty('edgeSensitivity')) commConfig.edgeSensitivity = _toInt(data.edgeSensitivity);
+    if (data.hasOwnProperty('leaveJudge')) commConfig.leaveJudge = _toInt(data.leaveJudge);
+    if (data.hasOwnProperty('turnJudge')) commConfig.turnJudge = _toInt(data.turnJudge);
+    if (data.hasOwnProperty('skeletonLimit')) commConfig.skeletonLimit = _toInt(data.skeletonLimit);
 
     if (data.hasOwnProperty('productionWidth')) commConfig.productionSize.width = _toInt(data.productionWidth);
     if (data.hasOwnProperty('productionHeight')) commConfig.productionSize.height = _toInt(data.productionHeight);
@@ -346,6 +352,8 @@ var _destoryMe = function() {
     dataAnalysisWorker = null;
     if (edgeDetectionWorker) edgeDetectionWorker.terminate();
     edgeDetectionWorker = null;
+    if (skeletonExtractionWorker) skeletonExtractionWorker.terminate();
+    skeletonExtractionWorker = null;
     commConfig = null;
     _statData = null;
     heatmapInstance = null;
@@ -495,6 +503,38 @@ var setHeatMap = function(innerData) {
                 if ((numData * 100 / (1024 - _statData.calibrationData[i][j])) > commConfig.noiseLimit.max)
                     numData = 1024 - _statData.calibrationData[i][j];
             }
+            if (commConfig.islandPoint) {
+                var cntNoValue = 0;
+                var p4 = (j === innerData[i].length - 1) ? 1 : (innerData[i][j + 1] - _statData.calibrationData[i][j + 1]);
+                var p8 = (j === 0) ? 1 : (innerData[i][j - 1] - _statData.calibrationData[i][j - 1]);
+                var p2 = (i === 0) ? 1 : (innerData[i - 1][j] - _statData.calibrationData[i - 1][j]);
+                var p3 = (i === 0 || j === innerData[i].length - 1) ? 1 : (innerData[i - 1][j + 1] - _statData.calibrationData[i - 1][j + 1]);
+                var p9 = (i === 0 || j === 0) ? 1 : (innerData[i - 1][j - 1] - _statData.calibrationData[i - 1][j - 1]);
+                var p6 = (i === innerData.length - 1) ? 1 : (innerData[i + 1][j] - _statData.calibrationData[i + 1][j]);
+                var p5 = (i === innerData.length - 1 || j === innerData[i].length - 1) ? 1 : (innerData[i + 1][j + 1] - _statData.calibrationData[i + 1][j + 1]);
+                var p7 = (i === innerData.length - 1 || j === 0) ? 1 : (innerData[i + 1][j - 1] - _statData.calibrationData[i + 1][j - 1]);
+                if (p4 <= 0) cntNoValue++;
+                if (p8 <= 0) cntNoValue++;
+                if (p2 <= 0) cntNoValue++;
+                if (p3 <= 0) cntNoValue++;
+                if (p9 <= 0) cntNoValue++;
+                if (p6 <= 0) cntNoValue++;
+                if (p5 <= 0) cntNoValue++;
+                if (p7 <= 0) cntNoValue++;
+                switch (commConfig.islandPoint) {
+                    case 1:
+                        if (cntNoValue > 6) numData = 0;
+                        break;
+                    case 2:
+                        if (cntNoValue > 5) numData = 0;
+                        break;
+                    case 3:
+                        if (cntNoValue > 4) numData = 0;
+                        break;
+                    default:
+                        break;
+                }
+            }
             if (numData > 5) {
                 points.push({
                     x: i * radius + radius,
@@ -516,26 +556,46 @@ var setHeatMap = function(innerData) {
     // if you have a set of datapoints always use setData instead of addData
     // for data initialization
     heatmapInstance.setData(data);
-    if (!_statData.inEdgeDetectionRange && $('.heatmap canvas').length > 0 && serialport.isOpen()) {
-        _statData.inEdgeDetectionRange = true;
+    if ($('.heatmap canvas').length > 0 && serialport.isOpen()) {
         var canvas = $('.heatmap canvas').get(0);
         var ctx = canvas.getContext("2d");
         var imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-        var inner = [];
-        var row = [];
-        for (var i = 0; i < imgData.length; i += 4) {
-            if (imgData[i] === null) continue;
-            row.push((((imgData[i] * 299 + imgData[i + 1] * 587 + imgData[i + 2] * 114 + 500) / 1000) /* (imgData[i + 3] / 255)*/ ));
-            //row.push(imgData[i + 3]);
-            if (row.length === canvas.width) {
-                inner.push(row.slice(0));
-                row.length = 0;
+        if (!_statData.inEdgeDetectionRange) {
+            _statData.inEdgeDetectionRange = true;
+            var inner = [];
+            var row = [];
+            for (var i = 0; i < imgData.length; i += 4) {
+                if (imgData[i] === null) continue;
+                row.push((((imgData[i] * 299 + imgData[i + 1] * 587 + imgData[i + 2] * 114 + 500) / 1000) /* (imgData[i + 3] / 255)*/ ));
+                //row.push(imgData[i + 3]);
+                if (row.length === canvas.width) {
+                    inner.push(row.slice(0));
+                    row.length = 0;
+                }
             }
+            var postData = {};
+            postData.imgData = inner;
+            postData.filterTimes = commConfig.filterTimes;
+            edgeDetectionWorker.postMessage(JSON.stringify(postData));
         }
-        var postData = {};
-        postData.imgData = inner;
-        postData.filterTimes = commConfig.filterTimes;
-        edgeDetectionWorker.postMessage(JSON.stringify(postData));
+        if (!_statData.inSkeletonDetectionRange) {
+            _statData.inSkeletonDetectionRange = true;
+            var inner = [];
+            var row = [];
+            for (var i = 0; i < imgData.length; i += 4) {
+                if (imgData[i] === null) continue;
+                if (imgData[i + 3] > 0) row.push(1);
+                else row.push(0);
+                if (row.length === canvas.width) {
+                    inner.push(row.slice(0));
+                    row.length = 0;
+                }
+            }
+            var postData = {};
+            postData.binaryImg = inner;
+            postData.skeletonLimit = commConfig.skeletonLimit;
+            skeletonExtractionWorker.postMessage(JSON.stringify(postData));
+        }
     }
 };
 var setHeatMapAndUpdate = function(strJson) {

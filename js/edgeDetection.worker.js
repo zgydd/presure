@@ -109,13 +109,23 @@ var _sobelConvolution = function(matrix) {
 };
 onmessage = function(event) {
 	var sourceData = JSON.parse(event.data);
-	var imgData = sourceData.imgData ? sourceData.imgData : null;
+	var imgData = (sourceData.imgData && sourceData.imgData.length && sourceData.imgData[0].length) ? sourceData.imgData : null;
 	var filterTimes = sourceData.filterTimes ? sourceData.filterTimes : 3;
 	if (!imgData) return;
 	//Edge detection
 	if (imgData) {
 		for (var i = 0; i < filterTimes; i++) imgData = _medianFilter(imgData);
 		imgData = _sobelConvolution(imgData);
+		/*
+		if (imgData.matrix) {
+			imgData.skeleton = {
+				S00: _convolutionBase(imgData.matrix, 'S00'),
+				S45: _convolutionBase(imgData.matrix, 'S45'),
+				S90: _convolutionBase(imgData.matrix, 'S90'),
+				S135: _convolutionBase(imgData.matrix, 'S135')
+			};			
+		}
+		*/
 	}
 	postMessage(JSON.stringify(imgData));
 };

@@ -9,14 +9,16 @@ $(document).ready(function() {
 		if (commConfig.hasOwnProperty('baudRange')) $('#config-inputBaudRate').val(commConfig.baudRange);
 		if (commConfig.hasOwnProperty('showMultiple')) $('#config-inputMultiple').val(commConfig.showMultiple);
 		if (commConfig.hasOwnProperty('radius')) $('#config-inputRadius').val(commConfig.radius);
-		//if (commConfig.hasOwnProperty('flushRange')) $('#config-inputFlushRange').val(commConfig.flushRange);
+		if (commConfig.hasOwnProperty('islandPoint')) $('#config-inputIslandPoint').val(commConfig.islandPoint);
 		if (commConfig.hasOwnProperty('autoCalibration')) $('#config-inputAutoCalibration').val(commConfig.autoCalibration);
 		if (commConfig.hasOwnProperty('delayedSampling')) $('#config-inputDelayedSampling').val(commConfig.delayedSampling);
 
 		if (commConfig.hasOwnProperty('filterTimes')) $('#config-inputFilterTimes').val(commConfig.filterTimes);
 		if (commConfig.hasOwnProperty('sobelThreshold')) $('#config-inputSobelThreshold').val(commConfig.sobelThreshold);
-		//if (commConfig.hasOwnProperty('edgeConfidence')) $('#config-inputEdgeConfidence').val(commConfig.edgeConfidence);
-		//if (commConfig.hasOwnProperty('edgeSensitivity')) $('#config-inputEdgeSensitivity').val(commConfig.edgeSensitivity);
+		if (commConfig.hasOwnProperty('leaveJudge')) $('#config-inputLeaveJudge').val(commConfig.leaveJudge);
+		if (commConfig.hasOwnProperty('turnJudge')) $('#config-inputTurnJudge').val(commConfig.turnJudge);
+
+		if (commConfig.hasOwnProperty('skeletonLimit')) $('#config-inputSkeletonLimit').val(commConfig.skeletonLimit);
 
 		if (commConfig.hasOwnProperty('noiseLimit') && commConfig.noiseLimit.hasOwnProperty('min'))
 			$('#config-inputMinNoise').val(commConfig.noiseLimit.min);
@@ -202,23 +204,23 @@ $('#config-inputRadius').on('blur', function() {
 	_showMessage('ok', _getLocalesValue('langConfigMsgRadius', 'Radius setted'));
 });
 $('#config-inputRadius').on('keydown', _setEnterCommit);
-/*
-$('#config-inputFlushRange').on('blur', function() {
-	if (_chkEqual(commConfig.flushRange, $('#config-inputFlushRange').val())) return;
-	if (!/^\d{1,3}$/.test($('#config-inputFlushRange').val().trim())) {
-		_showMessage('warn', _getLocalesValue('langConfigWrnFlushRange', 'Illegal flush range'));
-		$('#config-inputFlushRange').parent().addClass('alert-danger');
-		$('#config-inputFlushRange').val(commConfig.flushRange);
-		$('#config-inputFlushRange').focus();
+$('#config-inputIslandPoint').on('blur', function() {
+	if (_chkEqual(commConfig.islandPoint, $('#config-inputIslandPoint').val())) return;
+	if (!/^\d{1}$/.test($('#config-inputIslandPoint').val().trim()) ||
+		parseInt($('#config-inputIslandPoint').val().trim()) > 3) {
+		_showMessage('warn', _getLocalesValue('langConfigWrnIslandPoint', 'Illegal island point'));
+		$('#config-inputIslandPoint').parent().addClass('alert-danger');
+		$('#config-inputIslandPoint').val(commConfig.islandPoint);
+		$('#config-inputIslandPoint').focus();
 		setTimeout(function() {
-			$('#config-inputFlushRange').parent().removeClass('alert-danger');
+			$('#config-inputIslandPoint').parent().removeClass('alert-danger');
 		}, 888);
 		return;
 	}
-	commConfig.flushRange = _toInt($('#config-inputFlushRange').val());
-	_showMessage('ok', _getLocalesValue('langConfigMsgFlushRange', 'Flush range setted'));
+	commConfig.islandPoint = _toInt($('#config-inputIslandPoint').val());
+	_showMessage('ok', _getLocalesValue('langConfigMsgIslandPoint', 'Island point setted'));
 });
-*/
+$('#config-inputIslandPoint').on('keydown', _setEnterCommit);
 $('#config-inputMinNoise').on('blur', function() {
 	if (_chkEqual(commConfig.noiseLimit.min, $('#config-inputMinNoise').val())) return;
 	if (!/^\d{1,2}$/.test($('#config-inputMinNoise').val().trim()) ||
@@ -318,7 +320,7 @@ $('#config-inputFilterTimes').on('blur', function() {
 	if (_chkEqual(commConfig.filterTimes, $('#config-inputFilterTimes').val())) return;
 	if (!/^\d{1,2}$/.test($('#config-inputFilterTimes').val().trim()) ||
 		parseInt($('#config-inputFilterTimes').val().trim()) < 0) {
-		_showMessage('warn', _getLocalesValue('langConfigWrnFilterTimes', 'Illegal edge check delay'));
+		_showMessage('warn', _getLocalesValue('langConfigWrnFilterTimes', 'Illegal filter times'));
 		$('#config-inputFilterTimes').parent().addClass('alert-danger');
 		$('#config-inputFilterTimes').val(commConfig.filterTimes);
 		$('#config-inputFilterTimes').focus();
@@ -328,14 +330,14 @@ $('#config-inputFilterTimes').on('blur', function() {
 		return;
 	}
 	commConfig.filterTimes = _toInt($('#config-inputFilterTimes').val());
-	_showMessage('ok', _getLocalesValue('langConfigMsgFilterTimes', 'Edge Check Delay setted'));
+	_showMessage('ok', _getLocalesValue('langConfigMsgFilterTimes', 'Filter Times setted'));
 });
 $('#config-inputFilterTimes').on('keydown', _setEnterCommit);
 $('#config-inputSobelThreshold').on('blur', function() {
 	if (_chkEqual(commConfig.sobelThreshold, $('#config-inputSobelThreshold').val())) return;
 	if (!/^\d{1,2}$/.test($('#config-inputSobelThreshold').val().trim()) ||
 		parseInt($('#config-inputSobelThreshold').val().trim()) < 1) {
-		_showMessage('warn', _getLocalesValue('langConfigWrnSobelThreshold', 'Illegal collapse rate weight'));
+		_showMessage('warn', _getLocalesValue('langConfigWrnSobelThreshold', 'Illegal sobel threshold'));
 		$('#config-inputSobelThreshold').parent().addClass('alert-danger');
 		$('#config-inputSobelThreshold').val(commConfig.sobelThreshold);
 		$('#config-inputSobelThreshold').focus();
@@ -345,43 +347,57 @@ $('#config-inputSobelThreshold').on('blur', function() {
 		return;
 	}
 	commConfig.sobelThreshold = _toInt($('#config-inputSobelThreshold').val());
-	_showMessage('ok', _getLocalesValue('langConfigMsgSobelThreshold', 'Collapse Rate Weight setted'));
+	_showMessage('ok', _getLocalesValue('langConfigMsgSobelThreshold', 'Sobel Threshold setted'));
 });
 $('#config-inputSobelThreshold').on('keydown', _setEnterCommit);
-/*
-$('#config-inputEdgeConfidence').on('blur', function() {
-	if (_chkEqual(commConfig.edgeConfidence, $('#config-inputEdgeConfidence').val())) return;
-	if (!/^\d{1}$/.test($('#config-inputEdgeConfidence').val().trim()) ||
-		parseInt($('#config-inputEdgeConfidence').val().trim()) <= 0 ||
-		parseInt($('#config-inputEdgeConfidence').val().trim()) > 4) {
-		_showMessage('warn', _getLocalesValue('langConfigWrnEdgeConfidence', 'Illegal edge confidence'));
-		$('#config-inputEdgeConfidence').parent().addClass('alert-danger');
-		$('#config-inputEdgeConfidence').val(commConfig.edgeConfidence);
-		$('#config-inputEdgeConfidence').focus();
+$('#config-inputLeaveJudge').on('blur', function() {
+	if (_chkEqual(commConfig.leaveJudge, $('#config-inputLeaveJudge').val())) return;
+	if (!/^\d{1,2}$/.test($('#config-inputLeaveJudge').val().trim()) ||
+		parseInt($('#config-inputLeaveJudge').val().trim()) < 1) {
+		_showMessage('warn', _getLocalesValue('langConfigWrnLeaveJudge', 'Illegal leave judge'));
+		$('#config-inputLeaveJudge').parent().addClass('alert-danger');
+		$('#config-inputLeaveJudge').val(commConfig.leaveJudge);
+		$('#config-inputLeaveJudge').focus();
 		setTimeout(function() {
-			$('#config-inputEdgeConfidence').parent().removeClass('alert-danger');
+			$('#config-inputLeaveJudge').parent().removeClass('alert-danger');
 		}, 888);
 		return;
 	}
-	commConfig.edgeConfidence = _toInt($('#config-inputEdgeConfidence').val());
-	_showMessage('ok', _getLocalesValue('langConfigMsgEdgeConfidence', 'Edge Confidence setted'));
+	commConfig.leaveJudge = _toInt($('#config-inputLeaveJudge').val());
+	_showMessage('ok', _getLocalesValue('langConfigMsgLeaveJudge', 'Leave Judge setted'));
 });
-$('#config-inputEdgeConfidence').on('keydown', _setEnterCommit);
-$('#config-inputEdgeSensitivity').on('blur', function() {
-	if (_chkEqual(commConfig.edgeSensitivity, $('#config-inputEdgeSensitivity').val())) return;
-	if (!/^\d{1,2}$/.test($('#config-inputEdgeSensitivity').val().trim()) ||
-		parseInt($('#config-inputEdgeSensitivity').val().trim()) <= 3) {
-		_showMessage('warn', _getLocalesValue('langConfigWrnEdgeSensitivity', 'Illegal edge sensitivity'));
-		$('#config-inputEdgeSensitivity').parent().addClass('alert-danger');
-		$('#config-inputEdgeSensitivity').val(commConfig.edgeSensitivity);
-		$('#config-inputEdgeSensitivity').focus();
+$('#config-inputLeaveJudge').on('keydown', _setEnterCommit);
+$('#config-inputTurnJudge').on('blur', function() {
+	if (_chkEqual(commConfig.turnJudge, $('#config-inputTurnJudge').val())) return;
+	if (!/^\d{1,2}$/.test($('#config-inputTurnJudge').val().trim()) ||
+		parseInt($('#config-inputTurnJudge').val().trim()) < 1) {
+		_showMessage('warn', _getLocalesValue('langConfigWrnTurnJudge', 'Illegal turn judge'));
+		$('#config-inputTurnJudge').parent().addClass('alert-danger');
+		$('#config-inputTurnJudge').val(commConfig.turnJudge);
+		$('#config-inputTurnJudge').focus();
 		setTimeout(function() {
-			$('#config-inputEdgeSensitivity').parent().removeClass('alert-danger');
+			$('#config-inputTurnJudge').parent().removeClass('alert-danger');
 		}, 888);
 		return;
 	}
-	commConfig.edgeSensitivity = _toInt($('#config-inputEdgeSensitivity').val());
-	_showMessage('ok', _getLocalesValue('langConfigMsgEdgeSensitivity', 'Edge Sensitivity setted'));
+	commConfig.turnJudge = _toInt($('#config-inputTurnJudge').val());
+	_showMessage('ok', _getLocalesValue('langConfigMsgTurnJudge', 'Turn Judge setted'));
 });
-$('#config-inputEdgeSensitivity').on('keydown', _setEnterCommit);
-*/
+$('#config-inputTurnJudge').on('keydown', _setEnterCommit);
+$('#config-inputSkeletonLimit').on('blur', function() {
+	if (_chkEqual(commConfig.skeletonLimit, $('#config-inputSkeletonLimit').val())) return;
+	if (!/^\d{1,5}$/.test($('#config-inputSkeletonLimit').val().trim()) ||
+		parseInt($('#config-inputSkeletonLimit').val().trim()) <= 0) {
+		_showMessage('warn', _getLocalesValue('langConfigWrnSkeletonLimit', 'Illegal skeleton limit'));
+		$('#config-inputSkeletonLimit').parent().addClass('alert-danger');
+		$('#config-inputSkeletonLimit').val(commConfig.skeletonLimit);
+		$('#config-inputSkeletonLimit').focus();
+		setTimeout(function() {
+			$('#config-inputSkeletonLimit').parent().removeClass('alert-danger');
+		}, 888);
+		return;
+	}
+	commConfig.skeletonLimit = _toInt($('#config-inputSkeletonLimit').val());
+	_showMessage('ok', _getLocalesValue('langConfigMsgSkeletonLimit', 'Skeleton Limit setted'));
+});
+$('#config-inputSkeletonLimit').on('keydown', _setEnterCommit);

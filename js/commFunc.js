@@ -158,3 +158,52 @@ Date.prototype.getDiff = function(oldTimeStamp) {
 
 	return days + " : " + hours + " : " + minutes + " : " + seconds;
 };
+
+//No used
+var _convolutionBase = function(matrix, type) {
+	if (!matrix || matrix.length < 5 || matrix[0].length < 5) return null;
+	var result = [];
+	var tpEdge = [];
+	for (var tpi = 0; tpi < matrix[0].length; tpi++) {
+		tpEdge.push(0);
+	}
+	result.push(tpEdge.slice(0), tpEdge.slice(0));
+	for (var i = 2; i < matrix.length - 2; i++) {
+		var row = [0, 0];
+		for (var j = 2; j < matrix[i].length - 2; j++) {
+			switch (type) {
+				case 'S00':
+					row.push(_convolutionS00(matrix, i, j));
+					break;
+				case 'S45':
+					row.push(_convolutionS45(matrix, i, j));
+					break;
+				case 'S90':
+					row.push(_convolutionS90(matrix, i, j));
+					break;
+				case 'S135':
+					row.push(_convolutionS135(matrix, i, j));
+					break;
+				default:
+					break;
+			}
+		}
+		row.push(0, 0);
+		result.push(row);
+	}
+	result.push(tpEdge.slice(0), tpEdge.slice(0));
+	tpEdge = null;
+	return result;
+};
+var _convolutionS00 = function(matrix, row, col) {
+	return (2 * (matrix[row][col - 2] + matrix[row][col - 1] + matrix[row][col] + matrix[row][col + 1] + matrix[row][col] + 2) - (matrix[row - 2][col - 2] + matrix[row - 2][col - 1] + matrix[row - 2][col] + matrix[row - 2][col + 1] + matrix[row - 2][col + 2] + matrix[row + 2][col - 2] + matrix[row + 2][col - 1] + matrix[row + 2][col] + matrix[row + 2][col + 1] + matrix[row + 2][col + 2]));
+};
+var _convolutionS45 = function(matrix, row, col) {
+	return (2 * (matrix[row - 2][col + 2] + matrix[row - 1][col + 1] + matrix[row][col] + matrix[row + 1][col - 1] + matrix[row + 2][col - 2]) - (matrix[row - 2][col - 1] + matrix[row - 2][col] + matrix[row - 1][col - 2] + matrix[row - 1][col - 1] + matrix[row][col - 2] + matrix[row][col + 2] + matrix[row + 1][col + 1] + matrix[row + 1][col + 2] + matrix[row + 2][col] + matrix[row + 2][col + 1]));
+};
+var _convolutionS90 = function(matrix, row, col) {
+	return (2 * (matrix[row - 2][col] + matrix[row - 1][col] + matrix[row][col] + matrix[row + 1][col] + matrix[row + 2][col]) - (matrix[row - 2][col - 2] + matrix[row - 1][col - 2] + matrix[row][col - 2] + matrix[row + 1][col - 2] + matrix[row + 2][col - 2] + matrix[row - 2][col + 2] + matrix[row - 1][col + 2] + matrix[row][col + 2] + matrix[row + 1][col + 2] + matrix[row + 2][col + 2]));
+};
+var _convolutionS135 = function(matrix, row, col) {
+	return (2 * (matrix[row - 2][col - 2] + matrix[row - 1][col - 1] + matrix[row][col] + matrix[row + 1][col + 1] + matrix[row + 2][col + 2]) - (matrix[row - 2][col] + matrix[row - 2][col + 1] + matrix[row - 1][col + 1] + matrix[row - 1][col + 2] + matrix[row][col - 2] + matrix[row][col + 2] + matrix[row + 1][col - 2] + matrix[row + 1][col - 1] + matrix[row + 2][col - 1] + matrix[row + 2][col]));
+};

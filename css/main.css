@@ -339,7 +339,7 @@ main {
     overflow: auto;
     padding: 0.5em;
 }
-#edgeCav {
+.heatmap-container > canvas {
     position: absolute;
     top: 1.5em;
 }

@@ -15,10 +15,10 @@ var _bufferDataWorkerCallback_ = function(event) {
 	setHeatMap(innerData);
 };
 var _dataAnaylysisWorkerCallback_ = function(event) {
-	//alert(event.data);
-	//return;
 	var dataResult = JSON.parse(event.data);
 	//alert(JSON.stringify(dataResult));
+	//console.log(dataResult.edgeImg);
+	//return;
 	if (_statData.envHost.indexOf('DeBuG') >= 0) {
 		$('.heatmap-datainfo').empty();
 		for (var e in dataResult.middData) {
@@ -68,7 +68,6 @@ var _edgeDetectionWorkerCallback_ = function(event) {
 		var cav = $('#edgeCav').get(0);
 		cav.width = dataResult.matrix.length + 1;
 		cav.height = dataResult.matrix[0].length + 1;
-		var canvas = $('.heatmap canvas').get(0);
 		var context = cav.getContext('2d');
 		context.clearRect(0, 0, cav.width, cav.height);
 		context.fillStyle = 'rgba(0, 180, 75, 0.6)';
@@ -81,6 +80,24 @@ var _edgeDetectionWorkerCallback_ = function(event) {
 		}
 	}
 	_statData.inEdgeDetectionRange = false;
+};
+var _skeletonExtractionWorkerCallback_ = function(event) {
+	var dataResult = JSON.parse(event.data);
+	if (dataResult.skeleton && $('#skeletonCav').length) {
+		var cav = $('#skeletonCav').get(0);
+		cav.width = dataResult.skeleton.length;
+		cav.height = dataResult.skeleton[0].length;
+		var context = cav.getContext('2d');
+		context.clearRect(0, 0, cav.width, cav.height);
+		context.fillStyle = 'rgba(136, 136, 136, 0.5)';
+		for (var i = 0; i < dataResult.skeleton.length; i++) {
+			for (var j = 0; j < dataResult.skeleton[i].length; j++) {
+				if (dataResult.skeleton[i][j] > 0)
+					context.fillRect(((i - 1 < 0) ? 0 : (i - 1)), ((j - 1 < 0) ? 0 : (j - 1)), 3, 3);
+			}
+		}
+	}
+	_statData.inSkeletonDetectionRange = false;
 };
 var _countDownCallBack = function(hours, minutes, seconds, cd) {
 	//console.log(hours + ':' + minutes + ':' + seconds);
@@ -205,11 +222,28 @@ var _recalcScale = function(cd) {
 	postData.threshold = _statData.scaleData.threshold;
 	postData.cd = cd;
 	postData.delayedSampling = commConfig.delayedSampling;
-	postData.filterTimes = commConfig.filterTimes;
-	postData.sobelThreshold = commConfig.sobelThreshold;
-	//postData.edgeConfidence = commConfig.edgeConfidence;
-	//postData.edgeSensitivity = commConfig.edgeSensitivity;
-
+	postData.leaveJudge = commConfig.leaveJudge;
+	postData.turnJudge = commConfig.turnJudge;
+	if ($('#edgeCav').length) {
+		var canvas = $('#edgeCav').get(0);
+		var ctx = canvas.getContext("2d");
+		var imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+		var edgList = [];
+		for (var i = 0; i < imgData.length; i += 4) {
+			if (imgData[i + 3] > 0) edgList.push(i);
+		}
+		postData.edgeList = edgList;
+	}
+	if ($('#skeletonCav').length) {
+		var canvas = $('#skeletonCav').get(0);
+		var ctx = canvas.getContext("2d");
+		var imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+		var skeList = [];
+		for (var i = 0; i < imgData.length; i += 4) {
+			if (imgData[i + 3] > 0) skeList.push(i);
+		}
+		postData.skeletonList = skeList;
+	}
 	dataAnalysisWorker.postMessage(JSON.stringify(postData));
 };
 
@@ -487,9 +521,15 @@ var _fixRadius = function() {
 
 	//canvas.width = width;
 	//canvas.height = height;
+	dataAnalysisWorker.postMessage(JSON.stringify({
+		resetEdge: true,
+		resetSkeleton: true
+	}));
 
 	$('#edgeCav').width(width);
 	$('#edgeCav').height(height);
+	$('#skeletonCav').width(width);
+	$('#skeletonCav').height(height);
 
 	$('.heatmap').width(width);
 	$('.heatmap').height(height);
@@ -760,9 +800,9 @@ var _bindSerialportEmitter = function() {
 };
 var _productCombination = function(myType) {
 	$('#config-selectProductionFirmware').empty();
-	var baseHtml = "<option value='0' z-lang='langConfigOptNoFirmware";
+	var baseHtml = "<option value='0' z-lang='langConfigOptNoFirmware'";
 	if (commConfig.firmware === '0') baseHtml += ' selected';
-	baseHtml += "'>" + _getLocalesValue('langConfigOptNoFirmware', 'Unknown') + "</option>";
+	baseHtml += ">" + _getLocalesValue('langConfigOptNoFirmware', 'Unknown') + "</option>";
 	$('#config-selectProductionFirmware').prepend(baseHtml);
 
 	var tmpVersion = (commConfig.firmware === '0') ? 0 : commConfig.firmwareVersion.split('#');
