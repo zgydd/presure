@@ -289,7 +289,7 @@ main {
 }
 .set-item-group {
     display: block;    /*border: 0.0625em solid #ddd;
-        border-radius: 0.1875em;*/
+                border-radius: 0.1875em;*/
     margin: 0.3125em;
     padding: 0.5em;
 }
@@ -308,12 +308,15 @@ main {
     width: 2.5em;
 }
 .legend-container {
+    overflow: hidden;
+    float: right;
+    margin-left: -2em;
 }
 .legend-container > li {
     line-height: 20px;
     list-style: none;
 }
-.legend-container > label:first-child {
+.legend-container > label {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -329,15 +332,37 @@ main {
 }
 #heatmap-content .heatmap-datainfo {
     display: inline-block;
-    position: absolute;
+    position: fixed;
     right: 0.125em;
-    bottom: 0;
+    bottom: 3em;
     background-color: rgba(0, 0, 0, 0.2);
     opacity: 0.6;
-    max-width: 30%;
+    max-width: 40%;
     max-height: 60%;
-    overflow: auto;
+    overflow: hidden;
     padding: 0.5em;
+}
+#heatmap-content .heatmap-datainfo input {
+    text-align: right;
+    width:6em;
+    margin-left: 2em;
+}
+#heatmap-content .heatmap-symbol {
+    display: inline-block;
+    position: fixed;
+    right: 0.4em;
+    bottom: 1.5em;
+    opacity: 0.7;
+    max-width: 10%;
+    max-height: 60%;
+    padding: 0.5em;
+}
+#heatmap-content .heatmap-datainfo i, #heatmap-content .heatmap-symbol i {
+    cursor: pointer;
+    float: left;
+}
+#heatmap-content .heatmap-datainfo label, #heatmap-content .heatmap-symbol label {
+    max-width: 8em;
 }
 .heatmap-container > canvas {
     position: absolute;

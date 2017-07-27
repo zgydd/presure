@@ -40,6 +40,13 @@ var _dataAnaylysisWorkerCallback_ = function(event) {
 		_statData.me.leaveCounter++;
 		if ($('#heatmap-labLeave').length) $('#heatmap-labLeave').html(_statData.me.leaveCounter);
 	}
+	if (dataResult.back) {
+		if ($('#countdown').length && $('#countdown').stoped()) {
+			$('#countdown').reset(_statData.countDownTime);
+			_statData.me.backCounter++;
+			if ($('#heatmap-labBack').length) $('#heatmap-labBack').html(_statData.me.backCounter);
+		}
+	}
 	if (dataResult.forceback) {
 		_statData.me.selfTurnCounter++;
 		$('#heatmap-labSelfTurn').html(_statData.me.selfTurnCounter);
@@ -70,7 +77,7 @@ var _edgeDetectionWorkerCallback_ = function(event) {
 		cav.height = dataResult.matrix[0].length + 1;
 		var context = cav.getContext('2d');
 		context.clearRect(0, 0, cav.width, cav.height);
-		context.fillStyle = 'rgba(0, 180, 75, 0.6)';
+		context.fillStyle = 'rgba(255, 255, 255, 0.1)';
 		for (var i = 0; i < dataResult.matrix.length; i++) {
 			for (var j = 0; j < dataResult.matrix[i].length; j++) {
 				if (dataResult.matrix[i][j] > dataResult.maxValue * (commConfig.sobelThreshold / 100)) {
@@ -89,11 +96,11 @@ var _skeletonExtractionWorkerCallback_ = function(event) {
 		cav.height = dataResult.skeleton[0].length;
 		var context = cav.getContext('2d');
 		context.clearRect(0, 0, cav.width, cav.height);
-		context.fillStyle = 'rgba(136, 136, 136, 0.5)';
+		context.fillStyle = 'rgba(175, 175, 175, 0.3)';
 		for (var i = 0; i < dataResult.skeleton.length; i++) {
 			for (var j = 0; j < dataResult.skeleton[i].length; j++) {
-				if (dataResult.skeleton[i][j] > 0)
-					context.fillRect(((i - 1 < 0) ? 0 : (i - 1)), ((j - 1 < 0) ? 0 : (j - 1)), 3, 3);
+				if (dataResult.skeleton[i][j] > 0) context.fillRect(i, j, 1, 1);
+				//context.fillRect(((i - 1 < 0) ? 0 : (i - 1)), ((j - 1 < 0) ? 0 : (j - 1)), 3, 3);
 			}
 		}
 	}
@@ -182,11 +189,6 @@ var _autoCalibration = function() {
 	if (variance < (commConfig.productionSize.width === 16 ? 500 : 1500)) {
 		_getCalibrationData();
 		return;
-	}
-	if ($('#countdown').length && $('#countdown').stoped()) {
-		$('#countdown').reset(_statData.countDownTime);
-		_statData.me.backCounter++;
-		if ($('#heatmap-labBack').length) $('#heatmap-labBack').html(_statData.me.backCounter);
 	}
 };
 var _recalcScale = function(cd) {
@@ -297,94 +299,6 @@ var _doAlert = function() {
 	_appendAlertRecord();
 	_statData.alertHandle = setTimeout(_doAlert, (commConfig.alertFreque * 1000));
 };
-/*
-var _parseScaleStream = function(stream) {
-	var tmpFile = stream.toString().replace('\r', '').split('\n');
-	var formatedData = {};
-	formatedData.descriptionItem = [];
-	formatedData.threshold = [];
-	formatedData.constantScales = [];
-	for (var i = 0; i < tmpFile.length; i++) {
-		var record = {};
-		var tmpData = tmpFile[i].substring(1).split(':');
-		switch (true) {
-			case (tmpFile[i].indexOf('#') === 0):
-				formatedData.title = tmpData[0];
-				break;
-			case (tmpFile[i].indexOf('*') === 0):
-				if (tmpData.length !== 2) break;
-				record.title = tmpData[0];
-				record.items = [];
-				tmpData = tmpData[1].split(',');
-				for (var j = 0; j < tmpData.length; j++) {
-					var tmp = tmpData[j].split('-');
-					if (tmp.length !== 2) continue;
-					record.items.push({
-						description: tmp[0],
-						value: tmp[1]
-					});
-				}
-				formatedData.descriptionItem.push(record);
-				break;
-			case (tmpFile[i].indexOf('!') === 0):
-				if (tmpData.length !== 2) break;
-				var range = tmpData[0].split('~');
-				var items = tmpData[1].split('-');
-				if (range.length !== 2 || items.length !== 2) break;
-				record.min = parseInt(range[0]);
-				record.max = parseInt(range[1]);
-				if (isNaN(record.min) || isNaN(record.max) || record.max < record.min) break;
-				record.description = items[0];
-				record.rangeTime = parseInt(items[1]);
-				if (isNaN(record.rangeTime)) break;
-				formatedData.threshold.push(record);
-				break;
-			case (tmpFile[i].indexOf('@') === 0):
-				if (tmpData.length !== 2) break;
-				record.description = tmpData[0];
-				/-*
-				tmpData = tmpData[1].split(',');
-				record.ranges = [];
-				for (var j = 0; j < tmpData.length; j++) {
-					var tmp = tmpData[j].split('-');
-					if (tmp.length !== 2) continue;
-					var tmp2 = {
-						critical: parseInt(tmp[0]),
-						scale: parseInt(tmp[1])
-					};
-					if (isNaN(tmp2.critical) || isNaN(tmp2.scale)) break;
-					record.ranges.push(tmp2);
-				}
-				record.ranges.sort(function(a, b) {
-					if (!a.critical || !b.critical) return -1;
-					return (b.critical - a.critical);
-				});
-				*-/
-				record.ranges = [];
-				var tmpLength = isNaN(parseInt(tmpData[1].trim())) ? 4 : parseInt(tmpData[1].trim());
-				for (var j = tmpLength - 1; j >= 0; j--) {
-					record.ranges.push({
-						scale: j + 1,
-						critical: Math.floor((j + 1) / (tmpLength + 1) * 1024)
-					});
-				}
-				formatedData.presureRange = record;
-				break;
-			case (tmpFile[i].indexOf('$') === 0):
-				if (tmpData.length !== 2) break;
-				if (isNaN(parseInt(tmpData[1]))) break;
-				formatedData.constantScales.push({
-					item: tmpData[0],
-					scale: parseInt(tmpData[1])
-				});
-				break;
-			default:
-				break;
-		}
-	}
-	return formatedData;
-};
-*/
 var _calcScale = function() {
 	if (!_statData.scaleData) {
 		$('#scales-control-count').html('--');

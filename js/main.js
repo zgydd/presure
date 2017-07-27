@@ -93,7 +93,8 @@ var commConfig = {
     portList: [],
     scaleTables: ['Braden', '布兰登'],
     firmwareVersion: '0',
-    firmware: '0'
+    firmware: '0',
+    heatmapNoBg: 0
 };
 
 var _statData = {
@@ -333,6 +334,8 @@ var setConfig = function(data) {
 
     if (data.hasOwnProperty('envHost')) _statData.envHost = data.envHost;
 
+    if (data.hasOwnProperty('heatmapNoBg')) commConfig.heatmapNoBg = 1;
+
     var w = $(window).get(0).innerWidth;
     var h = $(window).get(0).innerHeight;
     commConfig.radius = Math.floor((w > h ? h : w) * (commConfig.productionSize.width === 16 ? 4 : 2.5) / 100);
@@ -415,51 +418,95 @@ var resetSerialPort = function() {
 };
 var resetHeatmap = function() {
     if (heatmapInstance) heatmapInstance = null;
-
-    var gradient = null;
-    if (commConfig.productionSize.width === 16) {
-        gradient = {
-            //0: "rgb(153,255,255)",
-            0.25: "rgb(0,255,255)",
-            0.45: "rgb(0,255,0)",
-            0.65: "rgb(255,255,0)",
-            0.85: "rgb(255,0,0)" //,
+    /*
+        var gradient = null;
+        if (commConfig.productionSize.width === 16) {
+            gradient = {
+                //0: "rgb(153,255,255)",
+                0.25: "rgb(0,255,255)",
+                0.45: "rgb(0,255,0)",
+                0.65: "rgb(255,255,0)",
+                0.85: "rgb(255,0,0)"//,
                 //1.0: "rgb(153,0,51)"
-        };
-    } else {
-        gradient = {
-            0.4: "rgb(153,255,255)",
-            0.8: "rgb(0,255,255)",
-            0.88: "rgb(0,255,0)",
-            0.95: "rgb(255,255,0)",
-            0.995: "rgb(255,0,0)"
-        };
-    }
-
+            };
+        } else {
+            gradient = {
+                0.4: "rgb(153,255,255)",
+                0.8: "rgb(0,255,255)",
+                0.88: "rgb(0,255,0)",
+                0.95: "rgb(255,255,0)",
+                0.995: "rgb(255,0,0)"
+            };
+        }
+    */
+    var gradient = {
+        0.1: "rgb(176,196,222)",
+        0.2: "rgb(65,105,225)",
+        0.3: "rgb(0,255,255)",
+        0.4: "rgb(0,128,0)",
+        0.5: "rgb(173,255,47)",
+        0.6: "rgb(255,255,0)",
+        0.7: "rgb(255,165,0)",
+        0.8: "rgb(178,34,34)",
+        0.9: "rgb(255,0,0)"
+    };
     if ($('.heatmap-datainfo').length) {
         var html = '<ul class="legend-container">';
         var title = _getLocalesValue('langHeatmapTitleLegend', 'Sample: input number between 0 and 1(not include) that lager shows higher presure');
-        html += '<label title="' + title + '" z-lang="langHeatmapTitleLegend">' + title + '</label>';
+        html += '<i id="toSymbol" class="icon-refresh icon-large icon-spin"></i>&nbsp;&nbsp;<label title="' + title + '" z-lang="langHeatmapTitleLegend">' + title + '</label>';
         for (var ele in gradient) {
-            //html += '<li><span style="background-color:' + gradient[ele] + '"></span><label>' + ele + '</label></li>';
             html += '<li><input class="form-control number-input" style="background-color:' + gradient[ele] + '" type="number" value="' + ele + '" old-value="' + ele + '" /></li>';
         }
+        //html += '<label title="' + footer + '" z-lang="langHeatmapTitleLegend">' + footer + '</label>';
         html += '</ul>';
         $('.heatmap-datainfo').empty();
         $('.heatmap-datainfo').append(html);
+        if (!$('#toSymbol').attr('onclick')) {
+            $('#toSymbol').on('click', function() {
+                $('.heatmap-datainfo').hide();
+                $('.heatmap-symbol').show();
+            });
+        }
+    }
+
+    if ($('.heatmap-symbol').length) {
+        var html = '<ul class="legend-container">';
+        var title = _getLocalesValue('langHeatmapTitleSymbol', 'Low');
+        var footer = _getLocalesValue('langHeatmapFooterSymbol', 'High');
+        html += '<label title="' + title + '" z-lang="langHeatmapTitleSymbol">' + title + '</label>';
+        for (var ele in gradient) {
+            html += '<li><i class="icon-stop icon-2x" style="color:' + gradient[ele] + ';"></i></li>';
+        }
+        html += '<label title="' + footer + '" z-lang="langHeatmapFooterSymbol" id="toInfo">' + footer + '</label>';
+        html += '</ul>';
+        $('.heatmap-symbol').empty();
+        $('.heatmap-symbol').append(html);
+        if (!$('#toInfo').attr('onclick')) {
+            $('#toInfo').on('click', function() {
+                $('.heatmap-symbol').hide();
+                $('.heatmap-datainfo').show();
+            });
+        }
     }
 
     // heatmap instance configuration
-    heatmapInstance = heatmap.create({
+    var cfg = {
         // only container is required, the rest can be defaults
-        backgroundColor: 'rgba(0,0,180,0.8)',
+        //backgroundColor: 'rgba(0,0,180,0.8)',
         gradient: gradient,
         maxOpacity: 1,
         minOpacity: 0,
         blur: 0.95,
         radius: commConfig.radius * (commConfig.productionSize.width === 16 ? 1.4 : 2.1),
         container: document.querySelector('.heatmap')
-    });
+    };
+    cfg.backgroundColor = 'rgba(0,0,0,0.8)';
+    /*
+    if (!commConfig.heatmapNoBg) {
+        cfg.backgroundColor = 'rgba(0,0,180,0.8)';
+    }
+    */
+    heatmapInstance = heatmap.create(cfg);
     setHeatMap(innerData);
 };
 
@@ -505,14 +552,14 @@ var setHeatMap = function(innerData) {
             }
             if (commConfig.islandPoint) {
                 var cntNoValue = 0;
-                var p4 = (j === innerData[i].length - 1) ? 1 : (innerData[i][j + 1] - _statData.calibrationData[i][j + 1]);
-                var p8 = (j === 0) ? 1 : (innerData[i][j - 1] - _statData.calibrationData[i][j - 1]);
-                var p2 = (i === 0) ? 1 : (innerData[i - 1][j] - _statData.calibrationData[i - 1][j]);
-                var p3 = (i === 0 || j === innerData[i].length - 1) ? 1 : (innerData[i - 1][j + 1] - _statData.calibrationData[i - 1][j + 1]);
-                var p9 = (i === 0 || j === 0) ? 1 : (innerData[i - 1][j - 1] - _statData.calibrationData[i - 1][j - 1]);
-                var p6 = (i === innerData.length - 1) ? 1 : (innerData[i + 1][j] - _statData.calibrationData[i + 1][j]);
-                var p5 = (i === innerData.length - 1 || j === innerData[i].length - 1) ? 1 : (innerData[i + 1][j + 1] - _statData.calibrationData[i + 1][j + 1]);
-                var p7 = (i === innerData.length - 1 || j === 0) ? 1 : (innerData[i + 1][j - 1] - _statData.calibrationData[i + 1][j - 1]);
+                var p4 = (j === innerData[i].length - 1) ? 1 : (innerData[i][j + 1] - ((_statData.calibrationData && _statData.calibrationData[i] && _statData.calibrationData[i][j + 1]) ? _statData.calibrationData[i][j + 1] : 0));
+                var p8 = (j === 0) ? 1 : (innerData[i][j - 1] - ((_statData.calibrationData && _statData.calibrationData[i] && _statData.calibrationData[i][j - 1]) ? _statData.calibrationData[i][j - 1] : 0));
+                var p2 = (i === 0) ? 1 : (innerData[i - 1][j] - ((_statData.calibrationData && _statData.calibrationData[i - 1] && _statData.calibrationData[i - 1][j]) ? _statData.calibrationData[i - 1][j] : 0));
+                var p3 = (i === 0 || j === innerData[i].length - 1) ? 1 : (innerData[i - 1][j + 1] - ((_statData.calibrationData && _statData.calibrationData[i - 1] && _statData.calibrationData[i - 1][j + 1]) ? _statData.calibrationData[i - 1][j + 1] : 0));
+                var p9 = (i === 0 || j === 0) ? 1 : (innerData[i - 1][j - 1] - ((_statData.calibrationData && _statData.calibrationData[i - 1] && _statData.calibrationData[i - 1][j - 1]) ? _statData.calibrationData[i - 1][j - 1] : 0));
+                var p6 = (i === innerData.length - 1) ? 1 : (innerData[i + 1][j] - ((_statData.calibrationData && _statData.calibrationData[i + 1] && _statData.calibrationData[i + 1][j]) ? _statData.calibrationData[i + 1][j] : 0));
+                var p5 = (i === innerData.length - 1 || j === innerData[i].length - 1) ? 1 : (innerData[i + 1][j + 1] - ((_statData.calibrationData && _statData.calibrationData[i + 1] && _statData.calibrationData[i + 1][j + 1]) ? _statData.calibrationData[i + 1][j + 1] : 0));
+                var p7 = (i === innerData.length - 1 || j === 0) ? 1 : (innerData[i + 1][j - 1] - ((_statData.calibrationData && _statData.calibrationData[i + 1] && _statData.calibrationData[i + 1][j - 1]) ? _statData.calibrationData[i + 1][j - 1] : 0));
                 if (p4 <= 0) cntNoValue++;
                 if (p8 <= 0) cntNoValue++;
                 if (p2 <= 0) cntNoValue++;
@@ -546,8 +593,9 @@ var setHeatMap = function(innerData) {
     }
     // heatmap data format
     var data = {
-        max: (max === 0) ? 1024 : max,
-        min: (min >= 1024) ? commConfig.noiseLimit.min : min,
+        //max: (max === 0) ? 1024 : max,
+        max: 1023,
+        min: (min >= 1023) ? commConfig.noiseLimit.min : min,
         data: points
     };
     _statData.realMax = realMax;
@@ -556,7 +604,7 @@ var setHeatMap = function(innerData) {
     // if you have a set of datapoints always use setData instead of addData
     // for data initialization
     heatmapInstance.setData(data);
-    if ($('.heatmap canvas').length > 0 && serialport.isOpen()) {
+    if ($('.heatmap canvas').length > 0 && serialport && serialport.isOpen()) {
         var canvas = $('.heatmap canvas').get(0);
         var ctx = canvas.getContext("2d");
         var imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;

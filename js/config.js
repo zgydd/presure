@@ -387,7 +387,7 @@ $('#config-inputTurnJudge').on('keydown', _setEnterCommit);
 $('#config-inputSkeletonLimit').on('blur', function() {
 	if (_chkEqual(commConfig.skeletonLimit, $('#config-inputSkeletonLimit').val())) return;
 	if (!/^\d{1,5}$/.test($('#config-inputSkeletonLimit').val().trim()) ||
-		parseInt($('#config-inputSkeletonLimit').val().trim()) <= 0) {
+		parseInt($('#config-inputSkeletonLimit').val().trim()) < 0) {
 		_showMessage('warn', _getLocalesValue('langConfigWrnSkeletonLimit', 'Illegal skeleton limit'));
 		$('#config-inputSkeletonLimit').parent().addClass('alert-danger');
 		$('#config-inputSkeletonLimit').val(commConfig.skeletonLimit);

@@ -130,22 +130,19 @@ onmessage = function(event) {
 		middData: middData
 	};
 
-	if (preEdgeData && (!edgeData || (edgeData.length / preEdgeData.length) < (leaveJudge / 100)))
-		analysisResult.leave = true;
-	else {
-		if (preSkeletonData && preSkeletonData.length && skeletonData && skeletonData.length) {
-			var cntSameData = 0;
-			for (var i = 0; i < preSkeletonData.length; i++) {
-				for (var j = 0; j < skeletonData.length; j++) {
-					if (preSkeletonData[i] === skeletonData[j]) {
-						cntSameData++;
-
-					}
-				}
+	if (preEdgeData && edgeData && edgeData.length && preEdgeData.length) {
+		if ((edgeData.length / preEdgeData.length) < (leaveJudge / 100)) analysisResult.leave = true;
+		if ((preEdgeData.length / edgeData.length) < (leaveJudge / 100)) analysisResult.back = true;
+	}
+	if (!analysisResult.leave && !analysisResult.back && preSkeletonData && preSkeletonData.length && skeletonData && skeletonData.length) {
+		var cntSameData = 0;
+		for (var i = 0; i < preSkeletonData.length; i++) {
+			for (var j = 0; j < skeletonData.length; j++) {
+				if (preSkeletonData[i] === skeletonData[j]) cntSameData++;
 			}
-			if (cntSameData === 0) analysisResult.forceback = true;
-			else if ((cntSameData / preSkeletonData.length) < (turnJudge / 100)) analysisResult.forceback = true;
 		}
+		if (cntSameData === 0) analysisResult.forceback = true;
+		else if ((cntSameData / preSkeletonData.length) < (turnJudge / 100)) analysisResult.forceback = true;
 	}
 	preInnerData = innerData;
 	preEdgeData = edgeData;

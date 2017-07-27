@@ -17,6 +17,8 @@ $(document).ready(function() {
         $('.panel-heading').hide();
         $('.panel-body').hide();
     }
+    $('.heatmap-datainfo').hide();
+    $('.heatmap-symbol').show();
 });
 
 $('#heatmap-btnCalibration').on('click', function() {
