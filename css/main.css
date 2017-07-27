@@ -341,10 +341,11 @@ main {
     max-height: 60%;
     overflow: hidden;
     padding: 0.5em;
+    z-index: 50;
 }
 #heatmap-content .heatmap-datainfo input {
     text-align: right;
-    width:6em;
+    width:8em;
     margin-left: 2em;
 }
 #heatmap-content .heatmap-symbol {
@@ -356,6 +357,7 @@ main {
     max-width: 10%;
     max-height: 60%;
     padding: 0.5em;
+    z-index: 50;
 }
 #heatmap-content .heatmap-datainfo i, #heatmap-content .heatmap-symbol i {
     cursor: pointer;
@@ -368,3 +370,14 @@ main {
     position: absolute;
     top: 1.5em;
 }
+.heatmap {
+    z-index: 10;
+}
+/*
+#edgeCav {
+    z-index: 5;
+}
+#skeletonCav {
+    z-index: 10;
+}
+*/

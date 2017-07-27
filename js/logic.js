@@ -30,7 +30,7 @@ var _dataAnaylysisWorkerCallback_ = function(event) {
 	if ($('#heatmap-labNewScale').length)
 		$('#heatmap-labNewScale').html(dataResult.middData.newScale);
 
-	if (dataResult.leave) {
+	if (dataResult.leave && _statData.activedPage === 'heatmap') {
 		if ($('#countdown').length) $('#countdown').stop();
 		if ($('#edgeCav').length) {
 			var cav = document.getElementById('edgeCav');
@@ -39,13 +39,6 @@ var _dataAnaylysisWorkerCallback_ = function(event) {
 		}
 		_statData.me.leaveCounter++;
 		if ($('#heatmap-labLeave').length) $('#heatmap-labLeave').html(_statData.me.leaveCounter);
-	}
-	if (dataResult.back) {
-		if ($('#countdown').length && $('#countdown').stoped()) {
-			$('#countdown').reset(_statData.countDownTime);
-			_statData.me.backCounter++;
-			if ($('#heatmap-labBack').length) $('#heatmap-labBack').html(_statData.me.backCounter);
-		}
 	}
 	if (dataResult.forceback) {
 		_statData.me.selfTurnCounter++;
@@ -57,6 +50,7 @@ var _dataAnaylysisWorkerCallback_ = function(event) {
 	}
 	if (!dataResult.forceback && ((dataResult.data * 60) === _statData.preCountDownRange)) return;
 	_statData.me.preScale = dataResult.middData.newScale;
+	if ($('#countdown').stoped()) return;
 	$('#countdown').stop();
 	var tmpDist = (_statData.restDistance - ((_statData.preCountDown - dataResult.cd) / (_statData.preCountDownRange * 60)));
 	var newTime = parseInt(tmpDist * dataResult.data * 60);
@@ -72,6 +66,7 @@ var _dataAnaylysisWorkerCallback_ = function(event) {
 var _edgeDetectionWorkerCallback_ = function(event) {
 	var dataResult = JSON.parse(event.data);
 	if (dataResult.matrix && $('#edgeCav').length) {
+		var cntEdg = 0;
 		var cav = $('#edgeCav').get(0);
 		cav.width = dataResult.matrix.length + 1;
 		cav.height = dataResult.matrix[0].length + 1;
@@ -82,8 +77,15 @@ var _edgeDetectionWorkerCallback_ = function(event) {
 			for (var j = 0; j < dataResult.matrix[i].length; j++) {
 				if (dataResult.matrix[i][j] > dataResult.maxValue * (commConfig.sobelThreshold / 100)) {
 					context.fillRect(i, j, 1, 1);
+					cntEdg++;
 				}
 			}
+		}
+		var chkBack = 5 * 2 * Math.PI * commConfig.radius * (commConfig.productionSize.width === 16 ? 1.4 : 2.1);
+		if (cntEdg > chkBack && $('#countdown').length && $('#countdown').stoped()) {
+			$('#countdown').reset(_statData.countDownTime);
+			_statData.me.backCounter++;
+			if ($('#heatmap-labBack').length) $('#heatmap-labBack').html(_statData.me.backCounter);
 		}
 	}
 	_statData.inEdgeDetectionRange = false;

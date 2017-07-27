@@ -418,27 +418,48 @@ var resetSerialPort = function() {
 };
 var resetHeatmap = function() {
     if (heatmapInstance) heatmapInstance = null;
+    var gradient = null;
+    if (commConfig.productionSize.width === 16) {
+        gradient = {
+            /*
+            //0: "rgb(153,255,255)",
+            0.25: "rgb(0,255,255)",
+            0.45: "rgb(0,255,0)",
+            0.65: "rgb(255,255,0)",
+            0.85: "rgb(255,0,0)" //,
+            //1.0: "rgb(153,0,51)"
+            */
+            0.15: "rgb(176,225,255)",
+            0.25: "rgb(1,139,250)",
+            0.35: "rgb(5,252,241)",
+            0.45: "rgb(48,254,5)",
+            0.55: "rgb(202,255,0)",
+            0.65: "rgb(252,255,13)",
+            0.75: "rgb(252,146,2)",
+            0.85: "rgb(249,97,0)",
+            0.95: "rgb(255,0,13)"
+        };
+    } else {
+        gradient = {
+            /*
+            0.4: "rgb(153,255,255)",
+            0.8: "rgb(0,255,255)",
+            0.88: "rgb(0,255,0)",
+            0.95: "rgb(255,255,0)",
+            0.995: "rgb(255,0,0)"
+            */
+            0.4: "rgb(176,225,255)",
+            0.52: "rgb(1,139,250)",
+            0.65: "rgb(5,252,241)",
+            0.75: "rgb(48,254,5)",
+            0.78: "rgb(202,255,0)",
+            0.85: "rgb(252,255,13)",
+            0.88: "rgb(252,146,2)",
+            0.9: "rgb(249,97,0)",
+            0.93: "rgb(255,0,13)"
+        };
+    }
     /*
-        var gradient = null;
-        if (commConfig.productionSize.width === 16) {
-            gradient = {
-                //0: "rgb(153,255,255)",
-                0.25: "rgb(0,255,255)",
-                0.45: "rgb(0,255,0)",
-                0.65: "rgb(255,255,0)",
-                0.85: "rgb(255,0,0)"//,
-                //1.0: "rgb(153,0,51)"
-            };
-        } else {
-            gradient = {
-                0.4: "rgb(153,255,255)",
-                0.8: "rgb(0,255,255)",
-                0.88: "rgb(0,255,0)",
-                0.95: "rgb(255,255,0)",
-                0.995: "rgb(255,0,0)"
-            };
-        }
-    */
     var gradient = {
         0.1: "rgb(176,196,222)",
         0.2: "rgb(65,105,225)",
@@ -450,6 +471,7 @@ var resetHeatmap = function() {
         0.8: "rgb(178,34,34)",
         0.9: "rgb(255,0,0)"
     };
+    */
     if ($('.heatmap-datainfo').length) {
         var html = '<ul class="legend-container">';
         var title = _getLocalesValue('langHeatmapTitleLegend', 'Sample: input number between 0 and 1(not include) that lager shows higher presure');

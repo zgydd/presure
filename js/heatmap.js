@@ -54,6 +54,7 @@ $('#heatmap-btnDoPort').on('click', function() {
         try {
             serialport.open(function(error) {
                 if (error) {
+                    $('#heatmap-btnDoPort').html(_getLocalesValue('langHeatmapBtnOpenPort', 'Connection'));
                     alert(error);
                 } else {
                     _statData.portOpened = true;
