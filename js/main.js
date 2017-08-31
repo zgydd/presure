@@ -35,6 +35,7 @@ var getSaveData = function() {
     saveData.islandPoint = commConfig.islandPoint;
     saveData.autoCalibration = commConfig.autoCalibration;
     saveData.delayedSampling = commConfig.delayedSampling;
+    saveData.binaryImageFilter = commConfig.binaryImageFilter;
     saveData.filterTimes = commConfig.filterTimes;
     saveData.sobelThreshold = commConfig.sobelThreshold;
     saveData.leaveJudge = commConfig.leaveJudge;
@@ -77,6 +78,7 @@ var commConfig = {
     alertFreque: 120,
     alertTime: 3,
     delayedSampling: 31,
+    binaryImageFilter: 80,
     filterTimes: 3,
     sobelThreshold: 68,
     leaveJudge: 10,
@@ -124,8 +126,20 @@ var _statData = {
     inEdgeDetectionRange: false,
     inSkeletonDetectionRange: false,
     //delayScaleList: [],
-    calibrationData: []
+    calibrationData: [],
+    //May need a array to keep any record's timeout handle with record's index
+    playHandle: 0,
+    workingScope: null,
+    inRecord: false
 };
+
+var _collectedSrcData = {
+    startTimestamp: 0,
+    finishedTimestamp: 0,
+    canvasData: []
+};
+
+var _collectedStepList = [];
 
 //heatmap data
 var heatmapInstance = null;
@@ -221,7 +235,13 @@ var callConfig = function() {
     $("#main-content").load('pages/config.html');
     $("#main-content").fadeIn(666);
 };
-
+var callRecord = function() {
+    if (_statData.activedPage === 'record') return;
+    _statData.activedPage = 'record';
+    $("#main-content").hide();
+    $("#main-content").load('pages/record.html');
+    $("#main-content").fadeIn(666);
+};
 var callScale = function() {
     if (_statData.activedPage === 'scales') return;
     _statData.activedPage = 'scales';
@@ -310,6 +330,7 @@ var setConfig = function(data) {
     if (data.hasOwnProperty('islandPoint')) commConfig.islandPoint = _toInt(data.islandPoint);
     if (data.hasOwnProperty('autoCalibration')) commConfig.autoCalibration = _toInt(data.autoCalibration);
     if (data.hasOwnProperty('delayedSampling')) commConfig.delayedSampling = _toInt(data.delayedSampling);
+    if (data.hasOwnProperty('binaryImageFilter')) commConfig.binaryImageFilter = _toInt(data.binaryImageFilter);
 
     if (data.hasOwnProperty('filterTimes')) commConfig.filterTimes = _toInt(data.filterTimes);
     if (data.hasOwnProperty('sobelThreshold')) commConfig.sobelThreshold = _toInt(data.sobelThreshold);
@@ -364,23 +385,6 @@ var _destoryMe = function() {
     _commonConstant = null;
     $('body').empty();
 };
-/*
-var _formatABufferData = function(startIdx, endIdx, bufferData) {
-    if (endIdx - startIdx != 5) return;
-    var x = parseInt(bufferData[startIdx]);
-    var y = parseInt(bufferData[startIdx + 1]);
-    if (y >= innerData.length || x >= innerData[0].length) return;
-
-    var recordData = [];
-    for (var i = startIdx + 2; i < endIdx; i++) {
-        recordData.push(_hex2char(bufferData[i].toString(16)));
-    }
-    var numData = parseInt(new String(recordData[0] + recordData[1] + recordData[2]), 16);
-    if (innerData[y][x] != numData) {
-        innerData[y][x] = numData;
-    }
-};
-*/
 var resetSerialPort = function() {
     try {
         if (serialport && serialport.isOpen()) {
@@ -522,7 +526,7 @@ var resetHeatmap = function() {
         radius: commConfig.radius * (commConfig.productionSize.width === 16 ? 1.4 : 2.1),
         container: document.querySelector('.heatmap')
     };
-    cfg.backgroundColor = 'rgba(0,0,0,0.8)';
+    cfg.backgroundColor = 'rgba(0,0,255,0.8)';
     /*
     if (!commConfig.heatmapNoBg) {
         cfg.backgroundColor = 'rgba(0,0,180,0.8)';
@@ -551,7 +555,7 @@ var setHeatMap = function(innerData) {
                 maxPoint.x = (i >= 10) ? i : '0' + i;
                 maxPoint.y = (j >= 10) ? j : '0' + j;
                 realMax = numData;
-            };
+            }
             numData = (numData < commConfig.noiseLimit.min) ? 0 : numData;
             numData = (numData > 1023) ? 1023 : numData;
             /*
@@ -604,7 +608,7 @@ var setHeatMap = function(innerData) {
                         break;
                 }
             }
-            if (numData > 5) {
+            if (numData > 18) {
                 points.push({
                     x: i * radius + radius,
                     y: j * radius + radius,
@@ -613,6 +617,7 @@ var setHeatMap = function(innerData) {
             }
         }
     }
+
     // heatmap data format
     var data = {
         //max: (max === 0) ? 1024 : max,
@@ -626,45 +631,88 @@ var setHeatMap = function(innerData) {
     // if you have a set of datapoints always use setData instead of addData
     // for data initialization
     heatmapInstance.setData(data);
-    if ($('.heatmap canvas').length > 0 && serialport && serialport.isOpen()) {
-        var canvas = $('.heatmap canvas').get(0);
-        var ctx = canvas.getContext("2d");
-        var imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-        if (!_statData.inEdgeDetectionRange) {
-            _statData.inEdgeDetectionRange = true;
-            var inner = [];
-            var row = [];
-            for (var i = 0; i < imgData.length; i += 4) {
-                if (imgData[i] === null) continue;
-                row.push((((imgData[i] * 299 + imgData[i + 1] * 587 + imgData[i + 2] * 114 + 500) / 1000) /* (imgData[i + 3] / 255)*/ ));
-                //row.push(imgData[i + 3]);
-                if (row.length === canvas.width) {
-                    inner.push(row.slice(0));
-                    row.length = 0;
+    if (_statData.inRecord) {
+        if (!_statData.calibrationData.length ||
+            _statData.calibrationData.length !== commConfig.productionSize.height ||
+            _statData.calibrationData[0].length !== commConfig.productionSize.width) {
+            _getCalibrationData();
+        } else {
+            //console.log('points.length:' + points.length);
+            //need another check
+            if (points.length >= 0 && points.length < 45) {
+                //console.log('_collectedSrcData:' + _collectedSrcData.startTimestamp + '--' + _collectedSrcData.finishedTimestamp);
+                if (_collectedSrcData.startTimestamp && !_collectedSrcData.finishedTimestamp) {
+                    _collectedSrcData.finishedTimestamp = (new Date()).getTime() - 1000;
+                    _resetAndReportCollection();
                 }
+            } else if (!_collectedSrcData.startTimestamp) {
+                _collectedSrcData.startTimestamp = (new Date()).getTime();
+                _collectedSrcData.canvasData.length = 0;
+                $('.heatmap-container > canvas').remove('.part-step');
             }
-            var postData = {};
-            postData.imgData = inner;
-            postData.filterTimes = commConfig.filterTimes;
-            edgeDetectionWorker.postMessage(JSON.stringify(postData));
         }
-        if (!_statData.inSkeletonDetectionRange) {
-            _statData.inSkeletonDetectionRange = true;
-            var inner = [];
-            var row = [];
-            for (var i = 0; i < imgData.length; i += 4) {
-                if (imgData[i] === null) continue;
-                if (imgData[i + 3] > 0) row.push(1);
-                else row.push(0);
-                if (row.length === canvas.width) {
-                    inner.push(row.slice(0));
-                    row.length = 0;
-                }
+    }
+    if ($('.heatmap canvas').length > 0 && serialport && serialport.isOpen()) {
+        if (_statData.inRecord) {
+            var canvas = $('.heatmap canvas').get(0);
+            var ctx = canvas.getContext("2d");
+            var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            var imgData = imageData.data;
+            if (_collectedSrcData.startTimestamp && !_collectedSrcData.finishedTimestamp) {
+                var activeTime = (new Date()).getTime();
+                var cavInStep = document.createElement('canvas');
+                cavInStep.width = canvas.width;
+                cavInStep.height = canvas.height;
+                cavInStep.id = activeTime;
+                $(cavInStep).addClass('part-step');
+                var ctxInStep = cavInStep.getContext("2d");
+                ctxInStep.putImageData(imageData, 0, 0);
+                _collectedSrcData.canvasData.push({
+                    timestamp: activeTime,
+                    image: cavInStep,
+                    imgData: ctxInStep.getImageData(0, 0, cavInStep.width, cavInStep.height).data
+                });
             }
-            var postData = {};
-            postData.binaryImg = inner;
-            postData.skeletonLimit = commConfig.skeletonLimit;
-            skeletonExtractionWorker.postMessage(JSON.stringify(postData));
+        } else {
+            var canvas = $('.heatmap canvas').get(0);
+            var ctx = canvas.getContext("2d");
+            var imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+            if (!_statData.inEdgeDetectionRange) {
+                _statData.inEdgeDetectionRange = true;
+                var inner = [];
+                var row = [];
+                for (var i = 0; i < imgData.length; i += 4) {
+                    if (imgData[i] === null) continue;
+                    row.push((((imgData[i] * 299 + imgData[i + 1] * 587 + imgData[i + 2] * 114 + 500) / 1000) /* (imgData[i + 3] / 255)*/ ));
+                    //row.push(imgData[i + 3]);
+                    if (row.length === canvas.width) {
+                        inner.push(row.slice(0));
+                        row.length = 0;
+                    }
+                }
+                var postData = {};
+                postData.imgData = inner;
+                postData.filterTimes = commConfig.filterTimes;
+                edgeDetectionWorker.postMessage(JSON.stringify(postData));
+            }
+            if (!_statData.inSkeletonDetectionRange) {
+                _statData.inSkeletonDetectionRange = true;
+                var inner = [];
+                var row = [];
+                for (var i = 0; i < imgData.length; i += 4) {
+                    if (imgData[i] === null) continue;
+                    if (imgData[i + 3] > 0) row.push(1);
+                    else row.push(0);
+                    if (row.length === canvas.width) {
+                        inner.push(row.slice(0));
+                        row.length = 0;
+                    }
+                }
+                var postData = {};
+                postData.binaryImg = inner;
+                postData.skeletonLimit = commConfig.skeletonLimit;
+                skeletonExtractionWorker.postMessage(JSON.stringify(postData));
+            }
         }
     }
 };

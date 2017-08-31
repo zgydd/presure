@@ -6,6 +6,8 @@ $(document).ready(function() {
     if (!serialport || !serialport.isOpen()) resetSerialPort();
     if (serialport && serialport.isOpen()) $('#heatmap-btnDoPort').html(_getLocalesValue('langHeatmapBtnClosePort', 'Deconnection'));
     else $('#heatmap-btnDoPort').html(_getLocalesValue('langHeatmapBtnOpenPort', 'Connection'));
+    if (!_statData.inRecord) $('#heatmap-btnCtrlRecord').html(_getLocalesValue('langHeatmapBtnStartRecord', 'Start'));
+    else $('#heatmap-btnCtrlRecord').html(_getLocalesValue('langHeatmapBtnEndRecord', 'Finished'));
     $('#heatmap-labBack').html(_statData.me.backCounter);
     $('#heatmap-labLeave').html(_statData.me.leaveCounter);
     $('#heatmap-labSelfTurn').html(_statData.me.selfTurnCounter);
@@ -33,8 +35,17 @@ $('#heatmap-btnReset').on('click', function() {
     _statData.calibrationData.length = 0;
     heatmapInstance.repaint();
 });
+$('#heatmap-btnCtrlRecord').on('click', function() {
+    if (_statData.inRecord) $('#heatmap-btnCtrlRecord').html(_getLocalesValue('langHeatmapBtnStartRecord', 'Start'));
+    else $('#heatmap-btnCtrlRecord').html(_getLocalesValue('langHeatmapBtnEndRecord', 'Finished'));
+    _getCalibrationData();
+    setHeatMap(innerData);
+    heatmapInstance.repaint();
+    _statData.inRecord = !_statData.inRecord;
+});
 
 $('#heatmap-btnDoPort').on('click', function() {
+    _statData.reOpenDelayCnt = 0;
     if (window.MyApp) {
         try {
             window.MyApp.callData();
@@ -48,6 +59,7 @@ $('#heatmap-btnDoPort').on('click', function() {
             _statData.portOpened = false;
             if (_statData.portListener) clearInterval(_statData.portListener);
             _statData.portListener = 0;
+            resetSerialPort();
         }, 0);
         $('#heatmap-btnDoPort').html(_getLocalesValue('langHeatmapBtnOpenPort', 'Connection'));
     } else {
@@ -58,6 +70,7 @@ $('#heatmap-btnDoPort').on('click', function() {
                     alert(error);
                 } else {
                     _statData.portOpened = true;
+                    if (_statData.portListener) clearInterval(_statData.portListener);
                     _statData.portListener = setInterval(_chkPortListener, 500);
                     _bindSerialportEmitter();
                 }

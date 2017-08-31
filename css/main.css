@@ -345,7 +345,7 @@ main {
 }
 #heatmap-content .heatmap-datainfo input {
     text-align: right;
-    width:8em;
+    width: 8em;
     margin-left: 2em;
 }
 #heatmap-content .heatmap-symbol {
@@ -372,6 +372,45 @@ main {
 }
 .heatmap {
     z-index: 10;
+}
+#record-content {
+    width: auto;
+    margin: 0 1em;
+}
+.record-list-container, .record-container {
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+.record-list-container {
+    padding: 0.5em 1em;
+}
+.record-container .record-title {
+    margin-left: 2em;
+    font-size: large;
+}
+.btn-in-record {
+    padding: 0.5em;
+    margin: 0.25em 0.5em;
+}
+.record-part > .btn-primary {
+    display: block;
+    width: 100%;
+}
+.record-container > div {
+    border: 1px solid #eee;
+    padding: 0.25em;
+}
+.record-container > div > canvas {
+    display: block;
+    margin: 0 auto;
+}
+.record-container > div > article.panel {
+    margin: 0 auto;
+}
+.record-container > div > article.panel > .panel-heading > i {
+    float: right;
+    cursor: pointer;
+    margin-left: 1em;
 }
 /*
 #edgeCav {

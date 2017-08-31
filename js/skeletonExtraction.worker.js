@@ -1,4 +1,7 @@
 'use strict';
+//  p9 p2 p3  
+//  p8 p1 p4  
+//  p7 p6 p5  
 var _thinImage = function(matrix, skeletonLimit) {
 	if (!matrix || !matrix.length || !matrix[0].length) return matrix;
 	var ite = (!skeletonLimit || isNaN(parseInt(skeletonLimit))) ? 0 : parseInt(skeletonLimit);
@@ -6,7 +9,8 @@ var _thinImage = function(matrix, skeletonLimit) {
 	var height = matrix.length;
 	var count = 0;
 	while (true) {
-		if (ite && count++ > ite) break;
+		count++;
+		if (ite && count > ite) break;
 		var delMark = [];
 		for (var i = 0; i < height; i++) {
 			for (var j = 0; j < width; j++) {
@@ -85,7 +89,7 @@ var _thinImage = function(matrix, skeletonLimit) {
 		}
 		delMark.length = 0;
 	}
-	return matrix;
+	return count;
 };
 onmessage = function(event) {
 	//postMessage(event.data);
@@ -94,6 +98,7 @@ onmessage = function(event) {
 	var binaryImgData = (sourceData.binaryImg && sourceData.binaryImg.length && sourceData.binaryImg[0].length) ? sourceData.binaryImg : null;
 	var skeletonLimit = sourceData.skeletonLimit ? sourceData.skeletonLimit : 0;
 	var skeleton = null;
+	var skeletonTimes = -1;
 	if (binaryImgData) {
 		var innerMatrix = [];
 		//var maxValue = 0;
@@ -105,9 +110,10 @@ onmessage = function(event) {
 			}
 			innerMatrix.push(row);
 		}
-		skeleton = _thinImage(innerMatrix, skeletonLimit);
+		skeletonTimes = _thinImage(innerMatrix, skeletonLimit);
 	}
 	postMessage(JSON.stringify({
-		skeleton: skeleton
+		skeletonTimes: skeletonTimes,
+		skeleton: innerMatrix
 	}));
 };

@@ -12,7 +12,7 @@ $(document).ready(function() {
 		if (commConfig.hasOwnProperty('islandPoint')) $('#config-inputIslandPoint').val(commConfig.islandPoint);
 		if (commConfig.hasOwnProperty('autoCalibration')) $('#config-inputAutoCalibration').val(commConfig.autoCalibration);
 		if (commConfig.hasOwnProperty('delayedSampling')) $('#config-inputDelayedSampling').val(commConfig.delayedSampling);
-
+		if (commConfig.hasOwnProperty('binaryImageFilter')) $('#config-inputBinaryImageFilter').val(commConfig.binaryImageFilter);
 		if (commConfig.hasOwnProperty('filterTimes')) $('#config-inputFilterTimes').val(commConfig.filterTimes);
 		if (commConfig.hasOwnProperty('sobelThreshold')) $('#config-inputSobelThreshold').val(commConfig.sobelThreshold);
 		if (commConfig.hasOwnProperty('leaveJudge')) $('#config-inputLeaveJudge').val(commConfig.leaveJudge);
@@ -316,6 +316,22 @@ $('#config-inputDelayedSampling').on('blur', function() {
 	_showMessage('ok', _getLocalesValue('langConfigMsgDelayedSampling', 'Delayed Sampling setted'));
 });
 $('#config-inputDelayedSampling').on('keydown', _setEnterCommit);
+$('#config-inputBinaryImageFilter').on('blur', function() {
+	if (_chkEqual(commConfig.binaryImageFilter, $('#config-inputBinaryImageFilter').val())) return;
+	if (!/^\d{1,3}$/.test($('#config-inputBinaryImageFilter').val().trim())) {
+		_showMessage('warn', _getLocalesValue('langConfigWrnBinaryImageFilter', 'Illegal binary image filter'));
+		$('#config-inputBinaryImageFilter').parent().addClass('alert-danger');
+		$('#config-inputBinaryImageFilter').val(commConfig.binaryImageFilter);
+		$('#config-inputBinaryImageFilter').focus();
+		setTimeout(function() {
+			$('#config-inputBinaryImageFilter').parent().removeClass('alert-danger');
+		}, 888);
+		return;
+	}
+	commConfig.binaryImageFilter = _toInt($('#config-inputBinaryImageFilter').val());
+	_showMessage('ok', _getLocalesValue('langConfigMsgBinaryImageFilter', 'Binary Image Filter setted'));
+});
+$('#config-inputBinaryImageFilter').on('keydown', _setEnterCommit);
 $('#config-inputFilterTimes').on('blur', function() {
 	if (_chkEqual(commConfig.filterTimes, $('#config-inputFilterTimes').val())) return;
 	if (!/^\d{1,2}$/.test($('#config-inputFilterTimes').val().trim()) ||

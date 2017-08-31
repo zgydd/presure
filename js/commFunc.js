@@ -156,7 +156,38 @@ Date.prototype.getDiff = function(oldTimeStamp) {
 	var leave3 = leave2 % (60 * 1000);
 	var seconds = Math.round(leave3 / 1000);
 
-	return days + " : " + hours + " : " + minutes + " : " + seconds;
+	var result = {};
+	switch (true) {
+		case (days > 0):
+			result.d = days;
+			result.h = hours;
+			result.m = minutes;
+			result.s = seconds;
+			break;
+		case (days <= 0 && hours > 0):
+			result.h = hours;
+			result.m = minutes;
+			result.s = seconds;
+			break;
+		case (days <= 0 && hours <= 0 && minutes > 0):
+			result.m = minutes;
+			result.s = seconds;
+			break;
+		case (days <= 0 && hours <= 0 && minutes <= 0 && seconds > 0):
+			result.s = seconds;
+			break;
+		default:
+			result = null;
+			break;
+	}
+	return result;
+};
+Array.prototype.clone = function() {
+	var result = [];
+	for (var i = 0; i < this.length; i++) {
+		result.push(this[i]);
+	}
+	return result;
 };
 
 //No used
